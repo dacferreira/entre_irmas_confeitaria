@@ -1,0 +1,19 @@
+<section
+  class="pagina"
+  [class.pagina--estreita]="largura() === 'estreita'"
+  [class.pagina--centro]="alinhamento() === 'centro'">
+  <header class="pagina__cabecalho container">
+    @if (sobretitulo()) {
+      <span class="sobretitulo">{{ sobretitulo() }}</span>
+    }
+    <h1 class="pagina__titulo">{{ titulo() }}</h1>
+    @if (subtitulo()) {
+      <p class="pagina__subtitulo">{{ subtitulo() }}</p>
+    }
+    <ng-content select="[acoes]" />
+  </header>
+
+  <div class="pagina__conteudo container">
+    <ng-content />
+  </div>
+</section>

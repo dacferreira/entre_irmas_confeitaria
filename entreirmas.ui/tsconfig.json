@@ -1,0 +1,53 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "baseUrl": "./",
+    "paths": {
+      "@components/*": ["src/app/shared/components/*"],
+      "@models/*": ["src/app/shared/models/*"],
+      "@services/*": ["src/app/shared/services/*"],
+      "@pipes/*": ["src/app/shared/pipes/*"],
+      "@directives/*": ["src/app/shared/directives/*"],
+      "@guards/*": ["src/app/shared/guards/*"],
+      "@interceptors/*": ["src/app/shared/interceptors/*"],
+      "@constants/*": ["src/app/shared/constants/*"],
+      "@validators/*": ["src/app/shared/validators/*"],
+      "@environments/*": ["src/environments/*"],
+      "@testing/*": ["src/testing/*"],
+      "@inicio/*": ["src/app/pages/inicio/*"],
+      "@cardapio/*": ["src/app/pages/cardapio/*"],
+      "@produto/*": ["src/app/pages/produto/*"],
+      "@finalizar-pedido/*": ["src/app/pages/finalizar-pedido/*"],
+      "@pedido-confirmado/*": ["src/app/pages/pedido-confirmado/*"],
+      "@nao-encontrado/*": ["src/app/pages/nao-encontrado/*"]
+    }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+<div class="produto container">
+  @switch (estado().situacao) {
+    @case ('carregando') {
+      <div class="produto__grade" aria-busy="true">
+        <div class="esqueleto produto__esqueleto-visual"></div>
+        <div class="produto__info">
+          <div class="esqueleto produto__esqueleto-linha"></div>
+          <div class="esqueleto produto__esqueleto-titulo"></div>
+          <div class="esqueleto produto__esqueleto-linha"></div>
+        </div>
+      </div>
+    }
+    @case ('erro') {
+      <div class="nao-achou">
+        <eirm-ilustracao class="nao-achou__ilustracao" tipo="brownie" />
+        <h1 class="nao-achou__titulo">Esse doce saiu do forno… e do cardápio</h1>
+        <p class="texto-suave">Ele pode ter acabado ou mudado de nome.</p>
+        <a class="botao" [routerLink]="['/', rotas.CARDAPIO]">Ver o cardápio</a>
+      </div>
+    }
+    @case ('pronto') {
+      @if (produto(); as produto) {
+        <nav class="trilha" aria-label="Você está em">
+          <a [routerLink]="['/', rotas.CARDAPIO]">Cardápio</a>
+          <span aria-hidden="true">/</span>
+          <a [routerLink]="['/', rotas.CARDAPIO]" [queryParams]="{ categoria: produto.categoriaSlug }">
+            {{ produto.categoriaNome }}
+          </a>
+        </nav>
+
+        <div class="produto__grade">
+          <div class="produto__visual" [attr.data-sabor]="sabor()">
+            @if (produto.urlImagem; as urlImagem) {
+              <img [src]="urlImagem" [alt]="produto.nome" width="640" height="640" />
+            } @else {
+              <eirm-ilustracao class="produto__ilustracao" [tipo]="produto.ilustracao" [rotulo]="produto.nome" />
+            }
+            @if (produto.destaque) {
+              <span class="produto__selo">Queridinho da casa</span>
+            }
+          </div>
+
+          <div class="produto__info">
+            <span class="sobretitulo">{{ produto.categoriaNome }}</span>
+            <h1 class="produto__nome">{{ produto.nome }}</h1>
+            <p class="produto__preco">
+              <strong>{{ produto.preco | currency }}</strong>
+              <span>/ {{ produto.unidade }}</span>
+            </p>
+            <p class="produto__descricao">{{ produto.descricao }}</p>
+
+            @if (produto.quantidadeMinima > 1) {
+              <p class="produto__minimo">
+                <span aria-hidden="true">✦</span> Pedido mínimo de {{ produto.quantidadeMinima }} unidades
+              </p>
+            }
+
+            <div class="compra">
+              <eirm-seletor-quantidade
+                [(valor)]="quantidade"
+                [minimo]="produto.quantidadeMinima"
+                [rotulo]="'Quantidade de ' + produto.nome" />
+              <button type="button" class="botao compra__botao" (click)="adicionar()">
+                Adicionar · {{ subtotal() | currency }}
+              </button>
+            </div>
+
+            @if (naSacola() > 0) {
+              <p class="produto__na-sacola">Você já tem {{ naSacola() }} na sacola.</p>
+            }
+
+            <ul class="produto__garantias">
+              <li>Feito à mão, sob encomenda</li>
+              <li>Confirmação e pagamento pelo WhatsApp</li>
+              <li>Retirada ou entrega combinada</li>
+            </ul>
+          </div>
+        </div>
+
+        @if (relacionados().length > 0) {
+          <section class="relacionados" aria-labelledby="titulo-relacionados">
+            <h2 id="titulo-relacionados" class="titulo-secao">Combina <em>com isso</em></h2>
+            <div class="relacionados__grade">
+              @for (relacionado of relacionados(); track relacionado.id) {
+                <eirm-card-produto [produto]="relacionado" />
+              }
+            </div>
+          </section>
+        }
+      }
+    }
+  }
+</div>

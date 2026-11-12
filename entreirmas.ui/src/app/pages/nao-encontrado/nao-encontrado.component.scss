@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+.vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.vazio__ilustracao {
+  width: min(260px, 70vw);
+  animation: balancar 3s ease-in-out infinite;
+}
+
+.vazio__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+@keyframes balancar {
+  50% {
+    transform: rotate(-6deg) translateY(-6px);
+  }
+}

@@ -1,0 +1,64 @@
+<header class="cabecalho" [class.cabecalho--rolado]="rolado() || menuAberto()">
+  <div class="cabecalho__barra container">
+    <a class="marca" routerLink="/" (click)="fecharMenu()" aria-label="Entre Irmãs Confeitaria, página inicial">
+      <svg class="marca__simbolo" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="24" fill="#fbd3de" />
+        <path d="M14 26h20l-3 13H17z" fill="#c5dc9a" />
+        <path d="M11 27c0-5 4-7 8-7h10c4 0 8 2 8 7 0 1.5-1 2-2.5 2h-21C12 29 11 28.5 11 27z" fill="#f6b8c8" />
+        <path d="M16 21c0-5 4-8 8-8s8 3 8 8z" fill="#c2385f" />
+        <circle cx="24" cy="11" r="3.5" fill="#e23f55" />
+      </svg>
+      <span class="marca__texto">
+        <span class="marca__nome">Entre Irmãs</span>
+        <span class="marca__sub">confeitaria</span>
+      </span>
+    </a>
+
+    <nav class="menu" [class.menu--aberto]="menuAberto()" aria-label="Principal" id="menu-principal">
+      <a
+        class="menu__link"
+        routerLink="/"
+        routerLinkActive="menu__link--ativo"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="fecharMenu()">
+        Início
+      </a>
+      <a
+        class="menu__link"
+        [routerLink]="['/', rotas.CARDAPIO]"
+        routerLinkActive="menu__link--ativo"
+        (click)="fecharMenu()">
+        Cardápio
+      </a>
+      <a class="menu__link" routerLink="/" fragment="como-funciona" (click)="fecharMenu()">Como funciona</a>
+    </nav>
+
+    <div class="cabecalho__acoes">
+      <button
+        type="button"
+        class="botao-sacola"
+        [attr.aria-label]="'Abrir sacola, ' + sacola.quantidadeDeItens() + ' itens'"
+        (click)="abrirSacola()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 8h12l-1 12H7z" />
+          <path d="M9 8V7a3 3 0 0 1 6 0v1" />
+        </svg>
+        <span class="botao-sacola__texto">Sacola</span>
+        @if (sacola.quantidadeDeItens() > 0) {
+          <span class="botao-sacola__contador">{{ sacola.quantidadeDeItens() }}</span>
+        }
+      </button>
+
+      <button
+        type="button"
+        class="botao-menu"
+        aria-controls="menu-principal"
+        [attr.aria-expanded]="menuAberto()"
+        [attr.aria-label]="menuAberto() ? 'Fechar menu' : 'Abrir menu'"
+        (click)="alternarMenu()">
+        <span class="botao-menu__linha"></span>
+        <span class="botao-menu__linha"></span>
+      </button>
+    </div>
+  </div>
+</header>

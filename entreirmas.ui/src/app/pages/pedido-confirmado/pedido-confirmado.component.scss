@@ -1,0 +1,138 @@
+:host {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+.confetes {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 100%;
+  pointer-events: none;
+}
+
+.confete {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+  opacity: 0;
+  animation: cair 2.8s cubic-bezier(0.25, 0.6, 0.4, 1) forwards;
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: clamp(24px, 4vw, 40px);
+  border-radius: var(--raio-g);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-flutuante);
+  text-align: left;
+}
+
+.cartao__rotulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cor-texto-suave);
+  text-align: center;
+}
+
+.cartao__codigo {
+  margin-top: -10px;
+  font-family: var(--fonte-display);
+  font-size: clamp(2.4rem, 8vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--cor-primaria);
+}
+
+.cartao__whats {
+  min-height: 58px;
+  font-size: 1.1rem;
+}
+
+.cartao__detalhes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0;
+
+  div {
+    padding: 14px;
+    border-radius: var(--raio-p);
+    background: var(--cor-fundo-alt);
+  }
+
+  dt {
+    font-size: 0.8rem;
+    color: var(--cor-texto-suave);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 700;
+  }
+}
+
+.cartao__itens {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}
+
+.cartao__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px dashed var(--cor-borda);
+  font-weight: 700;
+
+  strong {
+    font-family: var(--fonte-display);
+    font-size: 1.8rem;
+  }
+}
+
+.voltar {
+  display: inline-block;
+  margin-top: 24px;
+  font-weight: 700;
+  color: var(--cor-primaria);
+}
+
+.sem-pedido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.sem-pedido__ilustracao {
+  width: 180px;
+}
+
+@keyframes cair {
+  10% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(80vh) rotate(540deg);
+  }
+}

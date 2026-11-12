@@ -1,0 +1,92 @@
+<eirm-hero />
+
+<div class="faixa" aria-hidden="true">
+  <div class="faixa__trilho">
+    @for (palavra of faixa(); track $index) {
+      <span class="faixa__item">{{ palavra }}</span>
+    }
+  </div>
+</div>
+
+@if (vitrine().length > 0) {
+  <section class="secao container" aria-labelledby="titulo-categorias">
+    <div class="secao__topo">
+      <div>
+        <span class="sobretitulo">Escolha pelo desejo</span>
+        <h2 id="titulo-categorias" class="titulo-secao">Hoje eu quero <em>um pouco de tudo</em></h2>
+      </div>
+    </div>
+
+    <ul class="vitrine">
+      @for (item of vitrine(); track item.categoria.id) {
+        <li>
+          <a
+            class="vitrine__card"
+            [attr.data-sabor]="item.ilustracao"
+            [routerLink]="['/', rotas.CARDAPIO]"
+            [queryParams]="{ categoria: item.categoria.slug }">
+            <eirm-ilustracao class="vitrine__ilustracao" [tipo]="item.ilustracao" />
+            <span class="vitrine__nome">{{ item.categoria.nome }}</span>
+            <span class="vitrine__quantidade">
+              {{ item.categoria.quantidadeProdutos }}
+              {{ item.categoria.quantidadeProdutos === 1 ? 'opção' : 'opções' }}
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  </section>
+}
+
+<section class="secao container" aria-labelledby="titulo-destaques">
+  <div class="secao__topo">
+    <div>
+      <span class="sobretitulo">Os mais pedidos</span>
+      <h2 id="titulo-destaques" class="titulo-secao">Queridinhos <em>da casa</em></h2>
+    </div>
+    <a class="botao botao--contorno" [routerLink]="['/', rotas.CARDAPIO]">Cardápio completo</a>
+  </div>
+
+  @if (carregando()) {
+    <div class="grade">
+      @for (esqueleto of esqueletos; track esqueleto) {
+        <div class="esqueleto grade__esqueleto"></div>
+      }
+    </div>
+  } @else if (falhou()) {
+    <div class="aviso">
+      <p>Não conseguimos carregar o cardápio agora.</p>
+      <a class="botao botao--whatsapp" [href]="contato.linkWhatsApp()" target="_blank" rel="noopener">
+        Peça direto pelo WhatsApp
+      </a>
+    </div>
+  } @else {
+    <div class="grade">
+      @for (produto of destaques(); track produto.id) {
+        <eirm-card-produto [produto]="produto" />
+      }
+    </div>
+  }
+</section>
+
+<eirm-como-funciona />
+
+<section class="secao container historia" aria-labelledby="titulo-historia">
+  <div class="historia__texto">
+    <span class="sobretitulo">Nossa cozinha</span>
+    <h2 id="titulo-historia" class="titulo-secao">O nome já diz: <em>é coisa de família</em></h2>
+    <p class="texto-suave">
+      Cada doce sai da nossa cozinha feito à mão, em pequenas fornadas e sob encomenda, para chegar fresquinho
+      na sua mesa. Acompanhe os preparos, os bastidores e o que a clientela anda dizendo no Instagram.
+    </p>
+    <a class="botao" [href]="contato.instagramUrl" target="_blank" rel="noopener">
+      Seguir {{ contato.instagramUsuario }}
+    </a>
+  </div>
+  <div class="historia__mosaico" aria-hidden="true">
+    <div class="historia__peca" data-sabor="bolo-pote"><eirm-ilustracao tipo="bolo-pote" /></div>
+    <div class="historia__peca" data-sabor="fudge"><eirm-ilustracao tipo="fudge" /></div>
+    <div class="historia__peca" data-sabor="torta"><eirm-ilustracao tipo="torta" /></div>
+    <div class="historia__peca" data-sabor="salgado"><eirm-ilustracao tipo="salgado" /></div>
+  </div>
+</section>

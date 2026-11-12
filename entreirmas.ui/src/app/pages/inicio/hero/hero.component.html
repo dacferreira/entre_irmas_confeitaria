@@ -1,0 +1,69 @@
+<section class="hero">
+  <div class="hero__grade container">
+    <div class="hero__texto">
+      <span class="sobretitulo">Confeitaria artesanal · sob encomenda</span>
+
+      <h1 class="hero__titulo">
+        Doce feito
+        <em class="hero__destaque">
+          entre irmãs
+          <svg class="hero__risco" viewBox="0 0 300 24" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M4 16c40-10 80-12 120-6s90 8 172-4" />
+          </svg>
+        </em>
+        pra adoçar o seu dia.
+      </h1>
+
+      <p class="hero__descricao">
+        Bolos, brownies, docinhos e salgados feitos à mão, com receitas de família. Monte sua sacola aqui e
+        finalize o pedido pelo WhatsApp.
+      </p>
+
+      <div class="hero__acoes">
+        <a class="botao" [routerLink]="['/', rotas.CARDAPIO]">
+          Ver cardápio
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+          </svg>
+        </a>
+        <a class="botao botao--contorno" [href]="linkWhatsApp" target="_blank" rel="noopener">Falar no WhatsApp</a>
+      </div>
+
+      <ul class="hero__selos">
+        <li><span aria-hidden="true">🧁</span> Feito à mão</li>
+        <li><span aria-hidden="true">📅</span> Sob encomenda</li>
+        <li><span aria-hidden="true">💬</span> Confirmação no WhatsApp</li>
+      </ul>
+    </div>
+
+    <div class="hero__visual" aria-hidden="true">
+      <div class="hero__mancha"></div>
+      <div class="hero__principal"><eirm-ilustracao tipo="bolo" /></div>
+      <div class="hero__flutuante hero__flutuante--a"><eirm-ilustracao tipo="brigadeiro" /></div>
+      <div class="hero__flutuante hero__flutuante--b"><eirm-ilustracao tipo="brownie" /></div>
+      <div class="hero__flutuante hero__flutuante--c"><eirm-ilustracao tipo="cupcake" /></div>
+
+      <svg class="hero__carimbo" viewBox="0 0 120 120">
+        <defs>
+          <path id="hero-circulo" d="M60 60m-44 0a44 44 0 1 1 88 0a44 44 0 1 1-88 0" />
+        </defs>
+        <circle cx="60" cy="60" r="58" fill="#4a2a20" />
+        <!-- textLength = circunferência do caminho (2π·44 ≈ 276): o texto fecha a volta sem cortar. -->
+        <text>
+          <textPath href="#hero-circulo" textLength="272" lengthAdjust="spacing">feito à mão • com carinho •</textPath>
+        </text>
+        <path d="M60 74c-12-9-18-15-18-22a9 9 0 0 1 18-3 9 9 0 0 1 18 3c0 7-6 13-18 22z" fill="#ec6a91" />
+      </svg>
+
+      @for (granulado of granulados; track $index) {
+        <span
+          class="hero__granulado"
+          [style.left.%]="granulado.x"
+          [style.top.%]="granulado.y"
+          [style.rotate]="granulado.giro + 'deg'"
+          [style.background]="granulado.cor"
+          [style.animation-delay]="$index * 0.3 + 's'"></span>
+      }
+    </div>
+  </div>
+</section>

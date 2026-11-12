@@ -1,0 +1,33 @@
+// Pontos de quebra (mobile first).
+$pontos: (
+  'sm': 480px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1280px,
+);
+
+@mixin acima($ponto) {
+  @media (min-width: map-get($pontos, $ponto)) {
+    @content;
+  }
+}
+
+@mixin abaixo($ponto) {
+  @media (max-width: calc(#{map-get($pontos, $ponto)} - 0.02px)) {
+    @content;
+  }
+}
+
+@mixin sem-movimento {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+// Texto em uma ou mais linhas com reticências.
+@mixin limitar-linhas($linhas) {
+  display: -webkit-box;
+  -webkit-line-clamp: $linhas;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

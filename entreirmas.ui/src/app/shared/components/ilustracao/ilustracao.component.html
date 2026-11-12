@@ -1,0 +1,164 @@
+<svg
+  class="ilustracao"
+  viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg"
+  focusable="false"
+  [attr.role]="rotulo() ? 'img' : null"
+  [attr.aria-label]="rotulo() || null"
+  [attr.aria-hidden]="rotulo() ? null : 'true'"
+  [attr.data-tipo]="tipoNormalizado()">
+  @switch (tipoNormalizado()) {
+    @case ('bolo') {
+      <svg:g>
+        <ellipse cx="100" cy="174" rx="76" ry="9" fill="#4a2a20" opacity=".12" />
+        <ellipse cx="100" cy="162" rx="80" ry="12" fill="#fff" stroke="#f0dccd" stroke-width="3" />
+        <path d="M40 102h120v50a10 10 0 0 1-10 10H50a10 10 0 0 1-10-10z" fill="#6b3a2a" />
+        <rect x="40" y="126" width="120" height="9" fill="#f6b8c8" />
+        <rect x="40" y="143" width="120" height="5" fill="#4a2a20" opacity=".35" />
+        <path
+          d="M36 98c0-12 10-20 22-20h84c12 0 22 8 22 20v8c0 5-4 8-8 8s-8-3-8-8v-2c0-4-3-6-6-6s-6 2-6 6v12c0 5-4 8-8 8s-8-3-8-8v-8c0-4-3-6-6-6s-6 2-6 6v3c0 5-4 8-8 8s-8-3-8-8v-6c0-4-3-6-6-6s-6 2-6 6v15c0 5-4 8-8 8s-8-3-8-8v-12c0-4-3-6-6-6s-6 2-6 6v1c0 5-4 8-8 8s-8-3-8-8z"
+          fill="#ec6a91" />
+        <path d="M52 86c10-4 26-5 40-4" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity=".5" />
+        <path d="M62 66q10-8 20 0q0 14-10 20q-10-6-10-20z" fill="#e23f55" />
+        <path d="M65 64q7-6 14 0q-7 3-14 0z" fill="#7fb069" />
+        <path d="M90 58q10-8 20 0q0 14-10 20q-10-6-10-20z" fill="#e23f55" />
+        <path d="M93 56q7-6 14 0q-7 3-14 0z" fill="#7fb069" />
+        <path d="M118 66q10-8 20 0q0 14-10 20q-10-6-10-20z" fill="#e23f55" />
+        <path d="M121 64q7-6 14 0q-7 3-14 0z" fill="#7fb069" />
+        <circle cx="70" cy="72" r="1.4" fill="#ffd6a0" />
+        <circle cx="75" cy="77" r="1.4" fill="#ffd6a0" />
+        <circle cx="98" cy="64" r="1.4" fill="#ffd6a0" />
+        <circle cx="103" cy="70" r="1.4" fill="#ffd6a0" />
+        <circle cx="126" cy="72" r="1.4" fill="#ffd6a0" />
+        <circle cx="131" cy="77" r="1.4" fill="#ffd6a0" />
+      </svg:g>
+    }
+    @case ('bolo-pote') {
+      <svg:g>
+        <ellipse cx="100" cy="178" rx="52" ry="8" fill="#4a2a20" opacity=".12" />
+        <rect x="58" y="132" width="84" height="40" rx="14" fill="#6b3a2a" />
+        <rect x="58" y="116" width="84" height="20" fill="#fff4dc" />
+        <rect x="58" y="98" width="84" height="20" fill="#a0603f" />
+        <rect x="58" y="80" width="84" height="20" fill="#fff4dc" />
+        <path d="M58 80c8-8 14 4 22-2s14 4 22-2 14 4 22-2 10 2 18 2v6H58z" fill="#4a2a20" />
+        <rect x="54" y="62" width="92" height="112" rx="18" fill="#fff" fill-opacity=".35" stroke="#f0dccd" stroke-width="4" />
+        <path d="M66 74v84" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7" />
+        <rect x="48" y="46" width="104" height="20" rx="10" fill="#ec6a91" />
+        <rect x="56" y="50" width="40" height="5" rx="2.5" fill="#fff" opacity=".45" />
+        <path d="M148 40l20-24" stroke="#d9954a" stroke-width="7" stroke-linecap="round" />
+        <ellipse cx="144" cy="46" rx="11" ry="7" transform="rotate(-50 144 46)" fill="#e8b06a" />
+      </svg:g>
+    }
+    @case ('brownie') {
+      <svg:g>
+        <ellipse cx="100" cy="172" rx="70" ry="9" fill="#4a2a20" opacity=".12" />
+        <path d="M36 128l64 20 64-20v20l-64 20-64-20z" fill="#3a1f17" />
+        <path d="M36 128l64-20 64 20-64 20z" fill="#6b3a2a" />
+        <path d="M58 132l14 4 10-5M106 124l16 4" stroke="#a0603f" stroke-width="3" stroke-linecap="round" fill="none" />
+        <path d="M58 100l46 12 40-16v18l-40 16-46-12z" fill="#3a1f17" />
+        <path d="M58 100l40-16 46 12-40 16z" fill="#7a4532" />
+        <path d="M76 98l12 3 8-5M102 92l14 3" stroke="#a0603f" stroke-width="3" stroke-linecap="round" fill="none" />
+        <path d="M68 102q7-6 13 0t13 0 13 0 13 0" stroke="#ec6a91" stroke-width="3.5" stroke-linecap="round" fill="none" />
+        <path d="M84 84l6-3 4 4-5 3z" fill="#d9954a" />
+        <path d="M118 90l6-2 3 4-6 2z" fill="#d9954a" />
+        <path d="M54 134l5-2 3 4-5 2z" fill="#d9954a" />
+      </svg:g>
+    }
+    @case ('fudge') {
+      <svg:g>
+        <ellipse cx="100" cy="170" rx="64" ry="9" fill="#4a2a20" opacity=".12" />
+        <path d="M40 104h120c0 36-27 60-60 60s-60-24-60-60z" fill="#fbd3de" />
+        <path d="M100 134c-6-6-15-2-11 6l11 9 11-9c4-8-5-12-11-6z" fill="#fff" opacity=".85" />
+        <ellipse cx="100" cy="104" rx="60" ry="15" fill="#f6b8c8" />
+        <ellipse cx="100" cy="104" rx="51" ry="11" fill="#4a2a20" />
+        <path d="M76 103c12-9 34-9 46 0-10 6-26 6-34 1" stroke="#7a4532" stroke-width="4" fill="none" stroke-linecap="round" />
+        <path d="M134 98l34-46" stroke="#d9954a" stroke-width="7" stroke-linecap="round" />
+        <ellipse cx="129" cy="102" rx="13" ry="7" transform="rotate(-54 129 102)" fill="#e8b06a" />
+      </svg:g>
+    }
+    @case ('brigadeiro') {
+      <svg:g>
+        <ellipse cx="100" cy="166" rx="80" ry="9" fill="#4a2a20" opacity=".12" />
+        <path d="M28 126h48l-6 32H34z" fill="#ec6a91" />
+        <path d="M36 126l2 32M46 126l1 32M56 126v32M66 126l-1 32" stroke="#c2385f" stroke-width="2.5" />
+        <circle cx="52" cy="112" r="23" fill="#4a2a20" />
+        <rect x="42" y="98" width="7" height="3" rx="1.5" fill="#f8e3b0" transform="rotate(25 45 99)" />
+        <rect x="56" y="104" width="7" height="3" rx="1.5" fill="#ec6a91" transform="rotate(-30 59 105)" />
+        <rect x="44" y="114" width="7" height="3" rx="1.5" fill="#c5dc9a" transform="rotate(60 47 115)" />
+        <rect x="60" y="118" width="7" height="3" rx="1.5" fill="#f8e3b0" transform="rotate(-10 63 119)" />
+        <path d="M76 126h48l-6 32H82z" fill="#f8e3b0" />
+        <path d="M84 126l2 32M94 126l1 32M104 126v32M114 126l-1 32" stroke="#d9954a" stroke-width="2.5" />
+        <circle cx="100" cy="112" r="23" fill="#fff4dc" />
+        <circle cx="92" cy="104" r="2" fill="#f0dccd" />
+        <circle cx="106" cy="110" r="2" fill="#f0dccd" />
+        <circle cx="96" cy="120" r="2" fill="#f0dccd" />
+        <circle cx="110" cy="100" r="2" fill="#f0dccd" />
+        <rect x="98" y="86" width="4" height="9" rx="2" fill="#6b3a2a" />
+        <path d="M124 126h48l-6 32h-36z" fill="#c5dc9a" />
+        <path d="M132 126l2 32M142 126l1 32M152 126v32M162 126l-1 32" stroke="#9fbf6b" stroke-width="2.5" />
+        <circle cx="148" cy="112" r="23" fill="#f6a5bb" />
+        <circle cx="140" cy="104" r="2" fill="#fff" />
+        <circle cx="154" cy="108" r="2" fill="#fff" />
+        <circle cx="146" cy="120" r="2" fill="#fff" />
+        <circle cx="158" cy="118" r="2" fill="#fff" />
+        <path d="M40 100q6-6 12-4" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".35" />
+      </svg:g>
+    }
+    @case ('cupcake') {
+      <svg:g>
+        <ellipse cx="100" cy="172" rx="52" ry="8" fill="#4a2a20" opacity=".12" />
+        <path d="M58 110h84l-10 58H68z" fill="#c5dc9a" />
+        <path d="M74 110l5 58M88 110l3 58M102 110v58M116 110l-3 58M130 110l-5 58" stroke="#9fbf6b" stroke-width="4" />
+        <path d="M50 112c0-12 10-18 22-18h56c12 0 22 6 22 18 0 6-5 8-10 8H60c-5 0-10-2-10-8z" fill="#fbd3de" />
+        <path d="M62 94c0-12 10-18 20-18h36c10 0 20 6 20 18z" fill="#f6b8c8" />
+        <path d="M76 76c0-12 10-18 24-18s24 6 24 18z" fill="#ec6a91" />
+        <rect x="70" y="100" width="8" height="3" rx="1.5" fill="#f8e3b0" transform="rotate(30 74 101)" />
+        <rect x="118" y="104" width="8" height="3" rx="1.5" fill="#c5dc9a" transform="rotate(-25 122 105)" />
+        <rect x="92" y="84" width="8" height="3" rx="1.5" fill="#fff" transform="rotate(-40 96 85)" />
+        <rect x="108" y="70" width="8" height="3" rx="1.5" fill="#f8e3b0" transform="rotate(20 112 71)" />
+        <path d="M100 46c2-10 8-14 15-16" stroke="#6b3a2a" stroke-width="3" fill="none" stroke-linecap="round" />
+        <circle cx="100" cy="52" r="10" fill="#e23f55" />
+        <circle cx="96" cy="49" r="3" fill="#fff" opacity=".7" />
+      </svg:g>
+    }
+    @case ('torta') {
+      <svg:g>
+        <ellipse cx="100" cy="170" rx="76" ry="10" fill="#4a2a20" opacity=".12" />
+        <path d="M28 106v28c0 15 32 28 72 28s72-13 72-28v-28z" fill="#d9954a" />
+        <path d="M44 138v14M64 144v14M84 147v14M104 148v14M124 146v14M144 141v14M160 134v12" stroke="#b8732f" stroke-width="3" stroke-linecap="round" />
+        <ellipse cx="100" cy="106" rx="72" ry="26" fill="#e8b06a" />
+        <ellipse cx="100" cy="104" rx="60" ry="19" fill="#f3e57a" />
+        <circle cx="62" cy="102" r="9" fill="#fff8f1" />
+        <circle cx="80" cy="94" r="9" fill="#fff8f1" />
+        <circle cx="120" cy="94" r="9" fill="#fff8f1" />
+        <circle cx="138" cy="102" r="9" fill="#fff8f1" />
+        <circle cx="80" cy="114" r="9" fill="#fff8f1" />
+        <circle cx="120" cy="114" r="9" fill="#fff8f1" />
+        <ellipse cx="62" cy="98" rx="5" ry="3" fill="#e8b06a" opacity=".7" />
+        <ellipse cx="80" cy="90" rx="5" ry="3" fill="#e8b06a" opacity=".7" />
+        <ellipse cx="120" cy="90" rx="5" ry="3" fill="#e8b06a" opacity=".7" />
+        <ellipse cx="138" cy="98" rx="5" ry="3" fill="#e8b06a" opacity=".7" />
+        <circle cx="100" cy="104" r="13" fill="#f3e57a" stroke="#9fbf6b" stroke-width="4" />
+        <path d="M100 92v24M88 104h24M92 96l16 16M108 96l-16 16" stroke="#e0cf55" stroke-width="2" />
+      </svg:g>
+    }
+    @case ('salgado') {
+      <svg:g>
+        <ellipse cx="100" cy="172" rx="76" ry="8" fill="#4a2a20" opacity=".12" />
+        <path d="M26 150h148l-12 18H38z" fill="#fbd3de" />
+        <path d="M76 72c10 16 28 30 28 48 0 16-12 24-28 24s-28-8-28-24c0-18 18-32 28-48z" fill="#e0943f" />
+        <path d="M66 100c-6 8-8 16-6 24" stroke="#f2b866" stroke-width="5" stroke-linecap="round" fill="none" />
+        <path d="M126 84c10 16 28 30 28 48 0 16-12 22-28 22s-28-6-28-22c0-18 18-32 28-48z" fill="#d9883a" />
+        <path d="M116 112c-6 8-8 16-6 24" stroke="#f2b866" stroke-width="5" stroke-linecap="round" fill="none" />
+        <circle cx="70" cy="112" r="1.8" fill="#b86f2a" />
+        <circle cx="84" cy="124" r="1.8" fill="#b86f2a" />
+        <circle cx="78" cy="98" r="1.8" fill="#b86f2a" />
+        <circle cx="132" cy="124" r="1.8" fill="#9c5a20" />
+        <circle cx="122" cy="138" r="1.8" fill="#9c5a20" />
+        <circle cx="138" cy="140" r="1.8" fill="#9c5a20" />
+        <circle cx="160" cy="148" r="14" fill="#e8a04a" />
+        <circle cx="155" cy="143" r="4" fill="#f2b866" />
+      </svg:g>
+    }
+  }
+</svg>

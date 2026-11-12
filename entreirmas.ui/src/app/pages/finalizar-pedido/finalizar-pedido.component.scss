@@ -1,0 +1,227 @@
+@use 'theme/mixins' as *;
+
+:host {
+  display: block;
+}
+
+.checkout {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+
+  @include acima('lg') {
+    grid-template-columns: 1.4fr 1fr;
+    gap: 48px;
+  }
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: clamp(20px, 3vw, 32px);
+  border: 0;
+  border-radius: var(--raio-g);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-suave);
+  min-width: 0;
+}
+
+// O float tira o legend da borda do fieldset e o coloca dentro do cartão.
+.bloco__titulo {
+  float: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 0;
+  font-family: var(--fonte-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+
+  span {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--cor-primaria-clara);
+    color: var(--cor-primaria-escura);
+    font-family: var(--fonte-texto);
+    font-size: 1rem;
+    font-weight: 800;
+  }
+}
+
+.opcoes {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+
+  @include acima('sm') {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.opcao {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  align-items: center;
+  padding: 16px;
+  border: 2px solid var(--cor-borda);
+  border-radius: var(--raio-m);
+  cursor: pointer;
+  transition:
+    border-color var(--transicao),
+    background-color var(--transicao);
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:has(input:focus-visible) {
+    outline: 3px solid var(--cor-primaria-viva);
+    outline-offset: 3px;
+  }
+
+  &:hover {
+    border-color: var(--cor-primaria-viva);
+  }
+
+  &--ativa {
+    border-color: var(--cor-primaria);
+    background: #fff3f6;
+  }
+}
+
+.opcao__icone {
+  grid-row: span 2;
+  font-size: 1.8rem;
+}
+
+.opcao__titulo {
+  font-weight: 700;
+}
+
+.opcao__texto {
+  font-size: 0.82rem;
+  color: var(--cor-texto-suave);
+}
+
+.enviar {
+  min-height: 58px;
+  font-size: 1.05rem;
+}
+
+.enviar__girando {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgb(255 255 255 / 40%);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: girar 800ms linear infinite;
+}
+
+.formulario__nota {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+  text-align: center;
+}
+
+// ---------- Resumo ----------
+.resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: clamp(20px, 3vw, 28px);
+  border-radius: var(--raio-g);
+  background: var(--cor-fundo-alt);
+  border: 2px dashed var(--cor-borda);
+
+  @include acima('lg') {
+    position: sticky;
+    top: calc(var(--altura-cabecalho) + 24px);
+  }
+}
+
+.resumo__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.resumo__titulo {
+  font-size: 1.6rem;
+}
+
+.resumo__editar {
+  border: 0;
+  background: none;
+  color: var(--cor-primaria);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.resumo__itens {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resumo__item {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.resumo__nome {
+  line-height: 1.3;
+}
+
+.resumo__valor {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.resumo__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--cor-borda);
+  font-weight: 700;
+
+  strong {
+    font-family: var(--fonte-display);
+    font-size: 2rem;
+  }
+}
+
+.resumo__nota {
+  font-size: 0.82rem;
+  color: var(--cor-texto-suave);
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

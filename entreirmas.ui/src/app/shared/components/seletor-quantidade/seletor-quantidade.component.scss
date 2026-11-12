@@ -1,0 +1,77 @@
+:host {
+  --seletor-altura: 48px;
+
+  display: inline-block;
+}
+
+:host(.compacto) {
+  --seletor-altura: 38px;
+}
+
+.seletor {
+  display: inline-flex;
+  align-items: center;
+  height: var(--seletor-altura);
+  padding: 4px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-superficie);
+  border: 2px solid var(--cor-borda);
+}
+
+.seletor__botao {
+  display: grid;
+  place-items: center;
+  width: calc(var(--seletor-altura) - 12px);
+  height: calc(var(--seletor-altura) - 12px);
+  border: 0;
+  border-radius: 50%;
+  background: var(--cor-fundo-alt);
+  cursor: pointer;
+  transition:
+    background-color var(--transicao),
+    transform var(--transicao);
+
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--cor-primaria-clara);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.9);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.seletor__valor {
+  width: 3.2ch;
+  min-width: 44px;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &:focus-visible {
+    outline-offset: 0;
+  }
+}

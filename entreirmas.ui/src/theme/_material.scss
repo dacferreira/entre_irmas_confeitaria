@@ -1,0 +1,50 @@
+@use '@angular/material' as mat;
+
+// Tema do Angular Material (campos de formulário e snackbar) alinhado às cores da marca.
+html {
+  color-scheme: light;
+
+  @include mat.theme((
+    color: (
+      primary: mat.$rose-palette,
+      tertiary: mat.$orange-palette,
+      theme-type: light,
+    ),
+    typography: (
+      plain-family: 'Plus Jakarta Sans',
+      brand-family: 'Fraunces',
+    ),
+    density: 0,
+  ));
+
+  @include mat.form-field-overrides((
+    outlined-outline-color: var(--cor-borda),
+    outlined-hover-outline-color: var(--cor-primaria-viva),
+    outlined-focus-outline-color: var(--cor-primaria),
+    outlined-container-shape: 14px,
+  ));
+
+  @include mat.snack-bar-overrides((
+    container-color: var(--cor-cacau),
+    supporting-text-color: #fff,
+    button-color: var(--cor-baunilha),
+    container-shape: 14px,
+  ));
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+// No celular a barra flutuante da sacola ocupa o rodapé: a notificação aparece acima dela.
+@media (max-width: 767.98px) {
+  .mat-mdc-snack-bar-container.eirm-snack {
+    margin-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+}
+
+.eirm-snack--erro {
+  @include mat.snack-bar-overrides((
+    container-color: #8c1d3a,
+  ));
+}

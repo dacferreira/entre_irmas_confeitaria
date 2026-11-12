@@ -1,0 +1,131 @@
+<eirm-page
+  sobretitulo="Quase lá"
+  titulo="Finalizar pedido"
+  subtitulo="Conte quem é você e quando quer receber. Depois é só confirmar a mensagem pronta no WhatsApp.">
+  <div class="checkout">
+    <form class="formulario" [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+      <fieldset class="bloco">
+        <legend class="bloco__titulo"><span>1</span> Seus dados</legend>
+
+        <mat-form-field>
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="nomeCliente" autocomplete="name" maxlength="100" />
+          @if (formulario.controls.nomeCliente.hasError('required')) {
+            <mat-error>Informe o seu nome.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>WhatsApp</mat-label>
+          <input
+            matInput
+            eirmMascaraTelefone
+            formControlName="telefone"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel-national"
+            placeholder="(21) 99999-9999" />
+          @if (formulario.controls.telefone.hasError('required')) {
+            <mat-error>Informe um telefone para contato.</mat-error>
+          } @else if (formulario.controls.telefone.hasError('telefone')) {
+            <mat-error>Informe o telefone com DDD.</mat-error>
+          }
+        </mat-form-field>
+      </fieldset>
+
+      <fieldset class="bloco">
+        <legend class="bloco__titulo"><span>2</span> Como e quando</legend>
+
+        <div class="opcoes" role="radiogroup" aria-label="Forma de receber">
+          <label class="opcao" [class.opcao--ativa]="tipoEntrega() === 'Retirada'">
+            <input type="radio" formControlName="tipoEntrega" value="Retirada" />
+            <span class="opcao__icone" aria-hidden="true">🛍️</span>
+            <span class="opcao__titulo">Vou retirar</span>
+            <span class="opcao__texto">Combinamos o local pelo WhatsApp</span>
+          </label>
+          <label class="opcao" [class.opcao--ativa]="tipoEntrega() === 'Entrega'">
+            <input type="radio" formControlName="tipoEntrega" value="Entrega" />
+            <span class="opcao__icone" aria-hidden="true">🛵</span>
+            <span class="opcao__titulo">Quero receber</span>
+            <span class="opcao__texto">Taxa de entrega combinada à parte</span>
+          </label>
+        </div>
+
+        @if (tipoEntrega() === 'Entrega') {
+          <mat-form-field>
+            <mat-label>Endereço de entrega</mat-label>
+            <textarea
+              matInput
+              formControlName="endereco"
+              rows="2"
+              maxlength="300"
+              autocomplete="street-address"
+              placeholder="Rua, número, complemento e bairro"></textarea>
+            @if (formulario.controls.endereco.hasError('required')) {
+              <mat-error>Informe o endereço para a entrega.</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        <mat-form-field>
+          <mat-label>Para quando?</mat-label>
+          <input matInput type="date" formControlName="dataDesejada" [min]="dataMinima" />
+          <mat-hint>Pedidos com {{ antecedencia }} dia(s) de antecedência.</mat-hint>
+          @if (formulario.controls.dataDesejada.hasError('required')) {
+            <mat-error>Escolha a data.</mat-error>
+          } @else if (formulario.controls.dataDesejada.hasError('dataMinima')) {
+            <mat-error>Escolha uma data com {{ antecedencia }} dia(s) de antecedência ou mais.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Observações (opcional)</mat-label>
+          <textarea
+            matInput
+            formControlName="observacao"
+            rows="3"
+            maxlength="500"
+            placeholder="Tema da festa, sabor preferido, alguma restrição…"></textarea>
+          <mat-hint align="end">{{ formulario.controls.observacao.value.length }}/500</mat-hint>
+        </mat-form-field>
+      </fieldset>
+
+      <button type="submit" class="botao botao--whatsapp botao--bloco enviar" [disabled]="enviando()">
+        @if (enviando()) {
+          <span class="enviar__girando" aria-hidden="true"></span>
+          Enviando pedido…
+        } @else {
+          Enviar pedido · {{ sacola.total() | currency }}
+        }
+      </button>
+      <p class="formulario__nota">
+        Ao enviar, você recebe o código do pedido e o link para confirmar pelo WhatsApp.
+      </p>
+    </form>
+
+    <aside class="resumo" aria-labelledby="titulo-resumo">
+      <div class="resumo__topo">
+        <h2 id="titulo-resumo" class="resumo__titulo">Seu pedido</h2>
+        <button type="button" class="resumo__editar" (click)="editarSacola()">Editar</button>
+      </div>
+
+      <ul class="resumo__itens">
+        @for (item of sacola.itens(); track item.produto.id) {
+          <li class="resumo__item">
+            <eirm-ilustracao class="resumo__ilustracao" [tipo]="item.produto.ilustracao" />
+            <span class="resumo__nome">
+              <strong>{{ item.quantidade }}×</strong> {{ item.produto.nome }}
+            </span>
+            <span class="resumo__valor">{{ item.produto.preco * item.quantidade | currency }}</span>
+          </li>
+        }
+      </ul>
+
+      <div class="resumo__total">
+        <span>Total</span>
+        <strong>{{ sacola.total() | currency }}</strong>
+      </div>
+      <p class="resumo__nota">Os preços são confirmados no envio. Entrega combinada à parte.</p>
+    </aside>
+  </div>
+</eirm-page>

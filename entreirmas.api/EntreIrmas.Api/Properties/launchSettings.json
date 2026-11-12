@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Local": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "api/swagger",
+      "applicationUrl": "http://localhost:5083",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Local"
+      }
+    },
+    "Desenvolvimento": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "api/swagger",
+      "applicationUrl": "http://localhost:5083",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Desenvolvimento"
+      }
+    },
+    "Homologacao": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "api/swagger",
+      "applicationUrl": "http://localhost:5083",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Homologacao"
+      }
+    },
+    "Production": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5083",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
+    }
+  }
+}

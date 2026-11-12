@@ -1,0 +1,208 @@
+@use 'theme/mixins' as *;
+
+:host {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: block;
+}
+
+.cabecalho {
+  background: rgb(255 248 241 / 80%);
+  backdrop-filter: saturate(1.4) blur(14px);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  border-bottom: 1px solid transparent;
+  transition:
+    border-color var(--transicao),
+    box-shadow var(--transicao);
+
+  &--rolado {
+    border-color: var(--cor-borda);
+    box-shadow: 0 8px 24px -18px rgb(74 42 32 / 40%);
+  }
+}
+
+.cabecalho__barra {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: var(--altura-cabecalho);
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+  text-decoration: none;
+}
+
+.marca__simbolo {
+  width: 42px;
+  height: 42px;
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.marca:hover .marca__simbolo {
+  transform: rotate(-12deg) scale(1.08);
+}
+
+.marca__texto {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.marca__nome {
+  font-family: var(--fonte-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.02em;
+}
+
+.marca__sub {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--cor-primaria);
+}
+
+.menu {
+  display: none;
+  gap: 4px;
+
+  @include acima('md') {
+    display: flex;
+  }
+}
+
+.menu__link {
+  position: relative;
+  padding: 10px 14px;
+  border-radius: var(--raio-pilula);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--transicao);
+
+  &:hover {
+    background: var(--cor-fundo-alt);
+  }
+
+  &--ativo {
+    color: var(--cor-primaria);
+  }
+}
+
+// No celular o menu abre como um painel abaixo da barra.
+@include abaixo('md') {
+  .menu--aberto {
+    position: absolute;
+    top: var(--altura-cabecalho);
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 12px var(--respiro) 24px;
+    background: var(--cor-fundo);
+    border-bottom: 1px solid var(--cor-borda);
+    box-shadow: 0 24px 40px -30px rgb(74 42 32 / 50%);
+
+    .menu__link {
+      padding: 14px 8px;
+      font-family: var(--fonte-display);
+      font-size: 1.5rem;
+      border-radius: 0;
+      border-bottom: 1px dashed var(--cor-borda);
+    }
+  }
+}
+
+.cabecalho__acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.botao-sacola {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-texto);
+  color: var(--cor-fundo);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--transicao);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+}
+
+.botao-sacola__texto {
+  @include abaixo('sm') {
+    display: none;
+  }
+}
+
+.botao-sacola__contador {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-primaria-viva);
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 22px;
+  text-align: center;
+}
+
+.botao-menu {
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cor-fundo-alt);
+  cursor: pointer;
+
+  @include acima('md') {
+    display: none;
+  }
+
+  &[aria-expanded='true'] {
+    .botao-menu__linha:first-child {
+      transform: translateY(4px) rotate(45deg);
+    }
+
+    .botao-menu__linha:last-child {
+      transform: translateY(-4px) rotate(-45deg);
+    }
+  }
+}
+
+.botao-menu__linha {
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--cor-texto);
+  transition: transform var(--transicao);
+}

@@ -1,0 +1,14 @@
+<eirm-page
+  largura="estreita"
+  alinhamento="centro"
+  sobretitulo="Erro 404"
+  titulo="Ops, essa página acabou!"
+  subtitulo="Assim como o último brigadeiro da festa. Mas o cardápio continua cheio de opções.">
+  <div class="vazio">
+    <eirm-ilustracao class="vazio__ilustracao" tipo="brigadeiro" />
+    <div class="vazio__acoes">
+      <a class="botao" [routerLink]="['/', rotas.CARDAPIO]">Ver cardápio</a>
+      <a class="botao botao--contorno" routerLink="/">Página inicial</a>
+    </div>
+  </div>
+</eirm-page>

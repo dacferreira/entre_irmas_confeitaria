@@ -1,0 +1,27 @@
+<div class="seletor" role="group" [attr.aria-label]="rotulo()">
+  <button
+    type="button"
+    class="seletor__botao"
+    [disabled]="valor() <= minimo()"
+    [attr.aria-label]="'Diminuir ' + rotulo().toLowerCase()"
+    (click)="diminuir()">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
+  </button>
+  <input
+    class="seletor__valor"
+    type="number"
+    inputmode="numeric"
+    [min]="minimo()"
+    [max]="maximo()"
+    [value]="valor()"
+    [attr.aria-label]="rotulo()"
+    (change)="aoDigitar($event)" />
+  <button
+    type="button"
+    class="seletor__botao"
+    [disabled]="valor() >= maximo()"
+    [attr.aria-label]="'Aumentar ' + rotulo().toLowerCase()"
+    (click)="aumentar()">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg>
+  </button>
+</div>

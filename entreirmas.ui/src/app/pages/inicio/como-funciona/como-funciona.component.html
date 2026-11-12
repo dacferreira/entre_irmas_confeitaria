@@ -1,0 +1,16 @@
+<section class="como" id="como-funciona" aria-labelledby="titulo-como-funciona">
+  <div class="container">
+    <span class="sobretitulo">Simples assim</span>
+    <h2 id="titulo-como-funciona" class="titulo-secao">Do desejo à <em>primeira mordida</em></h2>
+
+    <ol class="passos">
+      @for (passo of passos; track passo.titulo; let i = $index) {
+        <li class="passo">
+          <span class="passo__numero" aria-hidden="true">{{ i + 1 }}</span>
+          <h3 class="passo__titulo">{{ passo.titulo }}</h3>
+          <p class="passo__texto">{{ passo.texto }}</p>
+        </li>
+      }
+    </ol>
+  </div>
+</section>

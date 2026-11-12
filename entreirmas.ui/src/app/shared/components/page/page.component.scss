@@ -1,0 +1,50 @@
+:host {
+  display: block;
+}
+
+.pagina {
+  position: relative;
+  padding-block: clamp(32px, 6vw, 64px) var(--espaco-secao);
+  isolation: isolate;
+
+  // Mancha de cor atrás do título.
+  &::before {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -80px;
+    z-index: -1;
+    width: min(520px, 80vw);
+    aspect-ratio: 1;
+    border-radius: 42% 58% 63% 37% / 45% 39% 61% 55%;
+    background: radial-gradient(circle at 40% 40%, var(--cor-primaria-clara), transparent 70%);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+}
+
+.pagina--estreita .container {
+  max-width: calc(880px + 2 * var(--respiro));
+}
+
+.pagina__cabecalho {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: clamp(24px, 4vw, 40px);
+}
+
+.pagina--centro .pagina__cabecalho {
+  align-items: center;
+  text-align: center;
+}
+
+.pagina__titulo {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+}
+
+.pagina__subtitulo {
+  max-width: 60ch;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  color: var(--cor-texto-suave);
+}

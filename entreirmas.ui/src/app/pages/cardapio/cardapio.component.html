@@ -1,0 +1,73 @@
+<eirm-page
+  sobretitulo="Feito sob encomenda"
+  titulo="Cardápio"
+  subtitulo="Escolha seus doces, ajuste as quantidades e finalize o pedido. A confirmação é feita pelo WhatsApp.">
+  <div class="filtros">
+    <label class="busca">
+      <span class="somente-leitor">Buscar no cardápio</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+      <input
+        type="search"
+        placeholder="Buscar: brownie, ninho, morango…"
+        autocomplete="off"
+        [value]="busca()"
+        (input)="aoBuscar($event)" />
+    </label>
+
+    <div class="categorias" role="group" aria-label="Filtrar por categoria">
+      <button
+        type="button"
+        class="categorias__chip"
+        [class.categorias__chip--ativo]="!categoriaSelecionada()"
+        [attr.aria-pressed]="!categoriaSelecionada()"
+        (click)="selecionar(null)">
+        Tudo
+      </button>
+      @for (item of categorias(); track item.id) {
+        <button
+          type="button"
+          class="categorias__chip"
+          [class.categorias__chip--ativo]="categoriaSelecionada() === item.slug"
+          [attr.aria-pressed]="categoriaSelecionada() === item.slug"
+          (click)="selecionar(item.slug)">
+          {{ item.nome }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (carregando()) {
+    <div class="grade">
+      @for (esqueleto of esqueletos; track esqueleto) {
+        <div class="esqueleto grade__esqueleto"></div>
+      }
+    </div>
+  } @else if (falhou()) {
+    <div class="vazio">
+      <eirm-ilustracao class="vazio__ilustracao" tipo="fudge" />
+      <p class="vazio__titulo">O cardápio não carregou</p>
+      <p class="texto-suave">Confira sua conexão e recarregue a página.</p>
+    </div>
+  } @else if (totalEncontrado() === 0) {
+    <div class="vazio">
+      <eirm-ilustracao class="vazio__ilustracao" tipo="cupcake" />
+      <p class="vazio__titulo">Nenhum doce por aqui</p>
+      <p class="texto-suave">Tente outra palavra ou veja o cardápio completo.</p>
+      <button type="button" class="botao" (click)="limparFiltros()">Ver tudo</button>
+    </div>
+  } @else {
+    <p class="resultado" aria-live="polite">
+      {{ totalEncontrado() }} {{ totalEncontrado() === 1 ? 'opção' : 'opções' }}
+    </p>
+    @for (grupo of grupos(); track grupo.slug) {
+      <section class="grupo" [attr.aria-labelledby]="'grupo-' + grupo.slug">
+        <h2 class="grupo__titulo" [id]="'grupo-' + grupo.slug">{{ grupo.nome }}</h2>
+        <div class="grade">
+          @for (produto of grupo.produtos; track produto.id) {
+            <eirm-card-produto [produto]="produto" />
+          }
+        </div>
+      </section>
+    }
+  }
+</eirm-page>

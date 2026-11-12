@@ -1,0 +1,46 @@
+<article class="card" [attr.data-sabor]="sabor()">
+  <!-- O link do nome cobre o card inteiro (ver .card__nome a::after). -->
+  <div class="card__visual">
+    @if (produto().urlImagem; as urlImagem) {
+      <img [src]="urlImagem" alt="" loading="lazy" width="400" height="400" />
+    } @else {
+      <eirm-ilustracao class="card__ilustracao" [tipo]="produto().ilustracao" />
+    }
+  </div>
+
+  @if (produto().destaque) {
+    <span class="card__selo">Queridinho</span>
+  }
+
+  <div class="card__corpo">
+    <span class="card__categoria">{{ produto().categoriaNome }}</span>
+    <h3 class="card__nome">
+      <a [routerLink]="rotaDoProduto()">{{ produto().nome }}</a>
+    </h3>
+    <p class="card__descricao">{{ produto().descricao }}</p>
+
+    <div class="card__rodape">
+      <div>
+        <p class="card__preco">
+          <strong>{{ produto().preco | currency }}</strong>
+          <span>/ {{ produto().unidade }}</span>
+        </p>
+        @if (produto().quantidadeMinima > 1) {
+          <p class="card__minimo">Pedido mínimo: {{ produto().quantidadeMinima }}</p>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="card__adicionar"
+        [class.card__adicionar--na-sacola]="quantidadeNaSacola() > 0"
+        [attr.aria-label]="'Adicionar ' + produto().nome + ' à sacola'"
+        (click)="adicionar()">
+        @if (quantidadeNaSacola() > 0) {
+          <span class="card__contador" aria-hidden="true">{{ quantidadeNaSacola() }}</span>
+        }
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+      </button>
+    </div>
+  </div>
+</article>

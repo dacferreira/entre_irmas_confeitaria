@@ -1,0 +1,93 @@
+@if (mostrarBarra()) {
+  <button type="button" class="barra" animate.enter="barra--entrar" (click)="sacola.abrir()">
+    <span class="barra__contador">{{ sacola.quantidadeDeItens() }}</span>
+    <span class="barra__texto">Ver sacola</span>
+    <strong class="barra__total">{{ sacola.total() | currency }}</strong>
+  </button>
+}
+
+@if (sacola.aberta()) {
+  <button
+    type="button"
+    class="fundo"
+    tabindex="-1"
+    aria-label="Fechar sacola"
+    animate.enter="fundo--entrar"
+    animate.leave="fundo--sair"
+    (click)="sacola.fechar()"></button>
+
+  <aside
+    class="painel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-sacola"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+    animate.enter="painel--entrar"
+    animate.leave="painel--sair">
+    <header class="painel__topo">
+      <div>
+        <h2 id="titulo-sacola" class="painel__titulo">Sua sacola</h2>
+        <p class="painel__resumo">
+          {{ sacola.quantidadeDeItens() }} {{ sacola.quantidadeDeItens() === 1 ? 'item' : 'itens' }}
+        </p>
+      </div>
+      <button type="button" class="painel__fechar" aria-label="Fechar sacola" (click)="sacola.fechar()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
+    </header>
+
+    @if (sacola.vazia()) {
+      <div class="vazia">
+        <eirm-ilustracao class="vazia__ilustracao" tipo="cupcake" />
+        <p class="vazia__titulo">Sua sacola está vazia</p>
+        <p class="vazia__texto">Que tal começar por um brownie molhadinho?</p>
+        <a class="botao" [routerLink]="['/', rotas.CARDAPIO]" (click)="sacola.fechar()">Ver cardápio</a>
+      </div>
+    } @else {
+      <ul class="itens">
+        @for (item of sacola.itens(); track item.produto.id) {
+          <li class="item">
+            <div class="item__imagem" [attr.data-sabor]="sabor(item)">
+              <eirm-ilustracao [tipo]="item.produto.ilustracao" />
+            </div>
+            <div class="item__info">
+              <p class="item__nome">{{ item.produto.nome }}</p>
+              <p class="item__preco">{{ item.produto.preco | currency }} / {{ item.produto.unidade }}</p>
+              <eirm-seletor-quantidade
+                tamanho="p"
+                [valor]="item.quantidade"
+                [minimo]="item.produto.quantidadeMinima"
+                [rotulo]="'Quantidade de ' + item.produto.nome"
+                (valorChange)="alterar(item, $event)" />
+            </div>
+            <div class="item__lado">
+              <strong>{{ item.produto.preco * item.quantidade | currency }}</strong>
+              <button
+                type="button"
+                class="item__remover"
+                [attr.aria-label]="'Remover ' + item.produto.nome + ' da sacola'"
+                (click)="sacola.remover(item.produto.id)">
+                Remover
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+
+      <footer class="painel__rodape">
+        <div class="painel__total">
+          <span>Subtotal</span>
+          <strong>{{ sacola.total() | currency }}</strong>
+        </div>
+        <p class="painel__aviso">A entrega e o pagamento são combinados pelo WhatsApp.</p>
+        <button type="button" class="botao botao--bloco" (click)="finalizar()">
+          Finalizar pedido
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+          </svg>
+        </button>
+      </footer>
+    }
+  </aside>
+}

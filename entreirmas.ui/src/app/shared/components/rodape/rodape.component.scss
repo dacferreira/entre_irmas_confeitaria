@@ -1,0 +1,90 @@
+@use 'theme/mixins' as *;
+
+:host {
+  display: block;
+}
+
+.rodape {
+  position: relative;
+  margin-top: 40px;
+  background: var(--cor-cacau);
+  color: #f6e7dc;
+}
+
+.rodape__onda {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  fill: var(--cor-cacau);
+}
+
+.rodape__conteudo {
+  display: grid;
+  gap: 40px;
+  padding-block: 56px 40px;
+
+  @include acima('md') {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+}
+
+.rodape__marca {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.rodape__nome {
+  font-family: var(--fonte-display);
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+
+  em {
+    color: var(--cor-primaria-viva);
+  }
+}
+
+.rodape__frase {
+  max-width: 38ch;
+  color: #d9c2b5;
+}
+
+.rodape__coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: #d9c2b5;
+
+  a {
+    width: fit-content;
+    color: #f6e7dc;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--transicao);
+
+    &:hover {
+      border-color: var(--cor-primaria-viva);
+    }
+  }
+}
+
+.rodape__titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cor-baunilha);
+}
+
+.rodape__base {
+  padding-block: 20px calc(20px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  font-size: 0.85rem;
+  color: #bfa597;
+}
