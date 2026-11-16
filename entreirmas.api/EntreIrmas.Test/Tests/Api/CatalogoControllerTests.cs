@@ -23,7 +23,7 @@ public class CatalogoControllerTests
         var categorias = await _cliente.GetFromJsonAsync<List<CategoriaDto>>("/api/categorias");
 
         categorias!.Select(c => c.Slug).Should().Equal("bolos", "docinhos");
-        categorias[0].QuantidadeProdutos.Should().Be(2);
+        categorias![0].QuantidadeProdutos.Should().Be(2);
     }
 
     [Fact]

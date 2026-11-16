@@ -5,12 +5,13 @@ import { IlustracaoComponent } from '@components/ilustracao/ilustracao.component
 import { normalizarIlustracao } from '@constants/ilustracoes';
 import { ROTAS } from '@constants/rotas';
 import { Produto } from '@models/produto.model';
+import { UrlImagemPipe } from '@pipes/url-imagem.pipe';
 import { NotificacaoService } from '@services/notificacao.service';
 import { SacolaService } from '@services/sacola.service';
 
 @Component({
   selector: 'eirm-card-produto',
-  imports: [CurrencyPipe, RouterLink, IlustracaoComponent],
+  imports: [CurrencyPipe, RouterLink, IlustracaoComponent, UrlImagemPipe],
   templateUrl: './card-produto.component.html',
   styleUrl: './card-produto.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

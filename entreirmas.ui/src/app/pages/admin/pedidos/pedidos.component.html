@@ -1,0 +1,119 @@
+<div class="admin-topo">
+  <div>
+    <h1>Pedidos</h1>
+    <p>Do site e os lançados aqui (WhatsApp, Instagram, balcão).</p>
+  </div>
+  <button type="button" class="botao botao--pequeno" (click)="novo()">
+    <eirm-icone nome="mais" />
+    Lançar pedido
+  </button>
+</div>
+
+<section class="admin-cartao">
+  <div class="admin-filtros">
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Buscar</mat-label>
+      <input
+        matInput
+        placeholder="Código, nome ou telefone"
+        [ngModel]="filtro().busca"
+        (ngModelChange)="alterarFiltro({ busca: $event })" />
+    </mat-form-field>
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Etapa</mat-label>
+      <mat-select [ngModel]="filtro().status" (ngModelChange)="alterarFiltro({ status: $event })">
+        <mat-option [value]="null">Todas</mat-option>
+        @for (opcao of opcoesStatus; track opcao.valor) {
+          <mat-option [value]="opcao.valor">{{ opcao.rotulo }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Para a partir de</mat-label>
+      <input matInput type="date" [ngModel]="filtro().inicio" (ngModelChange)="alterarFiltro({ inicio: $event })" />
+    </mat-form-field>
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Até</mat-label>
+      <input matInput type="date" [ngModel]="filtro().fim" (ngModelChange)="alterarFiltro({ fim: $event })" />
+    </mat-form-field>
+  </div>
+
+  <div class="tabela-area" [class.tabela-area--carregando]="carregando()" [attr.aria-busy]="carregando()">
+    @if (pagina(); as p) {
+      @if (p.itens.length > 0) {
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th scope="col">Pedido</th>
+              <th scope="col">Para</th>
+              <th scope="col">Entrega</th>
+              <th scope="col">Etapa</th>
+              <th scope="col" class="numero">Total</th>
+              <th scope="col" class="acoes"><span class="somente-leitor">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (pedido of p.itens; track pedido.id) {
+              <tr>
+                <td class="principal">
+                  {{ pedido.nomeCliente }}
+                  <span class="secundario">{{ pedido.codigo }} · {{ pedido.quantidadeItens }} item(ns)</span>
+                </td>
+                <td data-rotulo="Para">{{ pedido.dataDesejada | dataBr }}</td>
+                <td data-rotulo="Entrega">{{ pedido.tipoEntrega === 'Entrega' ? 'Entrega' : 'Retirada' }}</td>
+                <td data-rotulo="Etapa">
+                  <span class="selo" [class]="'selo--' + opcaoStatus(pedido.status).tom">
+                    {{ opcaoStatus(pedido.status).rotulo }}
+                  </span>
+                </td>
+                <td data-rotulo="Total" class="numero">{{ pedido.valorTotal | currency }}</td>
+                <td class="acoes">
+                  <button
+                    type="button"
+                    class="botao-icone"
+                    [attr.aria-label]="'Abrir o pedido ' + pedido.codigo"
+                    (click)="abrir(pedido)">
+                    <eirm-icone nome="ver" />
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <nav class="paginacao" aria-label="Paginação">
+          <span>{{ p.total }} pedido(s) · página {{ p.pagina }} de {{ totalDePaginas() }}</span>
+          <div class="paginacao__botoes">
+            <button
+              type="button"
+              class="botao botao--contorno botao--pequeno"
+              [disabled]="p.pagina <= 1"
+              (click)="irParaPagina(p.pagina - 1)">
+              Anterior
+            </button>
+            <button
+              type="button"
+              class="botao botao--contorno botao--pequeno"
+              [disabled]="p.pagina >= totalDePaginas()"
+              (click)="irParaPagina(p.pagina + 1)">
+              Próxima
+            </button>
+          </div>
+        </nav>
+      } @else {
+        <div class="admin-vazio">
+          <strong>Nenhum pedido encontrado.</strong>
+          <p>Mude os filtros ou lance um pedido feito fora do site.</p>
+          <button type="button" class="botao botao--contorno botao--pequeno" (click)="limparFiltros()">Limpar filtros</button>
+        </div>
+      }
+    } @else if (!carregando()) {
+      <div class="admin-vazio" role="alert">
+        <strong>Não foi possível carregar os pedidos.</strong>
+        <button type="button" class="botao botao--pequeno" (click)="alterarFiltro({})">Tentar de novo</button>
+      </div>
+    } @else {
+      <div class="esqueleto carregando"></div>
+    }
+  </div>
+</section>

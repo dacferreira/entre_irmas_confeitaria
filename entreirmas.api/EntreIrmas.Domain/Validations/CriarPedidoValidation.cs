@@ -23,11 +23,9 @@ public class CriarPedidoValidation : BaseApiValidation<CriarPedidoDto, CriarPedi
         RuleFor(x => x.TipoEntrega).IsInEnum().WithMessage("Forma de entrega inválida.");
 
         RuleFor(x => x.Endereco)
-            .NotEmpty().WithMessage(Obrigatorio("Endereço"))
+            .NotNull().WithMessage(Obrigatorio("Endereço"))
+            .SetValidator(new EnderecoValidation()!)
             .When(x => x.TipoEntrega == TipoEntrega.Entrega);
-
-        RuleFor(x => x.Endereco)
-            .MaximumLength(300).WithMessage(TamanhoMaximo("Endereço", 300));
 
         RuleFor(x => x.DataDesejada)
             .NotEqual(default(DateOnly)).WithMessage(Obrigatorio("Data desejada"));

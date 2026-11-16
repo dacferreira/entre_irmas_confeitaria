@@ -19,6 +19,9 @@ export class SacolaService {
   );
   readonly vazia = computed(() => this._itens().length === 0);
 
+  /** Com algum doce sob encomenda, o pedido exige a antecedência mínima. */
+  readonly temEncomenda = computed(() => this._itens().some((item) => item.produto.encomenda));
+
   /** Adiciona o produto; se já estiver na sacola, soma a quantidade. */
   adicionar(produto: Produto, quantidade: number = produto.quantidadeMinima): void {
     this.atualizar((itens) => {

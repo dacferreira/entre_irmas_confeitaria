@@ -1,3 +1,4 @@
+using EntreIrmas.Api.Services;
 using EntreIrmas.Application.AppServices;
 using EntreIrmas.Application.Profiles;
 using EntreIrmas.Application.Services;
@@ -14,19 +15,33 @@ public static class IocExtension
     public static IServiceCollection AddIoC(this IServiceCollection services)
     {
         services.AddSingleton(TimeProvider.System);
+        services.AddHttpContextAccessor();
 
         // AppServices
         services.AddScoped<ICategoriaAppService, CategoriaAppService>();
         services.AddScoped<IProdutoAppService, ProdutoAppService>();
         services.AddScoped<IPedidoAppService, PedidoAppService>();
+        services.AddScoped<IAutenticacaoAppService, AutenticacaoAppService>();
+        services.AddScoped<IUsuarioAppService, UsuarioAppService>();
+        services.AddScoped<ILancamentoAppService, LancamentoAppService>();
+        services.AddScoped<ILojaAppService, LojaAppService>();
+        services.AddScoped<IPainelAppService, PainelAppService>();
+        services.AddScoped<IEnderecoAppService, EnderecoAppService>();
 
         // Services
         services.AddScoped<IMensagemPedidoService, MensagemPedidoService>();
+        services.AddScoped<IAuthentication, HttpContextAuthentication>();
+        services.AddSingleton<ISenhaService, SenhaService>();
+        services.AddSingleton<ITokenService, TokenService>();
 
         // Repositories
         services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
+        services.AddScoped<IImagemProdutoRepository, ImagemProdutoRepository>();
         services.AddScoped<IPedidoRepository, PedidoRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<ILancamentoRepository, LancamentoRepository>();
+        services.AddScoped<ILojaRepository, LojaRepository>();
 
         return services;
     }

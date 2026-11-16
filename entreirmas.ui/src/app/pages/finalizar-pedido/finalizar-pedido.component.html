@@ -52,31 +52,26 @@
         </div>
 
         @if (tipoEntrega() === 'Entrega') {
-          <mat-form-field>
-            <mat-label>Endereço de entrega</mat-label>
-            <textarea
-              matInput
-              formControlName="endereco"
-              rows="2"
-              maxlength="300"
-              autocomplete="street-address"
-              placeholder="Rua, número, complemento e bairro"></textarea>
-            @if (formulario.controls.endereco.hasError('required')) {
-              <mat-error>Informe o endereço para a entrega.</mat-error>
-            }
-          </mat-form-field>
+          <eirm-campos-endereco [grupo]="formulario.controls.endereco" />
         }
 
-        <mat-form-field>
-          <mat-label>Para quando?</mat-label>
-          <input matInput type="date" formControlName="dataDesejada" [min]="dataMinima" />
-          <mat-hint>Pedidos com {{ antecedencia }} dia(s) de antecedência.</mat-hint>
-          @if (formulario.controls.dataDesejada.hasError('required')) {
-            <mat-error>Escolha a data.</mat-error>
-          } @else if (formulario.controls.dataDesejada.hasError('dataMinima')) {
-            <mat-error>Escolha uma data com {{ antecedencia }} dia(s) de antecedência ou mais.</mat-error>
-          }
-        </mat-form-field>
+        @if (encomenda()) {
+          <mat-form-field>
+            <mat-label>Para quando é a encomenda?</mat-label>
+            <input matInput type="date" formControlName="dataDesejada" [min]="dataMinima()" />
+            <mat-hint>Doces sob encomenda: {{ antecedencia }} dia(s) de antecedência.</mat-hint>
+            @if (formulario.controls.dataDesejada.hasError('required')) {
+              <mat-error>Escolha a data.</mat-error>
+            } @else if (formulario.controls.dataDesejada.hasError('dataMinima')) {
+              <mat-error>Doces sob encomenda precisam de {{ antecedencia }} dia(s) de antecedência.</mat-error>
+            }
+          </mat-form-field>
+        } @else {
+          <p class="para-hoje">
+            <strong>Pedido para hoje.</strong>
+            Só doces de pronta entrega: avisamos pelo WhatsApp quando estiver pronto.
+          </p>
+        }
 
         <mat-form-field>
           <mat-label>Observações (opcional)</mat-label>
@@ -90,7 +85,17 @@
         </mat-form-field>
       </fieldset>
 
-      <button type="submit" class="botao botao--whatsapp botao--bloco enviar" [disabled]="enviando()">
+      @if (bloqueado()) {
+        <p class="fechado" role="alert">
+          <strong>A loja está fechada agora.</strong>
+          @if (loja.situacao().mensagem; as mensagem) {
+            {{ mensagem }}
+          }
+          Pedidos de pronta entrega voltam quando abrirmos. Doces sob encomenda podem ser pedidos para outro dia.
+        </p>
+      }
+
+      <button type="submit" class="botao botao--whatsapp botao--bloco enviar" [disabled]="enviando() || bloqueado()">
         @if (enviando()) {
           <span class="enviar__girando" aria-hidden="true"></span>
           Enviando pedido…

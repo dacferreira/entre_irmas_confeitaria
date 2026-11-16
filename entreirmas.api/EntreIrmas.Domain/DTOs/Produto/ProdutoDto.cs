@@ -12,6 +12,9 @@ public class ProdutoDto
     public string Ilustracao { get; set; } = string.Empty;
     public string? UrlImagem { get; set; }
     public bool Destaque { get; set; }
+
+    /// <summary>Feito sob encomenda (exige antecedência no pedido).</summary>
+    public bool Encomenda { get; set; }
     public string CategoriaSlug { get; set; } = string.Empty;
     public string CategoriaNome { get; set; } = string.Empty;
 }

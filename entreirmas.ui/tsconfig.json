@@ -32,7 +32,9 @@
       "@produto/*": ["src/app/pages/produto/*"],
       "@finalizar-pedido/*": ["src/app/pages/finalizar-pedido/*"],
       "@pedido-confirmado/*": ["src/app/pages/pedido-confirmado/*"],
-      "@nao-encontrado/*": ["src/app/pages/nao-encontrado/*"]
+      "@acompanhar-pedido/*": ["src/app/pages/acompanhar-pedido/*"],
+      "@nao-encontrado/*": ["src/app/pages/nao-encontrado/*"],
+      "@admin/*": ["src/app/pages/admin/*"]
     }
   },
   "angularCompilerOptions": {

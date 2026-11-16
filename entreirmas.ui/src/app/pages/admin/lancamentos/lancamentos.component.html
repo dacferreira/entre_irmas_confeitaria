@@ -1,0 +1,105 @@
+<div class="admin-topo">
+  <div>
+    <h1>Despesas e perdas</h1>
+    <p>O que sai do caixa além do custo dos produtos. Entra no cálculo do lucro do painel.</p>
+  </div>
+  <button type="button" class="botao botao--pequeno" (click)="abrirFormulario()">
+    <eirm-icone nome="mais" />
+    Lançar
+  </button>
+</div>
+
+<div class="totais">
+  <div class="total total--despesa">
+    <span>Despesas no período</span>
+    <strong>{{ totais().despesas | currency }}</strong>
+  </div>
+  <div class="total total--perda">
+    <span>Perdas no período</span>
+    <strong>{{ totais().perdas | currency }}</strong>
+  </div>
+</div>
+
+<section class="admin-cartao">
+  <div class="admin-filtros">
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>De</mat-label>
+      <input matInput type="date" [ngModel]="filtro().inicio" (ngModelChange)="alterarFiltro({ inicio: $event })" />
+    </mat-form-field>
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Até</mat-label>
+      <input matInput type="date" [ngModel]="filtro().fim" (ngModelChange)="alterarFiltro({ fim: $event })" />
+    </mat-form-field>
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Tipo</mat-label>
+      <mat-select [ngModel]="filtro().tipo" (ngModelChange)="alterarFiltro({ tipo: $event })">
+        <mat-option [value]="null">Todos</mat-option>
+        @for (tipo of tipos; track tipo.valor) {
+          <mat-option [value]="tipo.valor">{{ tipo.rotulo }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (lancamentos(); as lista) {
+    @if (lista.length > 0) {
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th scope="col">Descrição</th>
+            <th scope="col">Data</th>
+            <th scope="col">Tipo</th>
+            <th scope="col" class="numero">Valor</th>
+            <th scope="col" class="acoes"><span class="somente-leitor">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (lancamento of lista; track lancamento.id) {
+            <tr>
+              <td class="principal">
+                {{ lancamento.descricao }}
+                <span class="secundario">lançado por {{ lancamento.cadastradoPor }}</span>
+              </td>
+              <td data-rotulo="Data">{{ lancamento.data | dataBr }}</td>
+              <td data-rotulo="Tipo">
+                <span class="selo" [class.selo--alerta]="lancamento.tipo === 'Despesa'" [class.selo--preparo]="lancamento.tipo === 'Perda'">
+                  {{ lancamento.tipo }}
+                </span>
+              </td>
+              <td data-rotulo="Valor" class="numero">{{ lancamento.valor | currency }}</td>
+              <td class="acoes">
+                <button
+                  type="button"
+                  class="botao-icone"
+                  [attr.aria-label]="'Editar ' + lancamento.descricao"
+                  (click)="abrirFormulario(lancamento)">
+                  <eirm-icone nome="editar" />
+                </button>
+                <button
+                  type="button"
+                  class="botao-icone botao-icone--perigo"
+                  [attr.aria-label]="'Excluir ' + lancamento.descricao"
+                  (click)="excluir(lancamento)">
+                  <eirm-icone nome="lixeira" />
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <div class="admin-vazio">
+        <strong>Nenhum lançamento no período.</strong>
+        <p>Registre compras de ingredientes, embalagens, gás ou doces que foram para o lixo.</p>
+        <button type="button" class="botao botao--pequeno" (click)="abrirFormulario()">Lançar despesa ou perda</button>
+      </div>
+    }
+  } @else if (falhou()) {
+    <div class="admin-vazio" role="alert">
+      <strong>Não foi possível carregar os lançamentos.</strong>
+      <button type="button" class="botao botao--pequeno" (click)="recarregar()">Tentar de novo</button>
+    </div>
+  } @else {
+    <div class="esqueleto carregando" aria-busy="true"></div>
+  }
+</section>

@@ -1,3 +1,5 @@
+@use 'sass:map';
+
 // Pontos de quebra (mobile first).
 $pontos: (
   'sm': 480px,
@@ -7,13 +9,13 @@ $pontos: (
 );
 
 @mixin acima($ponto) {
-  @media (min-width: map-get($pontos, $ponto)) {
+  @media (min-width: map.get($pontos, $ponto)) {
     @content;
   }
 }
 
 @mixin abaixo($ponto) {
-  @media (max-width: calc(#{map-get($pontos, $ponto)} - 0.02px)) {
+  @media (max-width: calc(#{map.get($pontos, $ponto)} - 0.02px)) {
     @content;
   }
 }

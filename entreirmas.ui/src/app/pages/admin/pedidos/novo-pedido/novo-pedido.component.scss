@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.itens {
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+
+  legend {
+    float: left;
+    width: 100%;
+    margin-bottom: 8px;
+    color: var(--cor-texto-suave);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+.item {
+  // Sem o clear, o grid fica espremido ao lado da legend flutuante.
+  clear: both;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 40px;
+  gap: 0 8px;
+  align-items: start;
+
+  .botao-icone {
+    margin-top: 8px;
+  }
+}
+
+.adicionar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  border: 0;
+  background: none;
+  color: var(--cor-primaria);
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.total {
+  margin-right: auto;
+  align-self: center;
+  color: var(--cor-texto-suave);
+
+  strong {
+    margin-left: 6px;
+    color: var(--cor-texto);
+    font-size: 1.2rem;
+  }
+}

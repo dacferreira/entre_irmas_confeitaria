@@ -1,9 +1,9 @@
-import { HttpClient, HttpErrorResponse, HttpRequest, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse, HttpRequest, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { NotificacaoService } from '@services/notificacao.service';
 import { TimeoutError } from 'rxjs';
-import { erroInterceptor, mensagemDeErro } from './erro.interceptor';
+import { SEM_AVISO_DE_ERRO, erroInterceptor, mensagemDeErro } from './erro.interceptor';
 
 const GET = new HttpRequest('GET', '/api/produtos/x');
 const POST = new HttpRequest('POST', '/api/pedidos', {});
@@ -35,6 +35,11 @@ describe('mensagemDeErro', () => {
     expect(mensagemDeErro(erroHttp(429, { error: 'Aguarde um minuto' }), POST)).toBe('Aguarde um minuto');
     expect(mensagemDeErro(erroHttp(429), POST)).toContain('Não foi possível');
     expect(mensagemDeErro(erroHttp(500, { error: 'detalhe interno' }), POST)).toContain('Tente novamente');
+  });
+
+  it('no 401 usa a mensagem do login ou avisa que a sessão expirou', () => {
+    expect(mensagemDeErro(erroHttp(401, { error: 'Usuário ou senha inválidos.' }), POST)).toBe('Usuário ou senha inválidos.');
+    expect(mensagemDeErro(erroHttp(401), GET)).toBe('Sua sessão expirou. Entre novamente.');
   });
 });
 
@@ -71,5 +76,15 @@ describe('erroInterceptor', () => {
     controlador.expectOne('/api/produtos/x').flush(null, { status: 404, statusText: 'Not Found' });
 
     expect(notificacao.erro).not.toHaveBeenCalled();
+  });
+
+  it('não notifica quando a chamada pede silêncio, mas repassa o erro', () => {
+    const aoFalhar = jest.fn();
+    http.get('/api/enderecos/cep/1', { context: new HttpContext().set(SEM_AVISO_DE_ERRO, true) }).subscribe({ error: aoFalhar });
+
+    controlador.expectOne('/api/enderecos/cep/1').flush(null, { status: 503, statusText: 'Unavailable' });
+
+    expect(notificacao.erro).not.toHaveBeenCalled();
+    expect(aoFalhar).toHaveBeenCalled();
   });
 });

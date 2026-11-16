@@ -27,6 +27,11 @@ describe('CardProdutoComponent', () => {
     sacola = TestBed.inject(SacolaService);
   });
 
+  it('marca os doces sob encomenda', () => {
+    expect(renderizar().querySelector('.card__encomenda')).toBeNull();
+    expect(renderizar(criarProduto({ encomenda: true })).querySelector('.card__encomenda')?.textContent).toContain('sob encomenda');
+  });
+
   it('mostra nome, categoria, link e selo de destaque', () => {
     const elemento = renderizar();
 

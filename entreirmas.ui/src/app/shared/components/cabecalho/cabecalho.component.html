@@ -31,6 +31,17 @@
         Cardápio
       </a>
       <a class="menu__link" routerLink="/" fragment="como-funciona" (click)="fecharMenu()">Como funciona</a>
+      <a
+        class="menu__link"
+        [routerLink]="['/', rotas.ACOMPANHAR_PEDIDO]"
+        routerLinkActive="menu__link--ativo"
+        (click)="fecharMenu()">
+        Meu pedido
+      </a>
+      @if (auth.autenticado()) {
+        <!-- Só aparece para quem já entrou na área administrativa. -->
+        <a class="menu__link" [routerLink]="['/', rotasAdmin.BASE, rotasAdmin.PAINEL]" (click)="fecharMenu()">Painel</a>
+      }
     </nav>
 
     <div class="cabecalho__acoes">

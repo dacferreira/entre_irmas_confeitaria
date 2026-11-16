@@ -1,0 +1,84 @@
+<div class="admin-topo">
+  <div>
+    <h1>Categorias</h1>
+    <p>Os grupos do cardápio, na ordem em que aparecem no site.</p>
+  </div>
+  <button type="button" class="botao botao--pequeno" (click)="abrirFormulario()">
+    <eirm-icone nome="mais" />
+    Nova categoria
+  </button>
+</div>
+
+<section class="admin-cartao">
+  @if (categorias(); as lista) {
+    @if (lista.length > 0) {
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th scope="col">Categoria</th>
+            <th scope="col" class="numero">Ordem</th>
+            <th scope="col" class="numero">Produtos</th>
+            <th scope="col">No site</th>
+            <th scope="col" class="acoes"><span class="somente-leitor">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (categoria of lista; track categoria.id) {
+            <tr [class.inativo]="!categoria.ativo">
+              <td class="principal">
+                {{ categoria.nome }}
+                @if (categoria.descricao) {
+                  <span class="secundario">{{ categoria.descricao }}</span>
+                }
+              </td>
+              <td data-rotulo="Ordem" class="numero">{{ categoria.ordem }}</td>
+              <td data-rotulo="Produtos" class="numero">{{ categoria.quantidadeProdutos }}</td>
+              <td data-rotulo="No site">
+                <button
+                  type="button"
+                  class="interruptor"
+                  role="switch"
+                  [attr.aria-checked]="categoria.ativo"
+                  [attr.aria-label]="(categoria.ativo ? 'Esconder ' : 'Mostrar ') + categoria.nome + ' no site'"
+                  [disabled]="alterando() === categoria.id"
+                  (click)="alternarSituacao(categoria)">
+                  <span class="interruptor__trilho" aria-hidden="true"></span>
+                  {{ categoria.ativo ? 'Sim' : 'Não' }}
+                </button>
+              </td>
+              <td class="acoes">
+                <button
+                  type="button"
+                  class="botao-icone"
+                  [attr.aria-label]="'Editar ' + categoria.nome"
+                  (click)="abrirFormulario(categoria)">
+                  <eirm-icone nome="editar" />
+                </button>
+                <button
+                  type="button"
+                  class="botao-icone botao-icone--perigo"
+                  [attr.aria-label]="'Excluir ' + categoria.nome"
+                  (click)="excluir(categoria)">
+                  <eirm-icone nome="lixeira" />
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <p class="dica">Categoria sem produto ativo não aparece no cardápio do site.</p>
+    } @else {
+      <div class="admin-vazio">
+        <strong>Nenhuma categoria cadastrada.</strong>
+        <button type="button" class="botao botao--pequeno" (click)="abrirFormulario()">Criar categoria</button>
+      </div>
+    }
+  } @else if (falhou()) {
+    <div class="admin-vazio" role="alert">
+      <strong>Não foi possível carregar as categorias.</strong>
+      <button type="button" class="botao botao--pequeno" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else {
+    <div class="esqueleto carregando" aria-busy="true"></div>
+  }
+</section>

@@ -1,0 +1,62 @@
+<form class="dialogo" [formGroup]="formulario" (ngSubmit)="salvar()" novalidate aria-labelledby="usuario-titulo">
+  <div class="dialogo__topo">
+    <h2 id="usuario-titulo">{{ usuario ? 'Editar usuário' : 'Novo usuário' }}</h2>
+    <button type="button" class="botao-icone" aria-label="Fechar" (click)="cancelar()">
+      <eirm-icone nome="fechar" />
+    </button>
+  </div>
+
+  <div class="dialogo__corpo">
+    <mat-form-field>
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="nome" maxlength="100" autocomplete="off" />
+      @if (formulario.controls.nome.hasError('required')) {
+        <mat-error>Informe o nome.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Login</mat-label>
+      <input matInput formControlName="login" maxlength="30" autocomplete="off" autocapitalize="none" spellcheck="false" />
+      @if (usuario) {
+        <mat-hint>O login não pode ser alterado.</mat-hint>
+      } @else {
+        <mat-hint>Sem espaços. Ex.: suellen</mat-hint>
+      }
+      @if (formulario.controls.login.hasError('required')) {
+        <mat-error>Informe o login.</mat-error>
+      } @else if (formulario.controls.login.hasError('pattern')) {
+        <mat-error>De 3 a 30 letras, números, ponto, hífen ou sublinhado.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>{{ usuario ? 'Nova senha (opcional)' : 'Senha' }}</mat-label>
+      <input matInput formControlName="senha" [type]="senhaVisivel() ? 'text' : 'password'" autocomplete="new-password" maxlength="128" />
+      <button
+        matSuffix
+        type="button"
+        class="botao-icone"
+        [attr.aria-label]="senhaVisivel() ? 'Esconder a senha' : 'Mostrar a senha'"
+        [attr.aria-pressed]="senhaVisivel()"
+        (click)="alternarSenha()">
+        <eirm-icone [nome]="senhaVisivel() ? 'ocultar' : 'ver'" />
+      </button>
+      <mat-hint>
+        {{ usuario ? 'Deixe em branco para manter a senha atual.' : 'Pelo menos ' + tamanhoMinimo + ' caracteres.' }}
+      </mat-hint>
+      @if (formulario.controls.senha.hasError('required')) {
+        <mat-error>Defina uma senha.</mat-error>
+      } @else if (formulario.controls.senha.hasError('minlength')) {
+        <mat-error>Pelo menos {{ tamanhoMinimo }} caracteres.</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="dialogo__rodape">
+    <button type="button" class="botao botao--contorno botao--pequeno" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="botao botao--pequeno" [disabled]="salvando()">
+      {{ salvando() ? 'Salvando…' : usuario ? 'Salvar alterações' : 'Criar usuário' }}
+    </button>
+  </div>
+</form>

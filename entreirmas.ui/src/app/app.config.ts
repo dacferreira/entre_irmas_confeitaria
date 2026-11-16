@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
+import { authInterceptor } from '@interceptors/auth.interceptor';
 import { erroInterceptor } from '@interceptors/erro.interceptor';
 import { timeoutInterceptor } from '@interceptors/timeout.interceptor';
 
@@ -26,8 +27,8 @@ export const appConfig: ApplicationConfig = {
       withComponentInputBinding(),
       withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
     ),
-    // O primeiro interceptor envolve os demais: o de erro também recebe o timeout.
-    provideHttpClient(withInterceptors([erroInterceptor, timeoutInterceptor])),
+    // O primeiro interceptor envolve os demais: o de erro também recebe o timeout e o 401.
+    provideHttpClient(withInterceptors([erroInterceptor, timeoutInterceptor, authInterceptor])),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },

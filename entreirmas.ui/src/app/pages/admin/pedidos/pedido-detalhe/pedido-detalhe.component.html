@@ -1,0 +1,130 @@
+<div class="dialogo" role="dialog" aria-labelledby="pedido-titulo">
+  <div class="dialogo__topo">
+    <div>
+      <h2 id="pedido-titulo">{{ pedido()?.codigo ?? 'Pedido' }}</h2>
+      @if (pedido(); as p) {
+        <p>
+          Feito em {{ p.dataEHoraDeCadastro | date: 'dd/MM/yyyy HH:mm' }}
+          {{ p.cadastradoPor === 'SITE' ? 'pelo site' : 'por ' + p.cadastradoPor }}
+        </p>
+      }
+    </div>
+    <button type="button" class="botao-icone" aria-label="Fechar" (click)="fechar()">
+      <eirm-icone nome="fechar" />
+    </button>
+  </div>
+
+  <div class="dialogo__corpo">
+    @if (pedido(); as p) {
+      <section aria-labelledby="titulo-etapa">
+        <h3 id="titulo-etapa" class="subtitulo">Etapa</h3>
+        <div class="etapas" role="radiogroup" aria-labelledby="titulo-etapa">
+          @for (etapa of etapas; track etapa.valor) {
+            <button
+              type="button"
+              role="radio"
+              class="etapa"
+              [class]="'etapa--' + etapa.tom"
+              [class.etapa--ativa]="p.status === etapa.valor"
+              [attr.aria-checked]="p.status === etapa.valor"
+              [disabled]="salvando()"
+              (click)="alterarStatus(etapa.valor)">
+              {{ etapa.rotulo }}
+            </button>
+          }
+        </div>
+      </section>
+
+      <section class="cliente">
+        <div>
+          <span class="rotulo">Cliente</span>
+          <strong>{{ p.nomeCliente }}</strong>
+          <a class="whatsapp" [href]="linkWhatsApp()" target="_blank" rel="noopener">
+            <eirm-icone nome="whatsapp" />
+            {{ telefone() }}
+          </a>
+        </div>
+        <div>
+          <span class="rotulo">Para</span>
+          <strong>{{ p.dataDesejada | dataBr }}</strong>
+          <span>{{ p.tipoEntrega === 'Entrega' ? 'Entrega' : 'Retirada' }}</span>
+        </div>
+        @if (p.endereco) {
+          <div class="cliente__largo">
+            <span class="rotulo">Endereço</span>
+            <span>{{ p.endereco }}</span>
+          </div>
+        }
+        @if (p.observacao) {
+          <div class="cliente__largo">
+            <span class="rotulo">Observação</span>
+            <span class="observacao">{{ p.observacao }}</span>
+          </div>
+        }
+      </section>
+
+      <table class="itens">
+        <caption class="somente-leitor">Itens do pedido</caption>
+        <thead>
+          <tr>
+            <th scope="col">Item</th>
+            <th scope="col" class="numero">Preço</th>
+            <th scope="col" class="numero">Custo</th>
+            <th scope="col" class="numero">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of p.itens; track item.produtoId) {
+            <tr>
+              <td>
+                <strong>{{ item.quantidade }}×</strong> {{ item.nomeProduto }}
+                <span class="unidade">{{ item.unidade }}</span>
+              </td>
+              <td class="numero">{{ item.precoUnitario | currency }}</td>
+              <td class="numero">{{ item.custoUnitario | currency }}</td>
+              <td class="numero">{{ item.valorTotal | currency }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" colspan="3">Total</th>
+            <td class="numero total">{{ p.valorTotal | currency }}</td>
+          </tr>
+          <tr>
+            <th scope="row" colspan="3">Custo dos produtos</th>
+            <td class="numero">{{ p.custoTotal | currency }}</td>
+          </tr>
+          <tr>
+            <th scope="row" colspan="3">Lucro bruto</th>
+            <td class="numero" [class.lucro]="lucro() >= 0" [class.prejuizo]="lucro() < 0">{{ lucro() | currency }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    } @else if (falhou()) {
+      <p class="admin-vazio" role="alert">Não foi possível abrir o pedido.</p>
+    } @else {
+      <div class="esqueleto carregando" aria-busy="true"></div>
+    }
+  </div>
+
+  <div class="dialogo__rodape">
+    @if (pedido()) {
+      <button type="button" class="botao botao--contorno botao--pequeno excluir" (click)="excluir()">
+        <eirm-icone nome="lixeira" />
+        Excluir
+      </button>
+      @if (impressora.suportada) {
+        <button
+          type="button"
+          class="botao botao--contorno botao--pequeno imprimir"
+          [disabled]="impressora.imprimindo()"
+          (click)="imprimirRecibo()">
+          <eirm-icone nome="impressora" />
+          {{ impressora.imprimindo() ? 'Imprimindo…' : 'Imprimir recibo' }}
+        </button>
+      }
+    }
+    <button type="button" class="botao botao--pequeno" (click)="fechar()">Fechar</button>
+  </div>
+</div>

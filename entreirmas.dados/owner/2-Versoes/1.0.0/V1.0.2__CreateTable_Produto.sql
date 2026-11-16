@@ -1,6 +1,6 @@
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- 1. DDL - CRIACAO DA TABELA PRODUTO
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- MySQL nao tem SEQUENCE: a chave usa AUTO_INCREMENT e a API mapeia com ValueGeneratedOnAdd().
 CREATE TABLE PRODUTO (
   PROD_SQ_PRODUTO            BIGINT         NOT NULL AUTO_INCREMENT COMMENT 'Chave primaria sequencial da tabela.',
@@ -20,27 +20,27 @@ CREATE TABLE PRODUTO (
   CONSTRAINT PK_PROD PRIMARY KEY (PROD_SQ_PRODUTO)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---------------------------------------------------------
+-- -----------------------------------------------------
 -- 2. DDL for Index
---------------------------------------------------------
+-- -----------------------------------------------------
 
 CREATE UNIQUE INDEX UK_PROD_SLUG ON PRODUTO (PROD_DS_SLUG);
 CREATE INDEX IX_PROD_CATEGORIA ON PRODUTO (CATE_SQ_CATEGORIA, PROD_IN_ATIVO);
 
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- 3. DESCRICAO DOS CAMPOS (COMMENTS)
-----------------------------------------------------------
+-- -------------------------------------------------------
 ALTER TABLE PRODUTO COMMENT = 'Produtos do cardapio da confeitaria.';
 
---------------------------------------------------------
+-- -----------------------------------------------------
 -- 4. Constraints for Table PRODUTO
---------------------------------------------------------
+-- -----------------------------------------------------
 
 ALTER TABLE PRODUTO ADD CONSTRAINT FK_PROD_CATE FOREIGN KEY (CATE_SQ_CATEGORIA) REFERENCES CATEGORIA (CATE_SQ_CATEGORIA);
 ALTER TABLE PRODUTO ADD CONSTRAINT CK_PROD_PRECO CHECK (PROD_NR_PRECO > 0);
 ALTER TABLE PRODUTO ADD CONSTRAINT CK_PROD_QUANTIDADE_MINIMA CHECK (PROD_NR_QUANTIDADE_MINIMA >= 1);
 
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- 5. SEQUENCES
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- Nao se aplica ao MySQL (ver AUTO_INCREMENT na secao 1).

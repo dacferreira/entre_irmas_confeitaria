@@ -1,0 +1,43 @@
+<section class="admin-cartao impressora" aria-labelledby="impressora-titulo">
+  <div class="impressora__topo">
+    <eirm-icone nome="impressora" />
+    <div>
+      <h2 id="impressora-titulo" class="impressora__titulo">Impressora de recibos</h2>
+      <p class="impressora__texto">Impressora térmica de 58mm por bluetooth. Cada pedido novo do site sai impresso.</p>
+    </div>
+  </div>
+
+  @if (!impressora.suportada) {
+    <p class="impressora__aviso" role="status">
+      Este navegador não acessa a impressora. Use o Chrome ou o Edge no computador onde ela está pareada.
+    </p>
+  } @else {
+    <p class="impressora__situacao" role="status">
+      <span class="impressora__luz" [class.impressora__luz--ligada]="impressora.conectada()" aria-hidden="true"></span>
+      {{ impressora.conectada() ? 'Impressora conectada' : 'Nenhuma impressora conectada' }}
+    </p>
+
+    @if (!impressora.conectada()) {
+      <p class="impressora__dica">
+        Pareie a impressora no Bluetooth do Windows, clique em Conectar e escolha a porta dela
+        (aparece como "Porta serial padrão por link Bluetooth" ou com o nome da impressora).
+      </p>
+    }
+
+    <label class="impressora__automatica">
+      <input type="checkbox" [checked]="impressora.automatica()" (change)="impressora.alternarAutomatica()" />
+      Imprimir os pedidos novos do site automaticamente
+    </label>
+
+    <div class="impressora__acoes">
+      <button type="button" class="botao" [class.botao--contorno]="impressora.conectada()" (click)="conectar()">
+        {{ impressora.conectada() ? 'Trocar impressora' : 'Conectar impressora' }}
+      </button>
+      @if (impressora.conectada()) {
+        <button type="button" class="botao" [disabled]="impressora.imprimindo()" (click)="imprimirTeste()">
+          {{ impressora.imprimindo() ? 'Imprimindo…' : 'Imprimir teste' }}
+        </button>
+      }
+    </div>
+  }
+</section>

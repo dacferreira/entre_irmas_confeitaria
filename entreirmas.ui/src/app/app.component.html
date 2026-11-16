@@ -1,10 +1,15 @@
-<a class="pular" href="#conteudo">Pular para o conteúdo</a>
-
-<eirm-cabecalho />
-
-<main id="conteudo" class="conteudo" tabindex="-1">
+@if (areaAdmin()) {
   <router-outlet />
-</main>
+} @else {
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
-<eirm-rodape />
-<eirm-sacola />
+  <eirm-cabecalho />
+  <eirm-aviso-loja />
+
+  <main id="conteudo" class="conteudo" tabindex="-1">
+    <router-outlet />
+  </main>
+
+  <eirm-rodape />
+  <eirm-sacola />
+}

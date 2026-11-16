@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ROTAS_ADMIN } from '@constants/admin';
 import { ROTAS } from '@constants/rotas';
+import { AuthService } from '@services/auth.service';
 import { SacolaService } from '@services/sacola.service';
 
 @Component({
@@ -12,7 +14,9 @@ import { SacolaService } from '@services/sacola.service';
 })
 export class CabecalhoComponent {
   readonly sacola = inject(SacolaService);
+  readonly auth = inject(AuthService);
   readonly rotas = ROTAS;
+  readonly rotasAdmin = ROTAS_ADMIN;
   readonly menuAberto = signal(false);
   readonly rolado = signal(false);
 

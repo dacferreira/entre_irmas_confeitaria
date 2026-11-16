@@ -1,0 +1,84 @@
+<div class="endereco" [formGroup]="grupo()">
+  <div class="endereco__cep">
+    <mat-form-field>
+      <mat-label>CEP</mat-label>
+      <input
+        matInput
+        eirmMascaraCep
+        formControlName="cep"
+        inputmode="numeric"
+        autocomplete="postal-code"
+        placeholder="00000-000"
+        maxlength="9"
+        [attr.aria-busy]="buscando()"
+        [attr.aria-describedby]="'cep-situacao'" />
+      @if (buscando()) {
+        <span matSuffix class="girando" role="progressbar" aria-label="Buscando o endereço"></span>
+      }
+      @if (grupo().controls.cep.hasError('required')) {
+        <mat-error>Informe o CEP.</mat-error>
+      } @else if (grupo().controls.cep.hasError('cep')) {
+        <mat-error>O CEP tem 8 números.</mat-error>
+      }
+      @if (!erroCep()) {
+        <mat-hint>O endereço é preenchido sozinho.</mat-hint>
+      }
+    </mat-form-field>
+    @if (erroCep()) {
+      <p class="endereco__erro" role="alert">{{ erroCep() }}</p>
+    }
+  </div>
+  <span id="cep-situacao" class="somente-leitor" aria-live="polite">{{ situacao() }}</span>
+
+  <div class="endereco__linha endereco__linha--rua">
+    <mat-form-field>
+      <mat-label>Rua</mat-label>
+      <input matInput formControlName="logradouro" autocomplete="address-line1" maxlength="150" />
+      @if (grupo().controls.logradouro.hasError('required')) {
+        <mat-error>Informe a rua.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Número</mat-label>
+      <input matInput formControlName="numero" maxlength="20" />
+      @if (grupo().controls.numero.hasError('required')) {
+        <mat-error>Informe o número (ou s/n).</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="endereco__linha">
+    <mat-form-field>
+      <mat-label>Complemento (opcional)</mat-label>
+      <input matInput formControlName="complemento" autocomplete="address-line2" maxlength="100" placeholder="Apto, bloco, referência" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Bairro</mat-label>
+      <input matInput formControlName="bairro" maxlength="100" />
+      @if (grupo().controls.bairro.hasError('required')) {
+        <mat-error>Informe o bairro.</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="endereco__linha endereco__linha--cidade">
+    <mat-form-field>
+      <mat-label>Cidade</mat-label>
+      <input matInput formControlName="cidade" autocomplete="address-level2" maxlength="100" />
+      @if (grupo().controls.cidade.hasError('required')) {
+        <mat-error>Informe a cidade.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>UF</mat-label>
+      <mat-select formControlName="uf">
+        @for (uf of ufs; track uf) {
+          <mat-option [value]="uf">{{ uf }}</mat-option>
+        }
+      </mat-select>
+      @if (grupo().controls.uf.hasError('required')) {
+        <mat-error>Escolha a UF.</mat-error>
+      }
+    </mat-form-field>
+  </div>
+</div>

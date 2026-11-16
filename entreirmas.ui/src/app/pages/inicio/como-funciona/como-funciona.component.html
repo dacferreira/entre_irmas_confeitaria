@@ -2,15 +2,30 @@
   <div class="container">
     <span class="sobretitulo">Simples assim</span>
     <h2 id="titulo-como-funciona" class="titulo-secao">Do desejo à <em>primeira mordida</em></h2>
+    <p class="como__intro">
+      Dois jeitos de pedir: para hoje, com os doces de pronta entrega, ou com data marcada, por encomenda.
+      Com a loja fechada, aceitamos só encomendas.
+    </p>
 
-    <ol class="passos">
-      @for (passo of passos; track passo.titulo; let i = $index) {
-        <li class="passo">
-          <span class="passo__numero" aria-hidden="true">{{ i + 1 }}</span>
-          <h3 class="passo__titulo">{{ passo.titulo }}</h3>
-          <p class="passo__texto">{{ passo.texto }}</p>
-        </li>
+    <div class="fluxos">
+      @for (fluxo of fluxos; track fluxo.titulo) {
+        <article class="fluxo" [attr.aria-labelledby]="'fluxo-' + $index">
+          <h3 class="fluxo__titulo" [id]="'fluxo-' + $index">{{ fluxo.titulo }}</h3>
+          <p class="fluxo__subtitulo">{{ fluxo.subtitulo }}</p>
+
+          <ol class="passos">
+            @for (passo of fluxo.passos; track passo.titulo; let i = $index) {
+              <li class="passo">
+                <span class="passo__numero" aria-hidden="true">{{ i + 1 }}</span>
+                <div>
+                  <h4 class="passo__titulo">{{ passo.titulo }}</h4>
+                  <p class="passo__texto">{{ passo.texto }}</p>
+                </div>
+              </li>
+            }
+          </ol>
+        </article>
       }
-    </ol>
+    </div>
   </div>
 </section>

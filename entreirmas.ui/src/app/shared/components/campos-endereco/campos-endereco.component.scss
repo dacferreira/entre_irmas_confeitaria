@@ -1,0 +1,75 @@
+@use 'theme/mixins' as *;
+
+:host {
+  display: block;
+}
+
+.endereco {
+  display: flex;
+  flex-direction: column;
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  &__cep {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0 16px;
+    // Espaço para a dica não encostar no rótulo flutuante da rua.
+    margin-bottom: 8px;
+
+    // Largo o bastante para a dica caber em uma linha (ela não quebra sem invadir o campo de baixo).
+    .mat-mdc-form-field {
+      flex: 1 1 220px;
+      max-width: 320px;
+    }
+  }
+
+  &__erro {
+    flex: 1 1 200px;
+    margin: 14px 0 12px;
+    padding: 8px 12px;
+    border-radius: var(--raio-p);
+    background: #fff4e0;
+    color: #7a4b00;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  &__linha {
+    display: grid;
+    gap: 0 12px;
+
+    @include acima('sm') {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    // Rua larga, número estreito; cidade larga, UF estreita.
+    &--rua,
+    &--cidade {
+      @include acima('sm') {
+        grid-template-columns: minmax(0, 1fr) 110px;
+      }
+    }
+  }
+}
+
+// Indicador de carregamento dentro do campo de CEP.
+.girando {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
+  border: 2px solid var(--cor-primaria-clara);
+  border-top-color: var(--cor-primaria);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

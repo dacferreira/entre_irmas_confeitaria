@@ -9,6 +9,8 @@ export interface Produto {
   ilustracao: string;
   urlImagem: string | null;
   destaque: boolean;
+  /** Feito sob encomenda: exige a antecedência mínima no pedido. */
+  encomenda: boolean;
   categoriaSlug: string;
   categoriaNome: string;
 }

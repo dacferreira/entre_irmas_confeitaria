@@ -1,0 +1,61 @@
+<div class="admin-topo">
+  <div>
+    <h1>Loja</h1>
+    <p>Abra e feche a loja no site. Fechada, o site mostra um aviso e só aceita encomendas.</p>
+  </div>
+</div>
+
+@if (carregando()) {
+  <p class="admin-vazio" role="status">Carregando…</p>
+} @else if (loja(); as loja) {
+  <section class="admin-cartao situacao" [class.situacao--fechada]="!loja.aberta" aria-labelledby="situacao-titulo">
+    <div class="situacao__topo">
+      <span class="situacao__luz" aria-hidden="true"></span>
+      <div>
+        <h2 id="situacao-titulo" class="situacao__titulo">{{ loja.aberta ? 'Loja aberta' : 'Loja fechada' }}</h2>
+        <p class="situacao__texto">
+          {{ loja.aberta ? 'O site aceita pedidos normais e encomendas.' : 'O site aceita só encomendas para outro dia.' }}
+        </p>
+      </div>
+    </div>
+
+    @if (loja.alteradoPor) {
+      <p class="situacao__alteracao">
+        Alterada por {{ loja.alteradoPor }} em {{ loja.dataDaAlteracao | date: 'dd/MM/yyyy HH:mm' }}
+      </p>
+    }
+
+    <mat-form-field class="situacao__mensagem">
+      <mat-label>Aviso para os clientes quando fechada (opcional)</mat-label>
+      <textarea
+        matInput
+        [formControl]="mensagem"
+        rows="2"
+        [maxlength]="tamanhoMaximo"
+        placeholder="Ex.: Voltamos amanhã às 9h."></textarea>
+      <mat-hint align="end">{{ mensagem.value.length }}/{{ tamanhoMaximo }}</mat-hint>
+      @if (mensagem.hasError('maxlength')) {
+        <mat-error>O aviso pode ter até {{ tamanhoMaximo }} caracteres.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="situacao__acoes">
+      @if (loja.aberta) {
+        <button type="button" class="botao botao--perigo" [disabled]="salvando()" (click)="fechar()">
+          {{ salvando() ? 'Fechando…' : 'Fechar a loja' }}
+        </button>
+      } @else {
+        <button type="button" class="botao" [disabled]="salvando()" (click)="abrir()">
+          {{ salvando() ? 'Abrindo…' : 'Abrir a loja' }}
+        </button>
+        <button type="button" class="botao botao--contorno" [disabled]="salvando()" (click)="fechar()">
+          Salvar aviso
+        </button>
+      }
+    </div>
+  </section>
+} @else {
+  <p class="admin-vazio" role="alert">Não foi possível carregar a situação da loja. Recarregue a página.</p>
+}
+
+<eirm-impressora-recibos class="impressora-recibos" />

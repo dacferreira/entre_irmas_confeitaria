@@ -1,6 +1,6 @@
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- CARGA INICIAL DO CARDAPIO
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- ATENCAO: nomes, descricoes e PRECOS sao EXEMPLOS para o site funcionar.
 -- Revise com a confeitaria antes de publicar (novo script V1.0.x com UPDATE).
 -- Ilustracoes disponiveis no site: bolo, bolo-pote, brownie, fudge, brigadeiro, cupcake, torta, salgado.

@@ -1,5 +1,6 @@
 using System.Text;
 using EntreIrmas.Api.EnviromentVariables;
+using EntreIrmas.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -22,16 +23,22 @@ public static class AuthenticationExtension
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+            .AddJwtBearer(options =>
             {
-                ValidateIssuer = true,
-                ValidIssuer = variaveis.JWT_EMISSOR,
-                ValidateAudience = true,
-                ValidAudience = variaveis.JWT_AUDIENCIA,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(variaveis.JWT_CHAVE!)),
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMinutes(1)
+                // Mantém os nomes das claims como emitidos pelo TokenService (sub, login, nome).
+                options.MapInboundClaims = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = TokenService.ClaimLogin,
+                    ValidateIssuer = true,
+                    ValidIssuer = variaveis.JWT_EMISSOR,
+                    ValidateAudience = true,
+                    ValidAudience = variaveis.JWT_AUDIENCIA,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = TokenService.CriarChave(variaveis.JWT_CHAVE!),
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(1)
+                };
             });
 
         services.AddAuthorization();

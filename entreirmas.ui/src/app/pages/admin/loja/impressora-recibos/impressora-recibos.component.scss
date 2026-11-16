@@ -1,0 +1,81 @@
+:host {
+  display: block;
+}
+
+.impressora {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 640px;
+
+  &__topo {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+
+    eirm-icone {
+      flex: 0 0 28px;
+      width: 28px;
+      height: 28px;
+      color: var(--cor-cacau);
+    }
+  }
+
+  &__titulo {
+    font-size: 1.25rem;
+  }
+
+  &__texto,
+  &__dica {
+    margin: 4px 0 0;
+    color: var(--cor-texto-suave);
+    line-height: 1.5;
+  }
+
+  &__aviso {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--cor-fundo-alt);
+    line-height: 1.5;
+  }
+
+  &__situacao {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  &__luz {
+    flex: 0 0 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #8a7a74;
+
+    &--ligada {
+      background: #2e9d5b;
+      box-shadow: 0 0 0 4px rgb(46 157 91 / 18%);
+    }
+  }
+
+  &__automatica {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+
+    input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--cor-cacau);
+    }
+  }
+
+  &__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

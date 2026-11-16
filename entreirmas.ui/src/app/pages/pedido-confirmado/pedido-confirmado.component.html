@@ -55,6 +55,9 @@
       </div>
     </div>
 
+    <a class="botao botao--contorno botao--bloco acompanhar" [routerLink]="['/', rotas.ACOMPANHAR_PEDIDO, pedido.codigo]">
+      Acompanhar o pedido
+    </a>
     <a class="voltar" [routerLink]="['/', rotas.CARDAPIO]">Fazer outro pedido</a>
   </eirm-page>
 } @else {

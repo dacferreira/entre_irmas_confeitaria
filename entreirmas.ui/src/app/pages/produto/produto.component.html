@@ -30,7 +30,7 @@
 
         <div class="produto__grade">
           <div class="produto__visual" [attr.data-sabor]="sabor()">
-            @if (produto.urlImagem; as urlImagem) {
+            @if (produto.urlImagem | urlImagem; as urlImagem) {
               <img [src]="urlImagem" [alt]="produto.nome" width="640" height="640" />
             } @else {
               <eirm-ilustracao class="produto__ilustracao" [tipo]="produto.ilustracao" [rotulo]="produto.nome" />
@@ -70,7 +70,11 @@
             }
 
             <ul class="produto__garantias">
-              <li>Feito à mão, sob encomenda</li>
+              @if (produto.encomenda) {
+                <li>Feito à mão, sob encomenda: peça com {{ antecedencia }} dia(s) de antecedência</li>
+              } @else {
+                <li>Feito à mão, pronta entrega: pode pedir para hoje</li>
+              }
               <li>Confirmação e pagamento pelo WhatsApp</li>
               <li>Retirada ou entrega combinada</li>
             </ul>

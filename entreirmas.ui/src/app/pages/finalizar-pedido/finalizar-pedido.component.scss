@@ -121,6 +121,26 @@
   color: var(--cor-texto-suave);
 }
 
+// Pedido normal: no lugar do campo de data.
+.para-hoje {
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  border-radius: var(--raio-p);
+  background: var(--cor-fundo-alt);
+  font-size: 0.95rem;
+}
+
+// Loja fechada com só pronta entrega na sacola.
+.fechado {
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border-radius: var(--raio-p);
+  background: #fff4e0;
+  color: #7a4b00;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
 .enviar {
   min-height: 58px;
   font-size: 1.05rem;

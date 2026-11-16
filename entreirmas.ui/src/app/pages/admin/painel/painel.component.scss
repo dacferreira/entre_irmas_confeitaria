@@ -1,0 +1,442 @@
+@use 'theme/mixins' as *;
+
+:host {
+  --cor-receita: var(--cor-primaria);
+  --cor-custos: var(--cor-cacau-claro);
+  --cor-despesa: var(--cor-caramelo);
+  --cor-perda: #b3261e;
+  --cor-lucro: #2e8b57;
+
+  display: block;
+}
+
+h2 {
+  font-size: 1.15rem;
+}
+
+// ---------- Período ----------
+.periodo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+
+  &__atalhos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__datas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--cor-texto-suave);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    input {
+      min-height: 40px;
+      padding: 6px 10px;
+      border: 1px solid var(--cor-borda);
+      border-radius: var(--raio-p);
+      background: var(--cor-fundo);
+    }
+  }
+}
+
+.conteudo-painel {
+  transition: opacity var(--transicao);
+
+  &--carregando {
+    opacity: 0.55;
+  }
+}
+
+// ---------- Aviso de pedidos pendentes ----------
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border: 1px solid #f3d28b;
+  border-radius: var(--raio-m);
+  background: #fff6e0;
+  color: #6b4200;
+  text-decoration: none;
+  transition: transform var(--transicao);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &__numero {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f5b83d;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  strong {
+    display: block;
+  }
+
+  &__ir {
+    margin-left: auto;
+    font-size: 1.4rem;
+  }
+}
+
+// ---------- Indicadores ----------
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.indicador {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 132px;
+  padding: 18px 20px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-m);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-suave);
+
+  &__rotulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--cor-texto-suave);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__valor {
+    font-family: var(--fonte-display);
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+
+  &__extra {
+    margin-top: auto;
+    color: var(--cor-texto-suave);
+    font-size: 0.85rem;
+  }
+
+  a.indicador__extra {
+    color: var(--cor-primaria);
+    font-weight: 700;
+  }
+
+  &--destaque {
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--cor-primaria), var(--cor-primaria-escura));
+    color: #fff;
+
+    .indicador__rotulo,
+    .indicador__extra {
+      color: rgb(255 255 255 / 85%);
+    }
+  }
+
+  &--positivo .indicador__valor,
+  &--positivo .indicador__rotulo {
+    color: var(--cor-lucro);
+  }
+
+  &--negativo .indicador__valor,
+  &--negativo .indicador__rotulo {
+    color: var(--cor-perda);
+  }
+
+  &.esqueleto {
+    border: 0;
+    box-shadow: none;
+  }
+}
+
+// ---------- Blocos ----------
+.grade {
+  display: grid;
+  gap: 16px;
+
+  // Três colunas só com espaço de sobra (o menu lateral ocupa 260px).
+  @include acima('md') {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include acima('xl') {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+
+  &--largo {
+    grid-column: 1 / -1;
+  }
+
+  &__topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+}
+
+.legenda {
+  display: flex;
+  gap: 16px;
+  font-size: 0.85rem;
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    &::before {
+      content: '';
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    &--receita::before {
+      background: var(--cor-receita);
+    }
+
+    &--custos::before {
+      background: var(--cor-custos);
+    }
+  }
+}
+
+// ---------- Gráfico de colunas ----------
+.grafico {
+  display: grid;
+  grid-auto-columns: minmax(10px, 1fr);
+  grid-auto-flow: column;
+  gap: 4px;
+  height: 220px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+
+  &__coluna {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    min-width: 10px;
+    cursor: default;
+
+    &:hover .grafico__barra {
+      filter: brightness(1.15);
+    }
+  }
+
+  &__barras {
+    display: flex;
+    flex: 1;
+    align-items: flex-end;
+    gap: 2px;
+    border-bottom: 1px solid var(--cor-borda);
+  }
+
+  &__barra {
+    flex: 1;
+    min-height: 0;
+    border-radius: 4px 4px 0 0;
+    transition: height 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    &--receita {
+      background: var(--cor-receita);
+    }
+
+    &--custos {
+      background: var(--cor-custos);
+      opacity: 0.75;
+    }
+  }
+
+  &__rotulo {
+    color: var(--cor-texto-suave);
+    font-size: 0.68rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+
+// ---------- Divisão da receita ----------
+.divisao {
+  display: flex;
+  overflow: hidden;
+  height: 18px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-fundo-alt);
+
+  &__lista {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.92rem;
+    }
+  }
+
+  &__valor {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__pct {
+    min-width: 3.5ch;
+    color: var(--cor-texto-suave);
+    text-align: right;
+  }
+}
+
+.fatia {
+  height: 100%;
+}
+
+.marcador {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.fatia--custo {
+  background: var(--cor-custos);
+}
+
+.fatia--despesa {
+  background: var(--cor-despesa);
+}
+
+.fatia--perda {
+  background: var(--cor-perda);
+}
+
+.fatia--lucro {
+  background: var(--cor-lucro);
+}
+
+// ---------- Mais vendidos ----------
+.ranking {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__linha {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-weight: 700;
+  }
+
+  &__nome {
+    @include limitar-linhas(1);
+  }
+
+  &__valor {
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__trilho {
+    overflow: hidden;
+    height: 8px;
+    margin: 6px 0 4px;
+    border-radius: var(--raio-pilula);
+    background: var(--cor-fundo-alt);
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cor-primaria-viva), var(--cor-primaria));
+    }
+  }
+
+  &__extra {
+    color: var(--cor-texto-suave);
+    font-size: 0.82rem;
+  }
+}
+
+// ---------- Etapas ----------
+.etapas {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 6px;
+    border-radius: var(--raio-p);
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      background: var(--cor-fundo);
+    }
+  }
+
+  .selo {
+    justify-self: start;
+    white-space: normal;
+  }
+
+  &__qtd {
+    font-weight: 800;
+  }
+
+  &__valor {
+    color: var(--cor-texto-suave);
+    white-space: nowrap;
+    font-size: 0.88rem;
+    text-align: right;
+  }
+}

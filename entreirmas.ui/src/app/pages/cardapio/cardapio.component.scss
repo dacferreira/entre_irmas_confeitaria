@@ -111,6 +111,35 @@
   color: var(--cor-texto-suave);
 }
 
+// Blocos: pronta entrega e, por último, sob encomenda.
+.bloco + .bloco {
+  margin-top: clamp(56px, 8vw, 88px);
+}
+
+.bloco--encomenda {
+  position: relative;
+  padding: clamp(24px, 4vw, 40px) clamp(16px, 3vw, 32px);
+  border-radius: var(--raio-g);
+  background: var(--cor-fundo-alt);
+}
+
+.bloco__cabecalho {
+  margin-bottom: clamp(24px, 4vw, 36px);
+}
+
+.bloco__titulo {
+  font-size: clamp(2rem, 5vw, 3rem);
+
+  .bloco--encomenda & {
+    color: var(--cor-primaria);
+  }
+}
+
+.bloco__texto {
+  margin-top: 6px;
+  color: var(--cor-texto-suave);
+}
+
 .grupo {
   & + & {
     margin-top: clamp(40px, 6vw, 64px);

@@ -1,0 +1,81 @@
+<div class="admin-topo">
+  <div>
+    <h1>Usuários</h1>
+    <p>Quem pode entrar nesta área. A senha nunca é mostrada: só dá para definir uma nova.</p>
+  </div>
+  <button type="button" class="botao botao--pequeno" (click)="abrirFormulario()">
+    <eirm-icone nome="mais" />
+    Novo usuário
+  </button>
+</div>
+
+<section class="admin-cartao">
+  @if (usuarios(); as lista) {
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th scope="col">Nome</th>
+          <th scope="col">Login</th>
+          <th scope="col">Último acesso</th>
+          <th scope="col">Acesso</th>
+          <th scope="col" class="acoes"><span class="somente-leitor">Ações</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (usuario of lista; track usuario.id) {
+          <tr [class.inativo]="!usuario.ativo">
+            <td class="principal">
+              {{ usuario.nome }}
+              @if (ehVoce(usuario)) {
+                <span class="voce">você</span>
+              }
+            </td>
+            <td data-rotulo="Login">{{ usuario.login }}</td>
+            <td data-rotulo="Último acesso">
+              {{ usuario.ultimoAcesso ? (usuario.ultimoAcesso | date: 'dd/MM/yyyy HH:mm') : 'nunca entrou' }}
+            </td>
+            <td data-rotulo="Acesso">
+              <button
+                type="button"
+                class="interruptor"
+                role="switch"
+                [attr.aria-checked]="usuario.ativo"
+                [attr.aria-label]="(usuario.ativo ? 'Desativar ' : 'Liberar ') + 'o acesso de ' + usuario.nome"
+                [disabled]="ehVoce(usuario) || alterando() === usuario.id"
+                [title]="ehVoce(usuario) ? 'Você não pode desativar o seu próprio acesso' : ''"
+                (click)="alternarSituacao(usuario)">
+                <span class="interruptor__trilho" aria-hidden="true"></span>
+                {{ usuario.ativo ? 'Liberado' : 'Bloqueado' }}
+              </button>
+            </td>
+            <td class="acoes">
+              <button
+                type="button"
+                class="botao-icone"
+                [attr.aria-label]="'Editar ' + usuario.nome"
+                (click)="abrirFormulario(usuario)">
+                <eirm-icone nome="editar" />
+              </button>
+              @if (!ehVoce(usuario)) {
+                <button
+                  type="button"
+                  class="botao-icone botao-icone--perigo"
+                  [attr.aria-label]="'Excluir ' + usuario.nome"
+                  (click)="excluir(usuario)">
+                  <eirm-icone nome="lixeira" />
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else if (falhou()) {
+    <div class="admin-vazio" role="alert">
+      <strong>Não foi possível carregar os usuários.</strong>
+      <button type="button" class="botao botao--pequeno" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else {
+    <div class="esqueleto carregando" aria-busy="true"></div>
+  }
+</section>

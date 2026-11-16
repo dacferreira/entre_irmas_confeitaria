@@ -1,0 +1,79 @@
+:host {
+  display: block;
+}
+
+// Foto + nome precisam de mais espaço que a coluna padrão (só no modo tabela).
+@container (min-width: 681px) {
+  td.principal {
+    min-width: 15rem;
+  }
+}
+
+.produto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &__foto {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 6px;
+    border-radius: var(--raio-p);
+    overflow: hidden;
+    background: var(--sabor, var(--cor-fundo-alt));
+
+    img {
+      width: 44px;
+      max-width: none;
+      height: 44px;
+      margin: -6px;
+      object-fit: cover;
+    }
+  }
+}
+
+.destaque--encomenda {
+  background: var(--cor-primaria-clara);
+  color: var(--cor-primaria-escura);
+}
+
+.destaque {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-baunilha);
+  font-size: 0.7rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.preco {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+// Mais específico que o .secundario global, que deixa o texto cinza.
+.preco .sem-custo {
+  color: #8a5300;
+  font-weight: 700;
+  text-decoration: underline dotted;
+}
+
+.preco .margem-baixa {
+  color: #b3261e;
+  font-weight: 700;
+}
+
+.rodape-lista {
+  margin-top: 12px;
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+}
+
+.carregando {
+  height: 240px;
+}

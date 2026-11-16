@@ -1,3 +1,4 @@
+using EntreIrmas.Domain.DTOs.Endereco;
 using EntreIrmas.Domain.DTOs.Pedido;
 using EntreIrmas.Domain.Entities.PedidoAggregate;
 using EntreIrmas.Domain.Validations;
@@ -42,6 +43,39 @@ public class CriarPedidoValidationTests
         dto.TipoEntrega = TipoEntrega.Entrega;
 
         _validacao.Validate(dto).Errors.Should().Contain(e => e.PropertyName == nameof(CriarPedidoDto.Endereco));
+    }
+
+    [Fact]
+    public void Validar_EntregaComEnderecoIncompleto_ApontaCadaParte()
+    {
+        var dto = PedidoValido();
+        dto.TipoEntrega = TipoEntrega.Entrega;
+        dto.Endereco = new EnderecoDto { Cep = "200", Logradouro = "", Numero = "", Bairro = "Centro", Cidade = "Rio", Uf = "XX" };
+
+        _validacao.Validate(dto).Errors.Select(e => e.PropertyName).Should().BeEquivalentTo(
+            "Endereco.Cep", "Endereco.Logradouro", "Endereco.Numero", "Endereco.Uf");
+    }
+
+    [Fact]
+    public void Validar_EntregaComEnderecoCompleto_EhValido()
+    {
+        var dto = PedidoValido();
+        dto.TipoEntrega = TipoEntrega.Entrega;
+        dto.Endereco = new EnderecoDto
+        {
+            Cep = "20000-000", Logradouro = "Rua das Flores", Numero = "10", Bairro = "Centro", Cidade = "Rio de Janeiro", Uf = "rj"
+        };
+
+        _validacao.Validate(dto).IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validar_RetiradaIgnoraEnderecoIncompleto()
+    {
+        var dto = PedidoValido();
+        dto.Endereco = new EnderecoDto();
+
+        _validacao.Validate(dto).IsValid.Should().BeTrue();
     }
 
     [Fact]

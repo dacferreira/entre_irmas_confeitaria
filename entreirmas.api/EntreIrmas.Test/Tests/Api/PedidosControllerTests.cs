@@ -31,7 +31,15 @@ public class PedidosControllerTests
             nomeCliente = "Maria",
             telefone = "(21) 99999-8888",
             tipoEntrega = "Entrega",
-            endereco = "Rua das Flores, 10",
+            endereco = new
+            {
+                cep = "20000-000",
+                logradouro = "Rua das Flores",
+                numero = "10",
+                bairro = "Centro",
+                cidade = "Rio de Janeiro",
+                uf = "RJ"
+            },
             dataDesejada = DataFutura(),
             itens = new[] { new { produtoId = bolo, quantidade = 2, preco = 0.01 } } // preço do cliente é ignorado
         });
@@ -80,6 +88,50 @@ public class PedidosControllerTests
 
         resposta.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         (await resposta.Content.ReadAsStringAsync()).Should().Contain("pedido mínimo de Brigadeiro Gourmet");
+    }
+
+    [Fact]
+    public async Task GetPedido_PeloCodigo_DevolveAEtapaSemTelefoneNemEndereco()
+    {
+        var bolo = await IdDoProdutoAsync("bolo-de-pote-de-ninho");
+        var criado = await _cliente.PostAsJsonAsync("/api/pedidos", new
+        {
+            nomeCliente = "Ana Paula",
+            telefone = "21999998888",
+            tipoEntrega = "Entrega",
+            endereco = new
+            {
+                cep = "20000000",
+                logradouro = "Rua das Flores",
+                numero = "10",
+                bairro = "Centro",
+                cidade = "Rio de Janeiro",
+                uf = "RJ"
+            },
+            dataDesejada = DataFutura(),
+            itens = new[] { new { produtoId = bolo, quantidade = 1 } }
+        });
+        var codigo = (await criado.Content.ReadFromJsonAsync<Dictionary<string, object>>())!["codigo"].ToString()!;
+
+        var resposta = await _cliente.GetAsync($"/api/pedidos/{codigo.ToLowerInvariant()}");
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK);
+        var texto = await resposta.Content.ReadAsStringAsync();
+        texto.Should().Contain($"\"codigo\":\"{codigo}\"")
+            .And.Contain("\"primeiroNome\":\"Ana\"")
+            .And.Contain("\"status\":\"Recebido\"")
+            .And.NotContain("21999998888")
+            .And.NotContain("Rua das Flores");
+    }
+
+    [Theory]
+    [InlineData("EI-ZZZZZZ", HttpStatusCode.NotFound)]
+    [InlineData("abc", HttpStatusCode.BadRequest)]
+    public async Task GetPedido_CodigoInexistenteOuInvalido_RetornaErro(string codigo, HttpStatusCode esperado)
+    {
+        var resposta = await _cliente.GetAsync($"/api/pedidos/{codigo}");
+
+        resposta.StatusCode.Should().Be(esperado);
     }
 
     [Fact]

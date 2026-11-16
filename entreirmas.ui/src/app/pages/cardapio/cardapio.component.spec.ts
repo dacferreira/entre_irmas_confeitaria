@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { CatalogoService } from '@services/catalogo.service';
 import { NotificacaoService } from '@services/notificacao.service';
-import { CATEGORIAS, PRODUTOS } from '@testing/dados-de-teste';
+import { CATEGORIAS, PRODUTOS, criarProduto } from '@testing/dados-de-teste';
 import { NEVER, Observable, of, throwError } from 'rxjs';
 import { CardapioComponent, normalizarTexto } from './cardapio.component';
 
@@ -42,6 +42,31 @@ describe('CardapioComponent', () => {
     ]);
     expect(elemento.querySelectorAll('.categorias__chip').length).toBe(3);
     expect(elemento.querySelector('.resultado')?.textContent).toContain('3 opções');
+  });
+
+  it('sem doces sob encomenda, não mostra os títulos dos blocos', () => {
+    const elemento = renderizar();
+
+    expect(elemento.querySelector('.bloco__titulo')).toBeNull();
+  });
+
+  it('separa pronta entrega e deixa os doces sob encomenda por último', () => {
+    const bolo = criarProduto({ id: 7, nome: 'Bolo de Festa', slug: 'bolo-de-festa', encomenda: true, categoriaSlug: 'docinhos', categoriaNome: 'Docinhos' });
+    const elemento = renderizar(of([bolo, ...PRODUTOS]));
+
+    expect(Array.from(elemento.querySelectorAll('.bloco__titulo')).map((t) => t.textContent)).toEqual([
+      'Pronta entrega',
+      'Sob encomenda',
+    ]);
+    const ultimoBloco = elemento.querySelectorAll('.bloco')[1];
+    expect(ultimoBloco.classList).toContain('bloco--encomenda');
+    expect(ultimoBloco.querySelectorAll('eirm-card-produto').length).toBe(1);
+    expect(ultimoBloco.textContent).toContain('antecedência');
+    expect(elemento.querySelector('.resultado')?.textContent).toContain('4 opções');
+
+    // Só encomenda (filtro de busca): o título do bloco continua, para avisar da antecedência.
+    buscar(elemento, 'festa');
+    expect(Array.from(elemento.querySelectorAll('.bloco__titulo')).map((t) => t.textContent)).toEqual(['Sob encomenda']);
   });
 
   it('filtra pela categoria da URL', () => {

@@ -44,6 +44,8 @@ public class GlobalErrorMiddleware
                 (StatusCodes.Status400BadRequest, (object)ValidationResult.FromMessage(excecao.Message)),
             ObjectNotFoundException => (StatusCodes.Status404NotFound, new ErroResponse(excecao.Message)),
             ApiException api => (api.StatusCode, new ErroResponse(excecao.Message)),
+            GatewayException => (StatusCodes.Status503ServiceUnavailable,
+                new ErroResponse("Um serviço externo está indisponível no momento. Tente novamente em instantes.")),
             _ => (StatusCodes.Status500InternalServerError, new ErroResponse(MensagemGenerica))
         };
 

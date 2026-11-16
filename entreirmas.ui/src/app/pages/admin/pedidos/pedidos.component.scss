@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.tabela-area {
+  margin-top: 8px;
+  transition: opacity var(--transicao);
+
+  &--carregando {
+    opacity: 0.55;
+  }
+}
+
+.carregando {
+  height: 240px;
+}

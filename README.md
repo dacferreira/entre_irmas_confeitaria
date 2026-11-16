@@ -5,22 +5,108 @@ Segue o [CONFIGURACAO-INICIAL-PROJETOS.md](CONFIGURACAO-INICIAL-PROJETOS.md), co
 
 | Pasta | Conteúdo |
 |---|---|
-| [entreirmas.api](entreirmas.api) | .NET 10, EF Core 9 + Pomelo (MySQL), camadas `Api → Application → Domain ← Infrastructure` |
+| [entreirmas.api](entreirmas.api) | .NET 10, EF Core 9 + Pomelo (MySQL), camadas `Api → Application → Domain ← Infrastructure`; integrações externas em `Gateways/` |
 | [entreirmas.ui](entreirmas.ui) | Angular 21 (standalone, signals, zone.js), Angular Material, Jest, ESLint — prefixo `eirm` |
 | [entreirmas.dados](entreirmas.dados) | Scripts Flyway (o schema é versionado aqui; não há migrations do EF) |
-| [entreirmas.docs](entreirmas.docs) | Cópia idêntica dos scripts em `Recursos/sandbox/sql/project/` |
 
-Cada pasta é um repositório git próprio (branch `develop`), ainda sem commits.
+As três pastas ficam neste mesmo repositório (branch `develop`).
 
 ## Como funciona o pedido
 
+Há dois fluxos, decididos pelo cadastro dos produtos (a API confere, o navegador não decide):
+
+| | Pedido normal | Encomenda |
+|---|---|---|
+| Quando | Só doces de pronta entrega na sacola | Algum doce marcado "sob encomenda" (pode juntar pronta entrega) |
+| Data | Para hoje: o checkout não pede data e a API ignora a enviada | Escolhida pelo cliente, com `PEDIDO_ANTECEDENCIA_MINIMA_DIAS` de antecedência |
+| Loja fechada | Bloqueado (aviso no checkout e 400 na API) | Aceita |
+| Depois | Paga pelo WhatsApp e retira ou recebe | Paga pelo WhatsApp e retira ou recebe na data |
+
 1. A pessoa monta a sacola (guardada no `localStorage`) respeitando o pedido mínimo de cada doce.
-2. No checkout informa nome, WhatsApp, retirada/entrega e a data (com `PEDIDO_ANTECEDENCIA_MINIMA_DIAS` de antecedência).
+2. No checkout informa nome, WhatsApp e retirada/entrega (e a data, se for encomenda). Na entrega, o endereço vai
+   em partes (CEP, rua, número, complemento, bairro, cidade e UF): ao completar o CEP, a tela busca o endereço no
+   ViaCEP (pela API) e preenche o resto; se o CEP não existir ou o serviço falhar, avisa ao lado do campo.
 3. A API recalcula os preços pelo cadastro (o valor do navegador é ignorado), grava `PEDIDO` + `ITEM_PEDIDO`
    e devolve o código (`EI-XXXXXX`) com o link `wa.me` e a mensagem pronta.
 4. A confeitaria confirma pagamento e entrega pelo WhatsApp.
+5. O cliente acompanha a etapa (recebido → confirmado → em preparo → pronto → entregue, ou cancelado) em
+   **Meu pedido** (`/acompanhar-pedido`), digitando o código ou pelo botão da tela de pedido recebido. Os pedidos
+   feitos ou consultados no aparelho ficam no `localStorage` para um clique. A etapa muda quando a confeitaria
+   altera o status na tela Pedidos.
 
-`POST /api/pedidos` tem limite de `PEDIDO_LIMITE_POR_MINUTO` por IP.
+### Loja aberta ou fechada
+
+- Tela **Loja** no admin (`/admin/loja`): botão Abrir/Fechar e um aviso opcional (ex.: "Voltamos amanhã às 9h").
+  Fica na tabela `LOJA` (registro único, criado pelo `V1.0.12`).
+- Fechada, o site mostra uma faixa no topo e o checkout bloqueia o pedido normal; encomendas continuam.
+  O site consulta `GET /api/loja` ao abrir e quando a aba volta ao foco; a API confere de novo no envio.
+- Pedido lançado no admin (`Lançar pedido`) não segue essas regras.
+
+### Aviso de pedido novo (admin)
+
+Com a área administrativa aberta (qualquer tela), ela marca o ponto de partida em
+`GET /api/admin/pedidos/ultimo-do-site` e, a cada 20 s, busca `GET /api/admin/pedidos/novos-do-site?depoisDe={id}`
+(todos os pedidos do site depois daquele id, com os itens, até 20). Quando chega pedido, toca um som (gerado pelo
+navegador, sem arquivo), mostra a notificação com o botão Ver, a lista de Pedidos se atualiza e o recibo é impresso.
+O som liga/desliga no menu lateral (a escolha fica no aparelho).
+O navegador só libera áudio depois de um clique na página: depois de entrar, clique em qualquer lugar.
+
+### Recibo na impressora térmica (admin)
+
+Cada pedido novo do site sai impresso numa impressora térmica de recibos de 58mm por bluetooth, sem janela de
+impressão. Funciona no **Chrome ou Edge no computador** (Web Serial); Firefox, Safari e celulares não têm esse acesso.
+
+1. Pareie a impressora no Bluetooth do Windows. Ela vira uma porta COM ("Porta serial padrão por link Bluetooth").
+2. No admin, em **Loja → Impressora de recibos**, clique em **Conectar impressora**, escolha a porta e use
+   **Imprimir teste**. O navegador lembra a escolha: nas próximas vezes a área administrativa reconecta sozinha.
+3. A impressão automática liga/desliga na mesma tela (a escolha fica no aparelho). No detalhe de cada pedido há o
+   botão **Imprimir recibo** para reimprimir.
+
+O recibo sai em ESC/POS, 32 colunas e sem acentos (cada impressora usa uma tabela de caracteres; sem acento sai igual
+em todas). Ele traz o código, retirada ou entrega, a data, o cliente, o telefone, o endereço, os itens, o total e a
+observação. Impressoras só BLE (sem o perfil serial SPP) não aparecem na lista. Se a impressão falhar, o admin
+avisa; a fila tenta reabrir a conexão uma vez antes de desistir.
+
+`POST /api/pedidos` tem limite de `PEDIDO_LIMITE_POR_MINUTO` por IP. `GET /api/pedidos/{codigo}` (público, aceita
+o código com ou sem `EI-`) devolve só etapa, primeiro nome, data, forma, itens e total, sem telefone, endereço ou
+observação, com limite de `ACOMPANHAMENTO_LIMITE_POR_MINUTO` por IP para dificultar a tentativa de códigos.
+
+### Busca de CEP (ViaCEP)
+
+- `GET /api/enderecos/cep/{cep}` (público, limite de `CEP_LIMITE_POR_MINUTO` por IP): 200 com o endereço,
+  400 para CEP sem 8 números, 404 para CEP inexistente e 503 quando o ViaCEP não responde.
+- O acesso ao ViaCEP fica no projeto `Gateways/EntreIrmas.ViaCepService` (HttpClient nomeado com timeout,
+  cache em memória de `VIACEP_CACHE_HORAS` para CEPs encontrados e health check `viacep` como *Degraded*:
+  sem o ViaCEP a API continua de pé e o endereço é digitado à mão).
+- O navegador não chama o ViaCEP direto: passa pela API, que normaliza o retorno e aplica o limite.
+
+## Área da confeitaria (administrativa)
+
+Não há link no site: o acesso é pela URL **`/admin/entrar`**. Depois de entrar, o cabeçalho do site
+mostra o link "Painel" e a área tem menu próprio:
+
+| Tela | O que faz |
+|---|---|
+| Painel | Receita, custo dos produtos, despesas, perdas, lucro e margem do período; gráfico por dia/mês, mais vendidos e pedidos por etapa |
+| Pedidos | Lista com filtros, troca de etapa, WhatsApp do cliente e lançamento de pedido feito fora do site |
+| Produtos | Cadastro com preço, **custo**, margem, **foto** (upload) e se é **sob encomenda**; tirar do cardápio sem excluir |
+| Categorias | Cadastro e ordem no cardápio; só exclui categoria sem produtos |
+| Despesas e perdas | Lançamentos que entram no cálculo do lucro |
+| Usuários | Criar, redefinir senha, bloquear e excluir (ninguém tira o próprio acesso) |
+
+**Como o lucro é calculado:** vendas são os pedidos confirmados e não cancelados, pela data desejada.
+Lucro = vendas − custo dos produtos vendidos − despesas − perdas. O custo é copiado para o item no momento
+do pedido (como o preço), então mudar o custo depois não altera o lucro dos pedidos antigos.
+
+**Cardápio:** pronta entrega primeiro e, por último, o bloco "Sob encomenda" (com o aviso da antecedência).
+
+**Fotos dos produtos:** ficam no MySQL (`IMAGEM_PRODUTO`, separada de `PRODUTO` para a listagem não carregar os
+bytes). O navegador reduz a foto para até 1200px em WEBP (ou JPG) antes de enviar; a API aceita JPG, PNG ou WEBP
+de até 2 MB, conferindo os bytes do arquivo, e entrega em `GET /api/produtos/{id}/imagem` com cache de um ano
+(a URL tem a versão `?v=`, que muda a cada envio).
+
+**Segurança:** login com JWT (validade `JWT_EXPIRACAO_HORAS`), senhas em PBKDF2-SHA256 com 600 mil iterações,
+limite de `LOGIN_LIMITE_POR_MINUTO` tentativas por IP e a mesma mensagem para usuário inexistente ou senha errada.
 
 ## Rodando localmente
 
@@ -36,6 +122,19 @@ Aplique os scripts (sem Flyway instalado, o script abaixo usa o cliente `mysql`;
 
 ```powershell
 .\entreirmas.dados\local\aplicar-scripts-local.ps1 -Usuario root
+```
+
+Banco que já tem as versões anteriores: aplique só as novas com `-APartirDe` (ex.: `-APartirDe 1.0.6`).
+O `V1.0.9` cria a tabela das fotos dos produtos; o `V1.0.10` marca os produtos sob encomenda (os já cadastrados
+começam sem: marque na tela Produtos); o `V1.0.11` separa o endereço de entrega em colunas (os pedidos antigos
+mantêm só o texto em `PEDI_DS_ENDERECO`); o `V1.0.12` cria a tabela `LOJA` (já aberta).
+
+Usuários iniciais (suellen e tatiane): o script `entreirmas.dados/local/criar-usuarios-iniciais.sql`
+**não vai para o git** (está no `.gitignore`, porque o repositório é público) e traz a senha padrão no
+cabeçalho. Rode à mão depois dos scripts acima e troque as senhas na tela Usuários:
+
+```powershell
+Get-Content .\entreirmas.dados\local\criar-usuarios-iniciais.sql -Raw | mysql -u root -p entreirmas
 ```
 
 ### 2. API
@@ -79,7 +178,9 @@ cd entreirmas.ui && npx jest && npm run lint && npx ng build --configuration pro
 | `CORS_ORIGENS` | muda por ambiente | origens separadas por vírgula |
 | `USE_SWAGGER` | muda por ambiente | |
 | `MYSQL_VERSAO`, `MYSQL_TIMEOUT_SEGUNDOS`, `HEALTHCHECK_TIMEOUT_SEGUNDOS`, `JWT_EMISSOR`, `JWT_AUDIENCIA` | comum | só no `appsettings.json` |
-| `WHATSAPP_NUMERO`, `PEDIDO_ANTECEDENCIA_MINIMA_DIAS`, `PEDIDO_LIMITE_POR_MINUTO` | comum | só no `appsettings.json` |
+| `JWT_EXPIRACAO_HORAS`, `LOGIN_LIMITE_POR_MINUTO` | comum | só no `appsettings.json` (12 h e 5 tentativas) |
+| `WHATSAPP_NUMERO`, `PEDIDO_ANTECEDENCIA_MINIMA_DIAS`, `PEDIDO_LIMITE_POR_MINUTO`, `ACOMPANHAMENTO_LIMITE_POR_MINUTO` | comum | só no `appsettings.json` (acompanhamento: 30 consultas) |
+| `VIACEP_URL`, `VIACEP_TIMEOUT_SEGUNDOS`, `VIACEP_CACHE_HORAS`, `CEP_LIMITE_POR_MINUTO` | comum | só no `appsettings.json` (5 s, 24 h e 30 consultas) |
 
 No front, `whatsappNumero` e `antecedenciaMinimaDias` estão em todos os `src/environments/*` e precisam
 acompanhar os valores da API.
@@ -88,19 +189,23 @@ acompanhar os valores da API.
 
 - **MySQL no lugar de Oracle.** O MySQL não tem `SEQUENCE`: as chaves usam `AUTO_INCREMENT` e a API
   usa `ValueGeneratedOnAdd()` no lugar de `UseHiLo`. Os scripts mantêm as 5 seções; a seção 5 fica como nota.
-  Comentários de coluna vão na própria definição (sintaxe do MySQL).
+  Comentários de coluna vão na própria definição (sintaxe do MySQL). As linhas de separação começam
+  com `-- ` (com espaço): no MySQL, `--` sem espaço depois não é comentário.
+- **Sem o projeto `docs`.** Os scripts ficam só em `entreirmas.dados`, sem a cópia em `Recursos/sandbox`.
 - **EF Core 9 com .NET 10.** O Pomelo (MIT) ainda não tem versão para o EF Core 10, e o provedor da Oracle
   para MySQL é GPL. Atualizar para EF Core 10 quando sair o Pomelo 10.
 - **MySqlConnector fixado em 2.6.2**: a 2.4.0 trazida pelo Pomelo tem vulnerabilidade conhecida (GHSA-473q-m89c-ghf8).
 - **FluentAssertions 7.2** (Apache 2.0): a 8.x tem licença comercial.
 - **FluentValidation 11.11**: o `FluentValidation.AspNetCore` 11.3 não aceita a 12.
-- **Sem PrimeNG**: as telas são próprias; o Material entra nos campos do checkout e nas notificações.
-- **Autenticação**: o JWT e o `AuthorizeFilter` global estão configurados, mas todas as rotas atuais são
-  públicas (`[AllowAnonymous]`). `AuthService`/`AuthGuard` no front entram junto com o painel administrativo.
-- **Ainda não criado**: painel administrativo (cardápio e pedidos), Cypress, manifestos k8s e pipelines do GitLab.
+- **Sem PrimeNG**: as telas são próprias; o Material entra nos campos, seleções, diálogos e notificações.
+- **Autenticação**: `AuthorizeFilter` global; as rotas do site usam `[AllowAnonymous]` e as de `api/admin/*`
+  exigem o token. Há um único perfil (quem entra pode tudo); `AuthService` e guards no front.
+- **Tabelas da área administrativa** viram cartões pela largura do cartão (container query), não da janela:
+  com o menu lateral, 1024px deixa pouco espaço para as colunas.
+- **Ainda não criado**: Cypress, manifestos k8s e pipelines do GitLab.
 
 ## Conteúdo a revisar com a confeitaria
 
 - Produtos, descrições e **preços da carga inicial** (`V1.0.5__Insert_CardapioInicial.sql`) são exemplos.
-- Os produtos usam ilustrações próprias em SVG; para usar fotos, preencha `PROD_DS_URL_IMAGEM`.
+- Os produtos usam ilustrações próprias em SVG até receberem uma foto (tela Produtos → Foto).
 - Textos da página inicial ("Nossa cozinha") e o número do WhatsApp (tirado da bio do Instagram).

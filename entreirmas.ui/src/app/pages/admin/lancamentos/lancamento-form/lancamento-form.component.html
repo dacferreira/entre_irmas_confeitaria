@@ -1,0 +1,53 @@
+<form class="dialogo" [formGroup]="formulario" (ngSubmit)="salvar()" novalidate aria-labelledby="lancamento-titulo">
+  <div class="dialogo__topo">
+    <h2 id="lancamento-titulo">{{ lancamento ? 'Editar lançamento' : 'Lançar despesa ou perda' }}</h2>
+    <button type="button" class="botao-icone" aria-label="Fechar" (click)="cancelar()">
+      <eirm-icone nome="fechar" />
+    </button>
+  </div>
+
+  <div class="dialogo__corpo">
+    <div class="tipos" role="radiogroup" aria-label="Tipo">
+      @for (tipo of tipos; track tipo.valor) {
+        <label class="tipo" [class.tipo--ativo]="formulario.controls.tipo.value === tipo.valor">
+          <input type="radio" formControlName="tipo" [value]="tipo.valor" />
+          <strong>{{ tipo.rotulo }}</strong>
+          <span>{{ tipo.dica }}</span>
+        </label>
+      }
+    </div>
+
+    <mat-form-field>
+      <mat-label>Descrição</mat-label>
+      <input matInput formControlName="descricao" maxlength="200" placeholder="Ex.: Compra de chocolate" />
+      @if (formulario.controls.descricao.hasError('required')) {
+        <mat-error>Descreva o lançamento.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="grade-campos">
+      <mat-form-field>
+        <mat-label>Valor</mat-label>
+        <span matTextPrefix>R$&nbsp;</span>
+        <input matInput type="number" min="0.01" step="0.01" formControlName="valor" />
+        @if (formulario.controls.valor.invalid) {
+          <mat-error>Valor maior que zero.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Data</mat-label>
+        <input matInput type="date" formControlName="data" />
+        @if (formulario.controls.data.hasError('required')) {
+          <mat-error>Escolha a data.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="dialogo__rodape">
+    <button type="button" class="botao botao--contorno botao--pequeno" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="botao botao--pequeno" [disabled]="salvando()">
+      {{ salvando() ? 'Salvando…' : 'Salvar' }}
+    </button>
+  </div>
+</form>

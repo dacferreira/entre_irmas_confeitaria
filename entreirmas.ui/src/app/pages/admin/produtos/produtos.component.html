@@ -1,0 +1,132 @@
+<div class="admin-topo">
+  <div>
+    <h1>Produtos</h1>
+    <p>O cardápio do site, com preço, custo e margem.</p>
+  </div>
+  <button type="button" class="botao botao--pequeno" (click)="abrirFormulario()">
+    <eirm-icone nome="mais" />
+    Novo produto
+  </button>
+</div>
+
+<section class="admin-cartao">
+  <div class="admin-filtros">
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Buscar</mat-label>
+      <input matInput [ngModel]="busca()" (ngModelChange)="busca.set($event)" />
+    </mat-form-field>
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Categoria</mat-label>
+      <mat-select [ngModel]="categoriaId()" (ngModelChange)="categoriaId.set($event)">
+        <mat-option [value]="null">Todas</mat-option>
+        @for (categoria of categorias(); track categoria.id) {
+          <mat-option [value]="categoria.id">{{ categoria.nome }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Situação</mat-label>
+      <mat-select [ngModel]="situacao()" (ngModelChange)="situacao.set($event)">
+        <mat-option value="todos">Todos</mat-option>
+        <mat-option value="ativos">No cardápio</mat-option>
+        <mat-option value="inativos">Fora do cardápio</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (produtos(); as lista) {
+    @if (filtrados().length > 0) {
+      <table class="tabela">
+        <thead>
+          <tr>
+            <th scope="col">Produto</th>
+            <th scope="col">Categoria</th>
+            <th scope="col" class="numero">Preço e margem</th>
+            <th scope="col">No cardápio</th>
+            <th scope="col" class="acoes"><span class="somente-leitor">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (produto of filtrados(); track produto.id) {
+            <tr [class.inativo]="!produto.ativo">
+              <td class="principal">
+                <span class="produto">
+                  <span class="produto__foto" [attr.data-sabor]="produto.ilustracao">
+                    @if (produto.urlImagem | urlImagem; as url) {
+                      <img [src]="url" alt="" loading="lazy" width="44" height="44" />
+                    } @else {
+                      <eirm-ilustracao [tipo]="produto.ilustracao" />
+                    }
+                  </span>
+                  <span>
+                    {{ produto.nome }}
+                    @if (produto.destaque) {
+                      <span class="destaque">destaque</span>
+                    }
+                    @if (produto.encomenda) {
+                      <span class="destaque destaque--encomenda">encomenda</span>
+                    }
+                    <span class="secundario">{{ produto.unidade }} · mínimo {{ produto.quantidadeMinima }}</span>
+                  </span>
+                </span>
+              </td>
+              <td data-rotulo="Categoria">{{ produto.categoriaNome }}</td>
+              <td data-rotulo="Preço e margem" class="numero">
+                <span class="preco">
+                  <strong>{{ produto.preco | currency }}</strong>
+                  @if (produto.custo > 0) {
+                    <span class="secundario" [class.margem-baixa]="margem(produto) < 30">
+                      custo {{ produto.custo | currency }} · {{ margem(produto) | number: '1.0-0' }}%
+                    </span>
+                  } @else {
+                    <span class="secundario sem-custo" title="Sem custo, o lucro deste produto fica superestimado">
+                      informe o custo
+                    </span>
+                  }
+                </span>
+              </td>
+              <td data-rotulo="No cardápio">
+                <button
+                  type="button"
+                  class="interruptor"
+                  role="switch"
+                  [attr.aria-checked]="produto.ativo"
+                  [attr.aria-label]="(produto.ativo ? 'Tirar ' : 'Colocar ') + produto.nome + (produto.ativo ? ' do cardápio' : ' no cardápio')"
+                  [disabled]="alterando() === produto.id"
+                  (click)="alternarSituacao(produto)">
+                  <span class="interruptor__trilho" aria-hidden="true"></span>
+                  {{ produto.ativo ? 'Sim' : 'Não' }}
+                </button>
+              </td>
+              <td class="acoes">
+                <button type="button" class="botao-icone" [attr.aria-label]="'Editar ' + produto.nome" (click)="abrirFormulario(produto)">
+                  <eirm-icone nome="editar" />
+                </button>
+                <button
+                  type="button"
+                  class="botao-icone botao-icone--perigo"
+                  [attr.aria-label]="'Excluir ' + produto.nome"
+                  (click)="excluir(produto)">
+                  <eirm-icone nome="lixeira" />
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <p class="rodape-lista">{{ filtrados().length }} de {{ lista.length }} produto(s)</p>
+    } @else {
+      <div class="admin-vazio">
+        <strong>{{ lista.length ? 'Nenhum produto com esses filtros.' : 'Nenhum produto cadastrado.' }}</strong>
+        <button type="button" class="botao botao--pequeno" (click)="abrirFormulario()">Cadastrar produto</button>
+      </div>
+    }
+  } @else if (falhou()) {
+    <div class="admin-vazio" role="alert">
+      <strong>Não foi possível carregar os produtos.</strong>
+      <button type="button" class="botao botao--pequeno" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else {
+    <div class="esqueleto carregando" aria-busy="true"></div>
+  }
+</section>

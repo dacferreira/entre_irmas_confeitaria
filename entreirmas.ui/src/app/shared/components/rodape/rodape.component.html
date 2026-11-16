@@ -22,12 +22,13 @@
       <a [routerLink]="['/', rotas.CARDAPIO]">Cardápio completo</a>
       <a routerLink="/" fragment="como-funciona">Como funciona</a>
       <a [routerLink]="['/', rotas.FINALIZAR_PEDIDO]">Finalizar pedido</a>
+      <a [routerLink]="['/', rotas.ACOMPANHAR_PEDIDO]">Acompanhar pedido</a>
     </nav>
 
     <div class="rodape__coluna">
       <p class="rodape__titulo">Acompanhe</p>
       <a [href]="contato.instagramUrl" target="_blank" rel="noopener">Instagram {{ contato.instagramUsuario }}</a>
-      <p>Pedidos com {{ antecedencia }} dia(s) de antecedência.</p>
+      <p>Encomendas com {{ antecedencia }} dia(s) de antecedência.</p>
       <p>Entrega e pagamento combinados pelo WhatsApp.</p>
     </div>
   </div>

@@ -10,9 +10,10 @@ public class PedidoTests
     [Fact]
     public void Criar_ComRetirada_DescartaEnderecoEIniciaComoRecebido()
     {
-        var pedido = DadosDeTeste.Pedido(TipoEntrega.Retirada, endereco: "Rua A, 10", observacao: "  ");
+        var pedido = DadosDeTeste.Pedido(TipoEntrega.Retirada, endereco: DadosDeTeste.Endereco(), observacao: "  ");
 
         pedido.Endereco.Should().BeNull();
+        pedido.EnderecoEntrega.Should().BeNull();
         pedido.Observacao.Should().BeNull();
         pedido.Status.Should().Be(StatusPedido.Recebido);
         pedido.CadastradoPor.Should().Be("TESTE");
@@ -21,9 +22,42 @@ public class PedidoTests
     [Fact]
     public void Criar_EntregaSemEndereco_LancaDomainException()
     {
-        var criar = () => DadosDeTeste.Pedido(TipoEntrega.Entrega, endereco: " ");
+        var criar = () => DadosDeTeste.Pedido(TipoEntrega.Entrega, endereco: null);
 
         criar.Should().Throw<DomainException>().WithMessage("*endereço*");
+    }
+
+    [Fact]
+    public void Criar_ComEntrega_GuardaAsPartesEOEnderecoEmUmaLinha()
+    {
+        var pedido = DadosDeTeste.Pedido(TipoEntrega.Entrega, endereco: DadosDeTeste.Endereco());
+
+        pedido.EnderecoEntrega!.Cep.Should().Be("20000000");
+        pedido.EnderecoEntrega.Uf.Should().Be("RJ");
+        pedido.Endereco.Should().Be("Rua das Flores, 10 - Apto 2 - Centro, Rio de Janeiro/RJ - CEP 20000-000");
+    }
+
+    [Fact]
+    public void Endereco_SemComplemento_NaoDeixaTracoSobrando()
+    {
+        DadosDeTeste.Endereco(complemento: " ").Formatar()
+            .Should().Be("Rua das Flores, 10 - Centro, Rio de Janeiro/RJ - CEP 20000-000");
+        DadosDeTeste.Endereco().Should().Be(DadosDeTeste.Endereco());
+    }
+
+    [Theory]
+    [InlineData("2000000", "Rua", "10", "Centro", "Rio", "RJ")]
+    [InlineData("20000000", " ", "10", "Centro", "Rio", "RJ")]
+    [InlineData("20000000", "Rua", "", "Centro", "Rio", "RJ")]
+    [InlineData("20000000", "Rua", "10", "", "Rio", "RJ")]
+    [InlineData("20000000", "Rua", "10", "Centro", " ", "RJ")]
+    [InlineData("20000000", "Rua", "10", "Centro", "Rio", "R")]
+    public void Endereco_Incompleto_LancaDomainException(string cep, string rua, string numero, string bairro,
+        string cidade, string uf)
+    {
+        var criar = () => new EnderecoEntrega(cep, rua, numero, null, bairro, cidade, uf);
+
+        criar.Should().Throw<DomainException>();
     }
 
     [Theory]

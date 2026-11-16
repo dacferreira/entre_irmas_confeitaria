@@ -1,0 +1,216 @@
+<div class="admin-topo">
+  <div>
+    <h1>Painel</h1>
+    <p>Vendas, lucro e perdas do período.</p>
+  </div>
+</div>
+
+<section class="periodo admin-cartao" aria-label="Período">
+  <div class="periodo__atalhos" role="group" aria-label="Atalhos de período">
+    @for (opcao of atalhos; track opcao.valor) {
+      <button
+        type="button"
+        class="chip"
+        [class.chip--ativo]="atalho() === opcao.valor"
+        [attr.aria-pressed]="atalho() === opcao.valor"
+        (click)="escolherAtalho(opcao.valor)">
+        {{ opcao.rotulo }}
+      </button>
+    }
+  </div>
+  <div class="periodo__datas">
+    <label>
+      De
+      <input type="date" [value]="periodo().inicio" (change)="alterarData('inicio', $any($event.target).value)" />
+    </label>
+    <label>
+      até
+      <input type="date" [value]="periodo().fim" (change)="alterarData('fim', $any($event.target).value)" />
+    </label>
+  </div>
+</section>
+
+@if (falhou()) {
+  <div class="admin-cartao admin-vazio" role="alert">
+    <strong>Não foi possível carregar o painel.</strong>
+    <button type="button" class="botao botao--pequeno" (click)="recarregar()">Tentar de novo</button>
+  </div>
+} @else if (painel(); as p) {
+  <div class="conteudo-painel" [class.conteudo-painel--carregando]="carregando()" [attr.aria-busy]="carregando()">
+    @if (p.aguardandoConfirmacao.quantidade > 0) {
+      <a class="aviso" [routerLink]="['/', rotas.BASE, rotas.PEDIDOS]" [queryParams]="{ status: 'Recebido' }">
+        <span class="aviso__numero">{{ p.aguardandoConfirmacao.quantidade }}</span>
+        <span>
+          <strong>pedido(s) aguardando confirmação</strong>
+          {{ p.aguardandoConfirmacao.valor | currency }} que ainda não contam como venda.
+        </span>
+        <span class="aviso__ir" aria-hidden="true">→</span>
+      </a>
+    }
+
+    <section class="indicadores" aria-label="Resumo do período">
+      <article class="indicador indicador--destaque">
+        <span class="indicador__rotulo">Receita</span>
+        <strong class="indicador__valor">{{ p.receita | currency }}</strong>
+        <span class="indicador__extra">{{ p.quantidadeVendas }} venda(s) · ticket médio {{ p.ticketMedio | currency }}</span>
+      </article>
+
+      <article class="indicador" [class.indicador--positivo]="p.lucro >= 0" [class.indicador--negativo]="p.lucro < 0">
+        <span class="indicador__rotulo">
+          <eirm-icone [nome]="p.lucro >= 0 ? 'alta' : 'baixa'" />
+          {{ p.lucro >= 0 ? 'Lucro' : 'Prejuízo' }}
+        </span>
+        <strong class="indicador__valor">{{ p.lucro | currency }}</strong>
+        <span class="indicador__extra">
+          @if (p.margem !== null) {
+            margem de {{ p.margem | number: '1.0-1' }}%
+          } @else {
+            sem vendas no período
+          }
+        </span>
+      </article>
+
+      <article class="indicador">
+        <span class="indicador__rotulo">Custo dos produtos</span>
+        <strong class="indicador__valor">{{ p.custoProdutos | currency }}</strong>
+        <span class="indicador__extra">ingredientes e embalagem</span>
+      </article>
+
+      <article class="indicador">
+        <span class="indicador__rotulo">Despesas</span>
+        <strong class="indicador__valor">{{ p.despesas | currency }}</strong>
+        <a class="indicador__extra" [routerLink]="['/', rotas.BASE, rotas.LANCAMENTOS]">lançar despesa</a>
+      </article>
+
+      <article class="indicador">
+        <span class="indicador__rotulo">Perdas</span>
+        <strong class="indicador__valor">{{ p.perdas | currency }}</strong>
+        <span class="indicador__extra">
+          + {{ p.cancelados.quantidade }} cancelado(s) ({{ p.cancelados.valor | currency }})
+        </span>
+      </article>
+    </section>
+
+    @if (temMovimento()) {
+      <div class="grade">
+        <section class="admin-cartao bloco bloco--largo" aria-labelledby="titulo-grafico">
+          <div class="bloco__topo">
+            <h2 id="titulo-grafico">Receita x custos por {{ p.agrupamento === 'Mes' ? 'mês' : 'dia' }}</h2>
+            <div class="legenda" aria-hidden="true">
+              <span class="legenda__item legenda__item--receita">Receita</span>
+              <span class="legenda__item legenda__item--custos">Custos</span>
+            </div>
+          </div>
+
+          <div class="grafico" aria-hidden="true">
+            @for (coluna of colunas(); track coluna.data) {
+              <div
+                class="grafico__coluna"
+                [title]="(coluna.data | dataBr) +
+                  ' · receita ' + (coluna.receita | currency) + ' · custos ' + (coluna.custos | currency) +
+                  ' · lucro ' + (coluna.lucro | currency)">
+                <div class="grafico__barras">
+                  <span class="grafico__barra grafico__barra--receita" [style.height.%]="coluna.alturaReceita"></span>
+                  <span class="grafico__barra grafico__barra--custos" [style.height.%]="coluna.alturaCustos"></span>
+                </div>
+                <span class="grafico__rotulo">{{ rotuloDoPonto(coluna.data, p.agrupamento) }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Mesma informação em tabela, para leitores de tela. -->
+          <table class="somente-leitor">
+            <caption>Receita, custos e lucro por {{ p.agrupamento === 'Mes' ? 'mês' : 'dia' }}</caption>
+            <tr><th>Data</th><th>Receita</th><th>Custos</th><th>Lucro</th></tr>
+            @for (coluna of colunas(); track coluna.data) {
+              @if (coluna.receita || coluna.custos) {
+                <tr>
+                  <td>{{ coluna.data | dataBr }}</td>
+                  <td>{{ coluna.receita | currency }}</td>
+                  <td>{{ coluna.custos | currency }}</td>
+                  <td>{{ coluna.lucro | currency }}</td>
+                </tr>
+              }
+            }
+          </table>
+        </section>
+
+        <section class="admin-cartao bloco" aria-labelledby="titulo-divisao">
+          <h2 id="titulo-divisao">Para onde vai a receita</h2>
+          <div class="divisao" aria-hidden="true">
+            @for (fatia of fatias(); track fatia.rotulo) {
+              @if (fatia.percentual > 0) {
+                <span class="fatia" [class]="fatia.classe" [style.flex-basis.%]="fatia.percentual"></span>
+              }
+            }
+          </div>
+          <ul class="divisao__lista">
+            @for (fatia of fatias(); track fatia.rotulo) {
+              <li>
+                <span class="marcador" [class]="fatia.classe" aria-hidden="true"></span>
+                <span class="divisao__rotulo">{{ fatia.rotulo }}</span>
+                <span class="divisao__valor">{{ fatia.valor | currency }}</span>
+                <span class="divisao__pct">{{ fatia.percentual | number: '1.0-0' }}%</span>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section class="admin-cartao bloco" aria-labelledby="titulo-mais-vendidos">
+          <h2 id="titulo-mais-vendidos">Mais vendidos</h2>
+          @if (p.produtosMaisVendidos.length > 0) {
+            <ol class="ranking">
+              @for (produto of p.produtosMaisVendidos; track produto.produtoId) {
+                <li class="ranking__item">
+                  <div class="ranking__linha">
+                    <span class="ranking__nome">{{ produto.nome }}</span>
+                    <span class="ranking__valor">{{ produto.receita | currency }}</span>
+                  </div>
+                  <div class="ranking__trilho" aria-hidden="true">
+                    <span [style.width.%]="(produto.receita / maiorVenda()) * 100"></span>
+                  </div>
+                  <span class="ranking__extra">
+                    {{ produto.quantidade }} × {{ produto.unidade }} · lucro {{ produto.lucro | currency }}
+                  </span>
+                </li>
+              }
+            </ol>
+          } @else {
+            <p class="texto-suave">Nenhuma venda confirmada no período.</p>
+          }
+        </section>
+
+        <section class="admin-cartao bloco" aria-labelledby="titulo-status">
+          <h2 id="titulo-status">Pedidos por etapa</h2>
+          @if (statusComPedidos().length > 0) {
+            <ul class="etapas">
+              @for (item of statusComPedidos(); track item.status) {
+                <li>
+                  <a [routerLink]="['/', rotas.BASE, rotas.PEDIDOS]" [queryParams]="{ status: item.status }">
+                    <span class="selo" [class]="'selo--' + item.opcao.tom">{{ item.opcao.rotulo }}</span>
+                    <span class="etapas__qtd">{{ item.quantidade }}</span>
+                    <span class="etapas__valor">{{ item.valor | currency }}</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="texto-suave">Nenhum pedido com data no período.</p>
+          }
+        </section>
+      </div>
+    } @else {
+      <div class="admin-cartao admin-vazio">
+        <strong>Nada por aqui ainda.</strong>
+        <p>Sem vendas confirmadas, despesas ou perdas entre {{ p.inicio | dataBr }} e {{ p.fim | dataBr }}.</p>
+        <a class="botao botao--pequeno" [routerLink]="['/', rotas.BASE, rotas.PEDIDOS]">Ver pedidos</a>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="indicadores" aria-busy="true" aria-label="Carregando">
+    @for (n of [1, 2, 3, 4, 5]; track n) {
+      <div class="indicador esqueleto"></div>
+    }
+  </div>
+}

@@ -1,10 +1,15 @@
+import { EnderecoPedido } from './endereco.model';
+
 export type TipoEntrega = 'Retirada' | 'Entrega';
+
+export type StatusPedido = 'Recebido' | 'Confirmado' | 'EmPreparo' | 'Pronto' | 'Entregue' | 'Cancelado';
 
 export interface NovoPedido {
   nomeCliente: string;
   telefone: string;
   tipoEntrega: TipoEntrega;
-  endereco: string | null;
+  /** Só na entrega. */
+  endereco: EnderecoPedido | null;
   /** Data no formato yyyy-MM-dd. */
   dataDesejada: string;
   observacao: string | null;
@@ -18,6 +23,19 @@ export interface ItemPedido {
   quantidade: number;
   precoUnitario: number;
   valorTotal: number;
+}
+
+/** Etapa do pedido para o cliente (sem telefone, endereço nem observação). */
+export interface AcompanhamentoPedido {
+  codigo: string;
+  primeiroNome: string;
+  tipoEntrega: TipoEntrega;
+  /** Data no formato yyyy-MM-dd. */
+  dataDesejada: string;
+  dataDoPedido: string;
+  status: StatusPedido;
+  valorTotal: number;
+  itens: ItemPedido[];
 }
 
 export interface PedidoCriado {

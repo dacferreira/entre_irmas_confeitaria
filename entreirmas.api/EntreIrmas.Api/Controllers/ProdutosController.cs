@@ -30,4 +30,20 @@ public class ProdutosController : ControllerBase
     [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ObterPorSlug(string slug, CancellationToken cancellationToken) =>
         Ok(await _produtoAppService.ObterPorSlugAsync(slug, cancellationToken));
+
+    /// <summary>
+    /// Foto do produto. A URL tem a versão (?v=), que muda a cada envio, então a resposta pode ficar
+    /// em cache por um ano no navegador e no proxy.
+    /// </summary>
+    [HttpGet("{id:long}/imagem")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ObterImagem(long id, CancellationToken cancellationToken)
+    {
+        var imagem = await _produtoAppService.ObterImagemAsync(id, cancellationToken);
+
+        Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+        Response.Headers.XContentTypeOptions = "nosniff";
+        return File(imagem.Conteudo, imagem.TipoConteudo);
+    }
 }

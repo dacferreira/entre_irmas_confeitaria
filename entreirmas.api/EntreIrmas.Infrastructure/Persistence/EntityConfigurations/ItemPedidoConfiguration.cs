@@ -18,6 +18,8 @@ internal sealed class ItemPedidoConfiguration : IEntityTypeConfiguration<ItemPed
         builder.Property(b => b.Unidade).HasColumnName("ITPE_DS_UNIDADE").HasMaxLength(40).IsRequired();
         builder.Property(b => b.Quantidade).HasColumnName("ITPE_NR_QUANTIDADE").IsRequired();
         builder.Property(b => b.PrecoUnitario).HasColumnName("ITPE_NR_PRECO_UNITARIO").HasPrecision(10, 2).IsRequired();
+        builder.Property(b => b.CustoUnitario).HasColumnName("ITPE_NR_CUSTO_UNITARIO").HasPrecision(10, 2).IsRequired();
+        builder.Ignore(b => b.CustoTotal);
         builder.Property(b => b.ValorTotal).HasColumnName("ITPE_NR_VALOR_TOTAL").HasPrecision(10, 2).IsRequired();
         builder.Property(b => b.CadastradoPor).HasColumnName("ITPE_NM_CADASTRADO_POR").HasMaxLength(30).IsRequired();
         builder.Property(b => b.Estado).HasColumnName("ITPE_IN_ATIVO").HasConversion<int>().IsRequired();

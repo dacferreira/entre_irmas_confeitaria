@@ -5,4 +5,5 @@ export const ROTAS = {
   PRODUTO: 'produto',
   FINALIZAR_PEDIDO: 'finalizar-pedido',
   PEDIDO_CONFIRMADO: 'pedido-confirmado',
+  ACOMPANHAR_PEDIDO: 'acompanhar-pedido',
 } as const;

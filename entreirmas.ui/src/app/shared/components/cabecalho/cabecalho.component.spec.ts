@@ -1,6 +1,10 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { AuthService } from '@services/auth.service';
 import { SacolaService } from '@services/sacola.service';
+import { criarSessao } from '@testing/dados-admin';
 import { criarProduto } from '@testing/dados-de-teste';
 import { CabecalhoComponent } from './cabecalho.component';
 
@@ -11,7 +15,7 @@ describe('CabecalhoComponent', () => {
 
   beforeEach(() => {
     localStorage.clear();
-    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
     sacola = TestBed.inject(SacolaService);
     fixture = TestBed.createComponent(CabecalhoComponent);
     fixture.detectChanges();
@@ -40,6 +44,18 @@ describe('CabecalhoComponent', () => {
     elemento.querySelector<HTMLAnchorElement>('.menu__link')!.click();
     fixture.detectChanges();
     expect(botaoMenu.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('mostra o link do painel só para quem já entrou na área administrativa', () => {
+    const textos = (): string[] =>
+      Array.from(elemento.querySelectorAll('.menu__link')).map((link) => link.textContent?.trim() ?? '');
+    expect(textos()).not.toContain('Painel');
+
+    TestBed.inject(AuthService).entrar('suellen', 'x').subscribe();
+    TestBed.inject(HttpTestingController).expectOne(() => true).flush(criarSessao());
+    fixture.detectChanges();
+
+    expect(textos()).toContain('Painel');
   });
 
   it('marca o cabeçalho ao rolar a página', () => {

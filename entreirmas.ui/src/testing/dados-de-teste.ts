@@ -1,5 +1,5 @@
 import { Categoria } from '@models/categoria.model';
-import { PedidoCriado } from '@models/pedido.model';
+import { AcompanhamentoPedido, PedidoCriado } from '@models/pedido.model';
 import { Produto } from '@models/produto.model';
 
 /** Dados usados nos specs. */
@@ -15,6 +15,7 @@ export function criarProduto(parcial: Partial<Produto> = {}): Produto {
     ilustracao: 'brownie',
     urlImagem: null,
     destaque: true,
+    encomenda: false,
     categoriaSlug: 'brownies',
     categoriaNome: 'Brownies & Fudges',
     ...parcial,
@@ -48,10 +49,48 @@ export const BICHO_DE_PE = criarProduto({
 
 export const PRODUTOS: Produto[] = [criarProduto(), BRIGADEIRO, BICHO_DE_PE];
 
+/** Endereço como digitado no formulário (com máscara e espaços). */
+export const ENDERECO_DIGITADO = {
+  cep: '20000-000',
+  logradouro: ' Rua das Flores ',
+  numero: '10',
+  complemento: ' ',
+  bairro: 'Centro',
+  cidade: 'Rio de Janeiro',
+  uf: 'RJ',
+};
+
+/** O mesmo endereço como vai para a API. */
+export const ENDERECO_ENVIADO = {
+  cep: '20000000',
+  logradouro: 'Rua das Flores',
+  numero: '10',
+  complemento: null,
+  bairro: 'Centro',
+  cidade: 'Rio de Janeiro',
+  uf: 'RJ',
+};
+
 export const CATEGORIAS: Categoria[] = [
   { id: 1, nome: 'Brownies & Fudges', slug: 'brownies', descricao: null, quantidadeProdutos: 1 },
   { id: 2, nome: 'Docinhos', slug: 'docinhos', descricao: null, quantidadeProdutos: 2 },
 ];
+
+export function criarAcompanhamento(parcial: Partial<AcompanhamentoPedido> = {}): AcompanhamentoPedido {
+  return {
+    codigo: 'EI-ABC234',
+    primeiroNome: 'Maria',
+    tipoEntrega: 'Retirada',
+    dataDesejada: '2026-11-20',
+    dataDoPedido: '2026-11-14T15:30:00',
+    status: 'Recebido',
+    valorTotal: 18,
+    itens: [
+      { produtoId: 1, nomeProduto: 'Brownie Tradicional', unidade: 'unidade', quantidade: 2, precoUnitario: 9, valorTotal: 18 },
+    ],
+    ...parcial,
+  };
+}
 
 export function criarPedido(parcial: Partial<PedidoCriado> = {}): PedidoCriado {
   return {

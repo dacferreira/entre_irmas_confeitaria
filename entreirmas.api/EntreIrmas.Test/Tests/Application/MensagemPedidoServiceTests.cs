@@ -21,7 +21,7 @@ public class MensagemPedidoServiceTests
     [Fact]
     public void MontarMensagem_ComEntrega_ListaItensTotalEEndereco()
     {
-        var pedido = DadosDeTeste.Pedido(TipoEntrega.Entrega, "Rua das Flores, 10", "Sem lactose");
+        var pedido = DadosDeTeste.Pedido(TipoEntrega.Entrega, DadosDeTeste.Endereco(), "Sem lactose");
         pedido.AdicionarItem(DadosDeTeste.Produto(1, preco: 12.5m), 2);
 
         var mensagem = _service.MontarMensagem(pedido);
@@ -31,7 +31,7 @@ public class MensagemPedidoServiceTests
             .And.Contain("*Total: R$")
             .And.Contain("25,00")
             .And.Contain("Data desejada: 20/12/2026")
-            .And.Contain("Entrega em: Rua das Flores, 10")
+            .And.Contain("Entrega em: Rua das Flores, 10 - Apto 2 - Centro, Rio de Janeiro/RJ - CEP 20000-000")
             .And.Contain("Observação: Sem lactose");
     }
 

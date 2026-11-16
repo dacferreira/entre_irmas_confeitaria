@@ -1,0 +1,228 @@
+@use 'theme/mixins' as *;
+
+:host {
+  --largura-lateral: 260px;
+  --altura-barra-movel: 60px;
+
+  display: block;
+}
+
+.pular {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 300;
+  padding: 12px 20px;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-texto);
+  color: var(--cor-fundo);
+  font-weight: 700;
+  text-decoration: none;
+
+  &:focus {
+    top: 12px;
+  }
+}
+
+.admin {
+  min-height: 100dvh;
+  background: var(--cor-fundo);
+
+  @include acima('lg') {
+    display: grid;
+    grid-template-columns: var(--largura-lateral) minmax(0, 1fr);
+  }
+}
+
+// ---------- Barra do celular ----------
+.barra-movel {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--altura-barra-movel);
+  padding: 0 12px;
+  border-bottom: 1px solid var(--cor-borda);
+  background: rgb(255 248 241 / 92%);
+  backdrop-filter: blur(10px);
+
+  &__marca {
+    flex: 1;
+    font-family: var(--fonte-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  @include acima('lg') {
+    display: none;
+  }
+}
+
+.fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 29;
+  background: rgb(43 23 18 / 40%);
+
+  @include acima('lg') {
+    display: none;
+  }
+}
+
+// ---------- Menu lateral ----------
+.lateral {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  width: min(var(--largura-lateral), 86vw);
+  padding: 24px 16px 16px;
+  background: var(--cor-cacau);
+  color: #f7e9df;
+  transform: translateX(-100%);
+  transition: transform var(--transicao);
+  visibility: hidden;
+
+  .admin--menu-aberto & {
+    transform: none;
+    visibility: visible;
+  }
+
+  @include acima('lg') {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    width: auto;
+    transform: none;
+    visibility: visible;
+  }
+
+  &__marca {
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px 24px;
+  }
+
+  &__nome {
+    font-family: var(--fonte-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+  }
+
+  &__sub {
+    margin-top: 4px;
+    color: var(--cor-primaria-viva);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  &__menu {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: var(--raio-p);
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color var(--transicao), color var(--transicao);
+
+    eirm-icone {
+      opacity: 0.8;
+    }
+
+    &:hover {
+      background: rgb(255 255 255 / 8%);
+      color: #fff;
+    }
+
+    &--ativo {
+      background: var(--cor-primaria);
+      color: #fff;
+      box-shadow: var(--sombra-botao);
+
+      eirm-icone {
+        opacity: 1;
+      }
+
+      &:hover {
+        background: var(--cor-primaria);
+      }
+    }
+  }
+
+  &__rodape {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid rgb(255 255 255 / 12%);
+  }
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px 0 12px;
+
+  &__nome {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    color: #fff;
+    font-weight: 700;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+
+    small {
+      color: #d8bfb1;
+      font-weight: 500;
+    }
+  }
+
+  .botao-icone {
+    color: #d8bfb1;
+
+    &:hover {
+      background: rgb(255 255 255 / 10%);
+      color: #fff;
+    }
+  }
+}
+
+.avatar {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--cor-primaria-clara);
+  color: var(--cor-primaria-escura);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+// ---------- Conteúdo ----------
+.conteudo {
+  min-width: 0;
+  padding: clamp(16px, 3vw, 40px);
+  outline: none;
+}

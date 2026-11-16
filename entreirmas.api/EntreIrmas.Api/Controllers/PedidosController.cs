@@ -34,4 +34,17 @@ public class PedidosController : ControllerBase
         var pedido = await _pedidoAppService.CriarAsync(dto, cancellationToken);
         return StatusCode(StatusCodes.Status201Created, pedido);
     }
+
+    /// <summary>
+    /// Etapa do pedido para o cliente acompanhar pelo código (com ou sem o "EI-").
+    /// Não devolve telefone, endereço nem observação.
+    /// </summary>
+    [HttpGet("{codigo}")]
+    [EnableRateLimiting(RateLimitExtension.PoliticaAcompanhamento)]
+    [ProducesResponseType(typeof(AcompanhamentoPedidoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status429TooManyRequests)]
+    public async Task<IActionResult> Acompanhar(string codigo, CancellationToken cancellationToken) =>
+        Ok(await _pedidoAppService.AcompanharAsync(codigo, cancellationToken));
 }

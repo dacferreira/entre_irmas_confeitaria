@@ -1,6 +1,6 @@
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- 1. DDL - CRIACAO DA TABELA PEDIDO
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- MySQL nao tem SEQUENCE: a chave usa AUTO_INCREMENT e a API mapeia com ValueGeneratedOnAdd().
 CREATE TABLE PEDIDO (
   PEDI_SQ_PEDIDO             BIGINT         NOT NULL AUTO_INCREMENT COMMENT 'Chave primaria sequencial da tabela.',
@@ -19,25 +19,25 @@ CREATE TABLE PEDIDO (
   CONSTRAINT PK_PEDI PRIMARY KEY (PEDI_SQ_PEDIDO)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---------------------------------------------------------
+-- -----------------------------------------------------
 -- 2. DDL for Index
---------------------------------------------------------
+-- -----------------------------------------------------
 
 CREATE UNIQUE INDEX UK_PEDI_CODIGO ON PEDIDO (PEDI_CD_PEDIDO);
 CREATE INDEX IX_PEDI_DATA_STATUS ON PEDIDO (PEDI_DT_DESEJADA, PEDI_CD_STATUS);
 
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- 3. DESCRICAO DOS CAMPOS (COMMENTS)
-----------------------------------------------------------
+-- -------------------------------------------------------
 ALTER TABLE PEDIDO COMMENT = 'Pedidos feitos pelo site da confeitaria.';
 
---------------------------------------------------------
+-- -----------------------------------------------------
 -- 4. Constraints for Table PEDIDO
---------------------------------------------------------
+-- -----------------------------------------------------
 
 ALTER TABLE PEDIDO ADD CONSTRAINT CK_PEDI_TIPO_ENTREGA CHECK (PEDI_CD_TIPO_ENTREGA IN ('Retirada', 'Entrega'));
 
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- 5. SEQUENCES
-----------------------------------------------------------
+-- -------------------------------------------------------
 -- Nao se aplica ao MySQL (ver AUTO_INCREMENT na secao 1).

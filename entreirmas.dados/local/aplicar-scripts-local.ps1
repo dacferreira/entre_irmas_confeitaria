@@ -2,19 +2,23 @@
 # Serve para quem nao tem o Flyway instalado; nos ambientes (dsv, tst, hmg) use o Flyway com conf/<ambiente>.conf.
 # A senha e pedida pelo proprio mysql (-p) e nao fica gravada.
 #
-# Uso:  .\local\aplicar-scripts-local.ps1 [-Usuario root] [-Banco entreirmas]
+# Uso:  .\local\aplicar-scripts-local.ps1 [-Usuario root] [-Banco entreirmas] [-APartirDe 1.0.6]
+#       -APartirDe aplica so as versoes iguais ou posteriores (banco que ja tem as anteriores).
 
 param(
     [string]$Usuario = "root",
     [string]$Banco = "entreirmas",
-    [string]$Mysql = "mysql"
+    [string]$Mysql = "mysql",
+    [string]$APartirDe = "0.0"
 )
 
 $ErrorActionPreference = "Stop"
 $raiz = Split-Path -Parent $PSScriptRoot
 
-$scripts = Get-ChildItem -Path (Join-Path $raiz "owner") -Recurse -Filter "V*.sql" |
-    Sort-Object { [version](($_.BaseName -split "__")[0].TrimStart("V")) }
+$versao = { [version](($_.BaseName -split "__")[0].TrimStart("V")) }
+$scripts = @(Get-ChildItem -Path (Join-Path $raiz "owner") -Recurse -Filter "V*.sql" |
+    Where-Object { (& $versao) -ge [version]$APartirDe } |
+    Sort-Object $versao)
 
 if ($scripts.Count -eq 0) {
     Write-Host "Nenhum script encontrado em owner/."

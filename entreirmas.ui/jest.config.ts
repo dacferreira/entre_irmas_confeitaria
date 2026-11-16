@@ -32,7 +32,9 @@ const config: Config = {
     '^@produto/(.*)$': '<rootDir>/src/app/pages/produto/$1',
     '^@finalizar-pedido/(.*)$': '<rootDir>/src/app/pages/finalizar-pedido/$1',
     '^@pedido-confirmado/(.*)$': '<rootDir>/src/app/pages/pedido-confirmado/$1',
+    '^@acompanhar-pedido/(.*)$': '<rootDir>/src/app/pages/acompanhar-pedido/$1',
     '^@nao-encontrado/(.*)$': '<rootDir>/src/app/pages/nao-encontrado/$1',
+    '^@admin/(.*)$': '<rootDir>/src/app/pages/admin/$1',
   },
 };
 

@@ -1,0 +1,67 @@
+<div class="login">
+  <section class="login__arte" aria-hidden="true">
+    <div class="login__doces">
+      <eirm-ilustracao class="doce doce--1" tipo="bolo" />
+      <eirm-ilustracao class="doce doce--2" tipo="brigadeiro" />
+      <eirm-ilustracao class="doce doce--3" tipo="cupcake" />
+    </div>
+    <p class="login__frase">Cada encomenda,<br /><em>um carinho.</em></p>
+  </section>
+
+  <section class="login__painel">
+    <form class="login__cartao" [formGroup]="formulario" (ngSubmit)="entrar()" novalidate>
+      <a class="marca" routerLink="/" aria-label="Voltar para o site da Entre Irmãs">
+        <span class="marca__nome">Entre Irmãs</span>
+        <span class="marca__sub">área da confeitaria</span>
+      </a>
+
+      <h1>Olá de novo!</h1>
+      <p class="texto-suave">Entre para cuidar dos pedidos, do cardápio e das contas.</p>
+
+      <mat-form-field>
+        <mat-label>Usuário</mat-label>
+        <input
+          matInput
+          formControlName="login"
+          autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
+          maxlength="30" />
+        @if (formulario.controls.login.hasError('required')) {
+          <mat-error>Informe o seu usuário.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Senha</mat-label>
+        <input
+          matInput
+          formControlName="senha"
+          [type]="senhaVisivel() ? 'text' : 'password'"
+          autocomplete="current-password"
+          maxlength="128" />
+        <button
+          matSuffix
+          type="button"
+          class="botao-icone"
+          [attr.aria-label]="senhaVisivel() ? 'Esconder a senha' : 'Mostrar a senha'"
+          [attr.aria-pressed]="senhaVisivel()"
+          (click)="alternarSenha()">
+          <eirm-icone [nome]="senhaVisivel() ? 'ocultar' : 'ver'" />
+        </button>
+        @if (formulario.controls.senha.hasError('required')) {
+          <mat-error>Informe a sua senha.</mat-error>
+        }
+      </mat-form-field>
+
+      <button type="submit" class="botao botao--bloco" [disabled]="entrando()">
+        {{ entrando() ? 'Entrando…' : 'Entrar' }}
+      </button>
+
+      <a class="login__voltar" routerLink="/">
+        <eirm-icone nome="site" />
+        Voltar para o site
+      </a>
+    </form>
+  </section>
+</div>

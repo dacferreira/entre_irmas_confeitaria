@@ -13,8 +13,8 @@ public class Pedido : Entity, IAggregateRoot
     {
     }
 
-    public Pedido(string codigo, string nomeCliente, string telefone, TipoEntrega tipoEntrega, string? endereco,
-        DateOnly dataDesejada, string? observacao, string cadastradoPor)
+    public Pedido(string codigo, string nomeCliente, string telefone, TipoEntrega tipoEntrega,
+        EnderecoEntrega? enderecoEntrega, DateOnly dataDesejada, string? observacao, string cadastradoPor)
     {
         if (string.IsNullOrWhiteSpace(codigo))
             throw new DomainException("O código do pedido é obrigatório.");
@@ -22,14 +22,16 @@ public class Pedido : Entity, IAggregateRoot
             throw new DomainException("Informe o seu nome.");
         if (string.IsNullOrWhiteSpace(telefone))
             throw new DomainException("Informe um telefone para contato.");
-        if (tipoEntrega == TipoEntrega.Entrega && string.IsNullOrWhiteSpace(endereco))
+        if (tipoEntrega == TipoEntrega.Entrega && enderecoEntrega is null)
             throw new DomainException("Informe o endereço para a entrega.");
 
         Codigo = codigo;
         NomeCliente = nomeCliente.Trim();
         Telefone = telefone.Trim();
         TipoEntrega = tipoEntrega;
-        Endereco = tipoEntrega == TipoEntrega.Entrega ? endereco!.Trim() : null;
+        // Na retirada, um endereço enviado por engano é descartado.
+        EnderecoEntrega = tipoEntrega == TipoEntrega.Entrega ? enderecoEntrega : null;
+        Endereco = EnderecoEntrega?.Formatar();
         DataDesejada = dataDesejada;
         Observacao = string.IsNullOrWhiteSpace(observacao) ? null : observacao.Trim();
         Status = StatusPedido.Recebido;
@@ -40,12 +42,30 @@ public class Pedido : Entity, IAggregateRoot
     public string NomeCliente { get; private set; } = string.Empty;
     public string Telefone { get; private set; } = string.Empty;
     public TipoEntrega TipoEntrega { get; private set; }
+    /// <summary>Endereço de entrega em partes (nulo na retirada).</summary>
+    public EnderecoEntrega? EnderecoEntrega { get; private set; }
+
+    /// <summary>Endereço em uma linha, para a mensagem do WhatsApp e o painel (nulo na retirada).</summary>
     public string? Endereco { get; private set; }
     public DateOnly DataDesejada { get; private set; }
     public string? Observacao { get; private set; }
     public decimal ValorTotal { get; private set; }
     public StatusPedido Status { get; private set; }
     public IReadOnlyCollection<ItemPedido> Itens => _itens;
+
+    /// <summary>Custo dos produtos do pedido, pelo custo copiado em cada item.</summary>
+    public decimal CustoTotal => _itens.Sum(i => i.CustoTotal);
+
+    /// <summary>Pedidos que contam como venda: confirmados pela confeitaria e não cancelados.</summary>
+    public bool ContaComoVenda => Status is not (StatusPedido.Recebido or StatusPedido.Cancelado);
+
+    public void AlterarStatus(StatusPedido status)
+    {
+        if (!Enum.IsDefined(status))
+            throw new DomainException("Status do pedido inválido.");
+
+        Status = status;
+    }
 
     /// <summary>Adiciona o produto respeitando o pedido mínimo; repetir o produto soma a quantidade.</summary>
     public void AdicionarItem(Produto produto, int quantidade)

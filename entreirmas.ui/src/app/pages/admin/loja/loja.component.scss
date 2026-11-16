@@ -1,0 +1,57 @@
+:host {
+  display: block;
+}
+
+.situacao {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+
+  &__topo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  // Luz verde (aberta) ou cinza (fechada) ao lado do título.
+  &__luz {
+    flex: 0 0 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2e9d5b;
+    box-shadow: 0 0 0 6px rgb(46 157 91 / 18%);
+  }
+
+  &__titulo {
+    font-size: 1.5rem;
+  }
+
+  &__texto,
+  &__alteracao {
+    color: var(--cor-texto-suave);
+  }
+
+  &__alteracao {
+    font-size: 0.85rem;
+  }
+
+  &__mensagem {
+    width: 100%;
+  }
+
+  &__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  &--fechada .situacao__luz {
+    background: #8a7a74;
+    box-shadow: 0 0 0 6px rgb(138 122 116 / 18%);
+  }
+}
+
+.impressora-recibos {
+  margin-top: 24px;
+}

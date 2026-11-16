@@ -1,0 +1,108 @@
+<form class="dialogo" [formGroup]="formulario" (ngSubmit)="salvar()" novalidate aria-labelledby="novo-pedido-titulo">
+  <div class="dialogo__topo">
+    <div>
+      <h2 id="novo-pedido-titulo">Lançar pedido</h2>
+      <p>Para encomendas combinadas por WhatsApp, Instagram ou no balcão. Entra como confirmado.</p>
+    </div>
+    <button type="button" class="botao-icone" aria-label="Fechar" (click)="cancelar()">
+      <eirm-icone nome="fechar" />
+    </button>
+  </div>
+
+  <div class="dialogo__corpo">
+    <div class="grade-campos">
+      <mat-form-field>
+        <mat-label>Cliente</mat-label>
+        <input matInput formControlName="nomeCliente" maxlength="100" />
+        @if (formulario.controls.nomeCliente.hasError('required')) {
+          <mat-error>Informe o nome do cliente.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>WhatsApp</mat-label>
+        <input matInput eirmMascaraTelefone formControlName="telefone" type="tel" inputmode="tel" />
+        @if (formulario.controls.telefone.hasError('required')) {
+          <mat-error>Informe o telefone.</mat-error>
+        } @else if (formulario.controls.telefone.hasError('telefone')) {
+          <mat-error>Telefone com DDD.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="grade-campos">
+      <mat-form-field>
+        <mat-label>Para quando</mat-label>
+        <input matInput type="date" formControlName="dataDesejada" />
+        @if (formulario.controls.dataDesejada.hasError('required')) {
+          <mat-error>Escolha a data.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Forma de receber</mat-label>
+        <mat-select formControlName="tipoEntrega">
+          <mat-option value="Retirada">Retirada</mat-option>
+          <mat-option value="Entrega">Entrega</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @if (tipoEntrega() === 'Entrega') {
+      <eirm-campos-endereco [grupo]="formulario.controls.endereco" />
+    }
+
+    <fieldset class="itens" formArrayName="itens">
+      <legend>Itens</legend>
+      @for (item of formulario.controls.itens.controls; track item; let i = $index) {
+        <div class="item" [formGroupName]="i">
+          <mat-form-field class="item__produto">
+            <mat-label>Produto</mat-label>
+            <mat-select formControlName="produtoId" (selectionChange)="aoEscolherProduto(i)">
+              @for (produto of produtos(); track produto.id) {
+                <mat-option [value]="produto.id">
+                  {{ produto.nome }} · {{ produto.preco | currency }} ({{ produto.unidade }})
+                </mat-option>
+              }
+            </mat-select>
+            @if (produto(item.controls.produtoId.value); as escolhido) {
+              @if (escolhido.quantidadeMinima > 1) {
+                <mat-hint>Mínimo de {{ escolhido.quantidadeMinima }}</mat-hint>
+              }
+            }
+            @if (item.controls.produtoId.hasError('required')) {
+              <mat-error>Escolha o produto.</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field class="item__quantidade">
+            <mat-label>Qtd.</mat-label>
+            <input matInput type="number" min="1" max="1000" formControlName="quantidade" />
+          </mat-form-field>
+          <button
+            type="button"
+            class="botao-icone botao-icone--perigo"
+            [attr.aria-label]="'Remover o item ' + (i + 1)"
+            [disabled]="formulario.controls.itens.length === 1"
+            (click)="removerItem(i)">
+            <eirm-icone nome="lixeira" />
+          </button>
+        </div>
+      }
+      <button type="button" class="adicionar" (click)="adicionarItem()">
+        <eirm-icone nome="mais" />
+        Adicionar item
+      </button>
+    </fieldset>
+
+    <mat-form-field>
+      <mat-label>Observação</mat-label>
+      <textarea matInput formControlName="observacao" rows="2" maxlength="500"></textarea>
+    </mat-form-field>
+  </div>
+
+  <div class="dialogo__rodape">
+    <span class="total">Total <strong>{{ total() | currency }}</strong></span>
+    <button type="button" class="botao botao--contorno botao--pequeno" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="botao botao--pequeno" [disabled]="salvando()">
+      {{ salvando() ? 'Salvando…' : 'Lançar pedido' }}
+    </button>
+  </div>
+</form>

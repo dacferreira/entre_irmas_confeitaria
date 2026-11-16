@@ -1,0 +1,35 @@
+:host {
+  display: block;
+}
+
+.aviso {
+  background: var(--cor-cacau);
+  color: #f6e7dc;
+
+  &__conteudo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding-block: 12px;
+  }
+
+  &__icone {
+    font-size: 1.3rem;
+    line-height: 1.4;
+  }
+
+  &__texto {
+    margin: 0;
+    line-height: 1.5;
+
+    strong {
+      color: var(--cor-baunilha);
+    }
+  }
+
+  &__regra {
+    display: block;
+    font-size: 0.9rem;
+    color: #d9c2b5;
+  }
+}

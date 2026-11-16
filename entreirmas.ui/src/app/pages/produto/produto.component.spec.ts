@@ -58,6 +58,15 @@ describe('ProdutoComponent', () => {
     expect(sacola.aberta()).toBe(true);
   });
 
+  it('diz se é pronta entrega ou sob encomenda', () => {
+    const pronta = renderizar(of(criarProduto()), of([]));
+    expect(pronta.querySelector('.produto__garantias')?.textContent).toContain('pronta entrega');
+
+    TestBed.resetTestingModule();
+    const encomenda = renderizar(of(criarProduto({ encomenda: true })), of([]));
+    expect(encomenda.querySelector('.produto__garantias')?.textContent).toContain('sob encomenda');
+  });
+
   it('usa a foto quando existir', () => {
     const elemento = renderizar(of(criarProduto({ urlImagem: 'https://exemplo.com/b.jpg' })), of([]));
 

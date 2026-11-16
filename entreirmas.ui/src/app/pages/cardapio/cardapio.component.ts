@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CardProdutoComponent } from '@components/card-produto/card-produto.component';
 import { IlustracaoComponent } from '@components/ilustracao/ilustracao.component';
 import { PageComponent } from '@components/page/page.component';
+import { environment } from '@environments/environment';
 import { Categoria } from '@models/categoria.model';
 import { Produto } from '@models/produto.model';
 import { CatalogoService } from '@services/catalogo.service';
@@ -13,6 +14,12 @@ export interface GrupoDoCardapio {
   slug: string;
   nome: string;
   produtos: Produto[];
+}
+
+/** Pronta entrega primeiro; os doces sob encomenda ficam por último. */
+export interface BlocoDoCardapio {
+  encomenda: boolean;
+  grupos: GrupoDoCardapio[];
 }
 
 /** Remove acentos e caixa para a busca achar "pe" em "Bicho de Pé". */
@@ -53,32 +60,31 @@ export class CardapioComponent {
   readonly carregando = computed(() => this.produtos() === undefined);
   readonly falhou = computed(() => this.produtos() === null);
   readonly categoriaSelecionada = computed(() => this.categoria() ?? null);
+  readonly antecedencia = environment.antecedenciaMinimaDias;
 
-  readonly grupos = computed<GrupoDoCardapio[]>(() => {
+  readonly blocos = computed<BlocoDoCardapio[]>(() => {
     const termo = normalizarTexto(this.busca());
     const categoria = this.categoriaSelecionada();
-    const grupos = new Map<string, GrupoDoCardapio>();
+    const filtrados = (this.produtos() ?? []).filter(
+      (produto) =>
+        (!categoria || produto.categoriaSlug === categoria) &&
+        (!termo || normalizarTexto(`${produto.nome} ${produto.descricao} ${produto.categoriaNome}`).includes(termo)),
+    );
 
-    for (const produto of this.produtos() ?? []) {
-      if (categoria && produto.categoriaSlug !== categoria) {
-        continue;
-      }
-      if (termo && !normalizarTexto(`${produto.nome} ${produto.descricao} ${produto.categoriaNome}`).includes(termo)) {
-        continue;
-      }
-      const grupo = grupos.get(produto.categoriaSlug) ?? {
-        slug: produto.categoriaSlug,
-        nome: produto.categoriaNome,
-        produtos: [],
-      };
-      grupo.produtos.push(produto);
-      grupos.set(produto.categoriaSlug, grupo);
-    }
-
-    return [...grupos.values()];
+    return [false, true]
+      .map((encomenda) => ({
+        encomenda,
+        grupos: agruparPorCategoria(filtrados.filter((produto) => !!produto.encomenda === encomenda)),
+      }))
+      .filter((bloco) => bloco.grupos.length > 0);
   });
 
-  readonly totalEncontrado = computed(() => this.grupos().reduce((soma, grupo) => soma + grupo.produtos.length, 0));
+  /** O título dos blocos só aparece quando há doces sob encomenda (senão é tudo pronta entrega). */
+  readonly separarBlocos = computed(() => this.blocos().some((bloco) => bloco.encomenda));
+
+  readonly totalEncontrado = computed(() =>
+    this.blocos().reduce((soma, bloco) => soma + bloco.grupos.reduce((s, grupo) => s + grupo.produtos.length, 0), 0),
+  );
 
   selecionar(slug: string | null): void {
     void this.router.navigate([], {
@@ -96,4 +102,15 @@ export class CardapioComponent {
     this.busca.set('');
     this.selecionar(null);
   }
+}
+
+/** Agrupa por categoria mantendo a ordem em que a API devolveu os produtos. */
+function agruparPorCategoria(produtos: Produto[]): GrupoDoCardapio[] {
+  const grupos = new Map<string, GrupoDoCardapio>();
+  for (const produto of produtos) {
+    const grupo = grupos.get(produto.categoriaSlug) ?? { slug: produto.categoriaSlug, nome: produto.categoriaNome, produtos: [] };
+    grupo.produtos.push(produto);
+    grupos.set(produto.categoriaSlug, grupo);
+  }
+  return [...grupos.values()];
 }

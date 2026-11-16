@@ -1,5 +1,5 @@
 <eirm-page
-  sobretitulo="Feito sob encomenda"
+  sobretitulo="Feito à mão"
   titulo="Cardápio"
   subtitulo="Escolha seus doces, ajuste as quantidades e finalize o pedido. A confirmação é feita pelo WhatsApp.">
   <div class="filtros">
@@ -59,15 +59,32 @@
     <p class="resultado" aria-live="polite">
       {{ totalEncontrado() }} {{ totalEncontrado() === 1 ? 'opção' : 'opções' }}
     </p>
-    @for (grupo of grupos(); track grupo.slug) {
-      <section class="grupo" [attr.aria-labelledby]="'grupo-' + grupo.slug">
-        <h2 class="grupo__titulo" [id]="'grupo-' + grupo.slug">{{ grupo.nome }}</h2>
-        <div class="grade">
-          @for (produto of grupo.produtos; track produto.id) {
-            <eirm-card-produto [produto]="produto" />
-          }
-        </div>
-      </section>
+    @for (bloco of blocos(); track bloco.encomenda) {
+      @let prefixo = bloco.encomenda ? 'encomenda-' : 'pronta-';
+      <div class="bloco" [class.bloco--encomenda]="bloco.encomenda">
+        @if (separarBlocos()) {
+          <header class="bloco__cabecalho">
+            <h2 class="bloco__titulo">{{ bloco.encomenda ? 'Sob encomenda' : 'Pronta entrega' }}</h2>
+            <p class="bloco__texto">
+              @if (bloco.encomenda) {
+                Feitos especialmente para você: peça com {{ antecedencia }} dia(s) de antecedência.
+              } @else {
+                Pode pedir para hoje mesmo.
+              }
+            </p>
+          </header>
+        }
+        @for (grupo of bloco.grupos; track grupo.slug) {
+          <section class="grupo" [attr.aria-labelledby]="prefixo + grupo.slug">
+            <h3 class="grupo__titulo" [id]="prefixo + grupo.slug">{{ grupo.nome }}</h3>
+            <div class="grade">
+              @for (produto of grupo.produtos; track produto.id) {
+                <eirm-card-produto [produto]="produto" />
+              }
+            </div>
+          </section>
+        }
+      </div>
     }
   }
 </eirm-page>

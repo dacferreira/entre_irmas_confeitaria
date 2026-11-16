@@ -7,4 +7,7 @@ public interface IPedidoEnvironmentVariables
 
     /// <summary>Pedidos aceitos por minuto, por IP.</summary>
     int PEDIDO_LIMITE_POR_MINUTO { get; }
+
+    /// <summary>Consultas de acompanhamento (pelo código) aceitas por minuto, por IP.</summary>
+    int ACOMPANHAMENTO_LIMITE_POR_MINUTO { get; }
 }

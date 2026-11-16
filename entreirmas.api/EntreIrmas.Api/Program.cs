@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using EntreIrmas.Api.Extensions;
 using EntreIrmas.Api.Middlewares;
+using EntreIrmas.ViaCepService;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
@@ -20,7 +21,8 @@ builder.Services
     .AddSwagger()
     .AddHealthCheck(variaveis)
     .AddAuthenticationJwt(variaveis)
-    .AddRateLimit(variaveis)
+    .AddRateLimit(variaveis, variaveis, variaveis)
+    .AddViaCepApiService(variaveis)
     .AddMapsterMapper()
     .AddIoC()
     .AddResponseCompression(options => options.EnableForHttps = true);

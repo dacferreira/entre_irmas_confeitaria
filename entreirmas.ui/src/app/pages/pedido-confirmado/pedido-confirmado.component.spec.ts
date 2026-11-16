@@ -26,6 +26,7 @@ describe('PedidoConfirmadoComponent', () => {
     expect(elemento.querySelector('.cartao__detalhes')?.textContent).toContain('Entrega');
     expect(elemento.querySelectorAll('.cartao__itens li').length).toBe(1);
     expect(elemento.querySelectorAll('.confete').length).toBe(24);
+    expect(elemento.querySelector('.acompanhar')?.getAttribute('href')).toBe('/acompanhar-pedido/EI-ABC234');
   });
 
   it('orienta quando não há pedido recente', () => {

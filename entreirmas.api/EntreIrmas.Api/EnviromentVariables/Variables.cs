@@ -10,6 +10,7 @@ namespace EntreIrmas.Api.EnviromentVariables;
 public class Variables :
     IMySqlEnvironmentVariables,
     IWhatsAppEnvironmentVariables,
+    IViaCepEnvironmentVariables,
     IPedidoEnvironmentVariables,
     ISwaggerEnvironmentVariables,
     ICorsEnvironmentVariables,
@@ -28,9 +29,16 @@ public class Variables :
     // WhatsApp
     public string WHATSAPP_NUMERO { get; set; } = string.Empty;
 
+    // ViaCEP (consulta de endereço pelo CEP)
+    public string VIACEP_URL { get; set; } = "https://viacep.com.br/ws/";
+    public int VIACEP_TIMEOUT_SEGUNDOS { get; set; } = 5;
+    public int VIACEP_CACHE_HORAS { get; set; } = 24;
+    public int CEP_LIMITE_POR_MINUTO { get; set; } = 30;
+
     // Pedidos
     public int PEDIDO_ANTECEDENCIA_MINIMA_DIAS { get; set; } = 1;
     public int PEDIDO_LIMITE_POR_MINUTO { get; set; } = 10;
+    public int ACOMPANHAMENTO_LIMITE_POR_MINUTO { get; set; } = 30;
 
     // Swagger
     public bool USE_SWAGGER { get; set; }
@@ -42,6 +50,8 @@ public class Variables :
     public string JWT_CHAVE { get; set; } = string.Empty;
     public string JWT_EMISSOR { get; set; } = "entreirmas-api";
     public string JWT_AUDIENCIA { get; set; } = "entreirmas-ui";
+    public int JWT_EXPIRACAO_HORAS { get; set; } = 12;
+    public int LOGIN_LIMITE_POR_MINUTO { get; set; } = 5;
 
     // Health check
     public int HEALTHCHECK_TIMEOUT_SEGUNDOS { get; set; } = 5;

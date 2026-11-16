@@ -1,0 +1,14 @@
+@if (!loja.aberta()) {
+  <div class="aviso" role="status">
+    <div class="aviso__conteudo container">
+      <span class="aviso__icone" aria-hidden="true">🌙</span>
+      <p class="aviso__texto">
+        <strong>Estamos fechados agora.</strong>
+        @if (loja.situacao().mensagem; as mensagem) {
+          {{ mensagem }}
+        }
+        <span class="aviso__regra">Pedidos de pronta entrega voltam quando abrirmos; encomendas para outro dia continuam valendo.</span>
+      </p>
+    </div>
+  </div>
+}

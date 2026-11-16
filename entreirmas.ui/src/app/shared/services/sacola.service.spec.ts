@@ -11,6 +11,14 @@ describe('SacolaService', () => {
     servico = TestBed.inject(SacolaService);
   });
 
+  it('sabe quando há doce sob encomenda na sacola', () => {
+    servico.adicionar(criarProduto());
+    expect(servico.temEncomenda()).toBe(false);
+
+    servico.adicionar(criarProduto({ id: 9, encomenda: true }));
+    expect(servico.temEncomenda()).toBe(true);
+  });
+
   it('começa vazia', () => {
     expect(servico.vazia()).toBe(true);
     expect(servico.total()).toBe(0);

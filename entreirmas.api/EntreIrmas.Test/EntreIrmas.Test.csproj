@@ -29,6 +29,7 @@
     <ProjectReference Include="..\EntreIrmas.Domain\EntreIrmas.Domain.csproj" />
     <ProjectReference Include="..\EntreIrmas.Application\EntreIrmas.Application.csproj" />
     <ProjectReference Include="..\EntreIrmas.Infrastructure\EntreIrmas.Infrastructure.csproj" />
+    <ProjectReference Include="..\Gateways\EntreIrmas.ViaCepService\EntreIrmas.ViaCepService.csproj" />
   </ItemGroup>
 
 </Project>

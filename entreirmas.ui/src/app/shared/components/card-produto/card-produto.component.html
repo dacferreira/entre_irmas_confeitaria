@@ -1,7 +1,7 @@
 <article class="card" [attr.data-sabor]="sabor()">
   <!-- O link do nome cobre o card inteiro (ver .card__nome a::after). -->
   <div class="card__visual">
-    @if (produto().urlImagem; as urlImagem) {
+    @if (produto().urlImagem | urlImagem; as urlImagem) {
       <img [src]="urlImagem" alt="" loading="lazy" width="400" height="400" />
     } @else {
       <eirm-ilustracao class="card__ilustracao" [tipo]="produto().ilustracao" />
@@ -13,7 +13,12 @@
   }
 
   <div class="card__corpo">
-    <span class="card__categoria">{{ produto().categoriaNome }}</span>
+    <span class="card__categoria">
+      {{ produto().categoriaNome }}
+      @if (produto().encomenda) {
+        <span class="card__encomenda">· sob encomenda</span>
+      }
+    </span>
     <h3 class="card__nome">
       <a [routerLink]="rotaDoProduto()">{{ produto().nome }}</a>
     </h3>

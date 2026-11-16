@@ -1,2 +1,4 @@
 ﻿*.log
 
+# Usuarios iniciais com a senha padrao: roda-se a mao e nao se versiona.
+local/criar-usuarios-iniciais.sql

@@ -7,8 +7,10 @@ import { CardProdutoComponent } from '@components/card-produto/card-produto.comp
 import { IlustracaoComponent } from '@components/ilustracao/ilustracao.component';
 import { SeletorQuantidadeComponent } from '@components/seletor-quantidade/seletor-quantidade.component';
 import { normalizarIlustracao } from '@constants/ilustracoes';
+import { environment } from '@environments/environment';
 import { ROTAS } from '@constants/rotas';
 import { Produto } from '@models/produto.model';
+import { UrlImagemPipe } from '@pipes/url-imagem.pipe';
 import { CatalogoService } from '@services/catalogo.service';
 import { NotificacaoService } from '@services/notificacao.service';
 import { SacolaService } from '@services/sacola.service';
@@ -23,12 +25,20 @@ export interface EstadoProduto {
 
 @Component({
   selector: 'eirm-produto',
-  imports: [CurrencyPipe, RouterLink, CardProdutoComponent, IlustracaoComponent, SeletorQuantidadeComponent],
+  imports: [
+    CurrencyPipe,
+    RouterLink,
+    CardProdutoComponent,
+    IlustracaoComponent,
+    SeletorQuantidadeComponent,
+    UrlImagemPipe,
+  ],
   templateUrl: './produto.component.html',
   styleUrl: './produto.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProdutoComponent {
+  readonly antecedencia = environment.antecedenciaMinimaDias;
   private readonly catalogo = inject(CatalogoService);
   private readonly sacola = inject(SacolaService);
   private readonly notificacao = inject(NotificacaoService);

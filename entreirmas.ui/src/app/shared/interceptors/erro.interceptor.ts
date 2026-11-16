@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { ErroApi, ValidationResultApi } from '@models/erro-api.model';
 import { NotificacaoService } from '@services/notificacao.service';
@@ -6,13 +6,16 @@ import { TimeoutError, catchError, throwError } from 'rxjs';
 
 const MENSAGEM_GENERICA = 'Não foi possível concluir a operação. Tente novamente em instantes.';
 
+/** Requisição cuja tela mostra o próprio erro (ex.: busca de CEP): sem o aviso geral. */
+export const SEM_AVISO_DE_ERRO = new HttpContextToken<boolean>(() => false);
+
 /** Mostra uma mensagem amigável para os erros de HTTP e repassa o erro para quem chamou. */
 export const erroInterceptor: HttpInterceptorFn = (requisicao, next) => {
   const notificacao = inject(NotificacaoService);
 
   return next(requisicao).pipe(
     catchError((erro: unknown) => {
-      const mensagem = mensagemDeErro(erro, requisicao);
+      const mensagem = requisicao.context.get(SEM_AVISO_DE_ERRO) ? null : mensagemDeErro(erro, requisicao);
       if (mensagem) {
         notificacao.erro(mensagem);
       }
@@ -43,7 +46,9 @@ export function mensagemDeErro(erro: unknown, requisicao: HttpRequest<unknown>):
       : corpo.mensagem ?? 'Verifique os dados informados.';
   }
   if (erro.status < 500) {
-    return ((erro.error ?? {}) as Partial<ErroApi>).error ?? MENSAGEM_GENERICA;
+    const mensagem = ((erro.error ?? {}) as Partial<ErroApi>).error;
+    // 401 sem corpo é token vencido: o authInterceptor leva para o login.
+    return mensagem ?? (erro.status === 401 ? 'Sua sessão expirou. Entre novamente.' : MENSAGEM_GENERICA);
   }
   return MENSAGEM_GENERICA;
 }

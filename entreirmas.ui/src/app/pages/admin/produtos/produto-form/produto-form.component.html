@@ -1,0 +1,160 @@
+<form class="dialogo" [formGroup]="formulario" (ngSubmit)="salvar()" novalidate aria-labelledby="produto-titulo">
+  <div class="dialogo__topo">
+    <div>
+      <h2 id="produto-titulo">{{ edicao ? 'Editar produto' : 'Novo produto' }}</h2>
+      <p>O endereço do produto no site é gerado a partir do nome.</p>
+    </div>
+    <button type="button" class="botao-icone" aria-label="Fechar" (click)="cancelar()">
+      <eirm-icone nome="fechar" />
+    </button>
+  </div>
+
+  <div class="dialogo__corpo">
+    <div class="grade-campos">
+      <mat-form-field>
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="nome" maxlength="100" />
+        @if (formulario.controls.nome.hasError('required')) {
+          <mat-error>Informe o nome.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Categoria</mat-label>
+        <mat-select formControlName="categoriaId">
+          @for (categoria of dados.categorias; track categoria.id) {
+            <mat-option [value]="categoria.id">{{ categoria.nome }}{{ categoria.ativo ? '' : ' (inativa)' }}</mat-option>
+          }
+        </mat-select>
+        @if (formulario.controls.categoriaId.hasError('required')) {
+          <mat-error>Escolha a categoria.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field>
+      <mat-label>Descrição</mat-label>
+      <textarea matInput formControlName="descricao" rows="3" maxlength="1000"></textarea>
+      <mat-hint>Sabor, recheio, tamanho. Aparece no cardápio.</mat-hint>
+      @if (formulario.controls.descricao.hasError('required')) {
+        <mat-error>Descreva o produto.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="grade-campos">
+      <mat-form-field>
+        <mat-label>Preço de venda</mat-label>
+        <span matTextPrefix>R$&nbsp;</span>
+        <input matInput type="number" min="0.01" step="0.01" formControlName="preco" />
+        @if (formulario.controls.preco.invalid) {
+          <mat-error>Preço maior que zero.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Custo de produção</mat-label>
+        <span matTextPrefix>R$&nbsp;</span>
+        <input matInput type="number" min="0" step="0.01" formControlName="custo" />
+        <mat-hint>Ingredientes e embalagem</mat-hint>
+        @if (formulario.controls.custo.invalid) {
+          <mat-error>Custo não pode ser negativo.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <p class="margem" [class.margem--baixa]="margem() < 30" aria-live="polite">
+      Lucro de <strong>{{ lucroUnitario() | currency }}</strong> por {{ formulario.controls.unidade.value || 'unidade' }}
+      · margem de <strong>{{ margem() | number: '1.0-0' }}%</strong>
+    </p>
+
+    <div class="grade-campos">
+      <mat-form-field>
+        <mat-label>Unidade de venda</mat-label>
+        <input matInput formControlName="unidade" maxlength="40" placeholder="unidade, fatia, cento..." />
+        @if (formulario.controls.unidade.hasError('required')) {
+          <mat-error>Informe a unidade.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Pedido mínimo</mat-label>
+        <input matInput type="number" min="1" max="1000" formControlName="quantidadeMinima" />
+        @if (formulario.controls.quantidadeMinima.invalid) {
+          <mat-error>Entre 1 e 1000.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <section class="foto" aria-labelledby="foto-titulo">
+      <div class="foto__previa" [attr.data-sabor]="ilustracaoEscolhida()">
+        @if (previa() | urlImagem; as url) {
+          <img [src]="url" alt="Prévia da foto do produto" />
+        } @else {
+          <eirm-ilustracao [tipo]="ilustracaoEscolhida()" />
+        }
+      </div>
+      <div class="foto__lado">
+        <h3 id="foto-titulo" class="foto__titulo">Foto</h3>
+        <p class="foto__texto">
+          {{ previa() ? 'Esta foto aparece no cardápio.' : 'Sem foto, o site mostra a ilustração escolhida abaixo.' }}
+        </p>
+        <div class="foto__acoes">
+          <label class="botao botao--contorno botao--pequeno foto__escolher" [class.foto__escolher--ocupado]="preparandoFoto()">
+            <input
+              type="file"
+              class="somente-leitor"
+              accept="image/jpeg,image/png,image/webp"
+              [disabled]="preparandoFoto()"
+              (change)="escolherFoto($event)" />
+            <eirm-icone nome="foto" />
+            {{ preparandoFoto() ? 'Preparando…' : previa() ? 'Trocar foto' : 'Escolher foto' }}
+          </label>
+          @if (previa()) {
+            <button type="button" class="foto__remover" (click)="tirarFoto()">Remover foto</button>
+          }
+        </div>
+        <small class="foto__dica">JPG, PNG ou WEBP. A foto é reduzida no seu aparelho antes de enviar.</small>
+        @if (erroFoto()) {
+          <p class="foto__erro" role="alert">{{ erroFoto() }}</p>
+        }
+      </div>
+    </section>
+
+    <fieldset class="ilustracoes">
+      <legend>Ilustração (quando não há foto)</legend>
+      <div class="ilustracoes__opcoes">
+        @for (ilustracao of ilustracoes; track ilustracao) {
+          <label class="ilustracao" [class.ilustracao--ativa]="ilustracaoEscolhida() === ilustracao" [attr.data-sabor]="ilustracao">
+            <input
+              type="radio"
+              formControlName="ilustracao"
+              [value]="ilustracao"
+              class="somente-leitor"
+              [attr.aria-label]="'Ilustração ' + ilustracao" />
+            <eirm-ilustracao [tipo]="ilustracao" [rotulo]="ilustracao" />
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <label class="campo-marcador campo-marcador--destaque">
+      <input type="checkbox" formControlName="encomenda" />
+      <span>
+        Disponível só por encomenda
+        <small>
+          Aparece no fim do cardápio, em "Sob encomenda", e o pedido passa a exigir {{ antecedencia }} dia(s) de
+          antecedência. Desmarcado: pronta entrega, pode ser pedido para o mesmo dia.
+        </small>
+      </span>
+    </label>
+
+    <label class="campo-marcador">
+      <input type="checkbox" formControlName="destaque" />
+      Mostrar nos destaques da página inicial
+    </label>
+  </div>
+
+  <div class="dialogo__rodape">
+    <button type="button" class="botao botao--contorno botao--pequeno" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="botao botao--pequeno" [disabled]="salvando() || preparandoFoto()">
+      {{ salvando() ? 'Salvando…' : edicao ? 'Salvar alterações' : 'Cadastrar produto' }}
+    </button>
+  </div>
+</form>

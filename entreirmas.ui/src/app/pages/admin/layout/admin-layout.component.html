@@ -1,0 +1,67 @@
+<a class="pular" href="#conteudo-admin">Pular para o conteúdo</a>
+
+<div class="admin" [class.admin--menu-aberto]="menuAberto()">
+  <header class="barra-movel">
+    <button
+      type="button"
+      class="botao-icone"
+      aria-controls="menu-admin"
+      [attr.aria-expanded]="menuAberto()"
+      [attr.aria-label]="menuAberto() ? 'Fechar menu' : 'Abrir menu'"
+      (click)="alternarMenu()">
+      <eirm-icone [nome]="menuAberto() ? 'fechar' : 'menu'" />
+    </button>
+    <span class="barra-movel__marca">Entre Irmãs</span>
+    <span class="avatar" aria-hidden="true">{{ iniciais() }}</span>
+  </header>
+
+  @if (menuAberto()) {
+    <div class="fundo" aria-hidden="true" (click)="alternarMenu()"></div>
+  }
+
+  <aside class="lateral" id="menu-admin" [cdkTrapFocus]="menuAberto()">
+    <div class="lateral__marca">
+      <span class="lateral__nome">Entre Irmãs</span>
+      <span class="lateral__sub">área da confeitaria</span>
+    </div>
+
+    <nav class="lateral__menu" aria-label="Área administrativa">
+      @for (item of menu; track item.rota) {
+        <a class="lateral__link" [routerLink]="item.rota" routerLinkActive="lateral__link--ativo" ariaCurrentWhenActive="page">
+          <eirm-icone [nome]="item.icone" />
+          {{ item.rotulo }}
+        </a>
+      }
+    </nav>
+
+    <div class="lateral__rodape">
+      <button
+        type="button"
+        class="lateral__link lateral__som"
+        [attr.aria-pressed]="alerta.somLigado()"
+        title="Toca um aviso quando chega pedido pelo site"
+        (click)="alerta.alternarSom()">
+        <eirm-icone [nome]="alerta.somLigado() ? 'som' : 'mudo'" />
+        Som de pedido novo: {{ alerta.somLigado() ? 'ligado' : 'desligado' }}
+      </button>
+      <a class="lateral__link" routerLink="/" target="_blank" rel="noopener">
+        <eirm-icone nome="site" />
+        Ver o site
+      </a>
+      <div class="usuario">
+        <span class="avatar" aria-hidden="true">{{ iniciais() }}</span>
+        <span class="usuario__nome">
+          {{ auth.nome() }}
+          <small>{{ auth.login() }}</small>
+        </span>
+        <button type="button" class="botao-icone" aria-label="Sair" title="Sair" (click)="sair()">
+          <eirm-icone nome="sair" />
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="conteudo" id="conteudo-admin" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>
