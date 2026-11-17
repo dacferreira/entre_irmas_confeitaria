@@ -5,7 +5,7 @@ import { AlertaPedidosService } from '@services/alerta-pedidos.service';
 import { AuthService } from '@services/auth.service';
 import { ImpressoraService } from '@services/impressora.service';
 import { EMPTY, of } from 'rxjs';
-import { AdminLayoutComponent } from './admin-layout.component';
+import { AdminLayoutComponent, CHAVE_MENU_RECOLHIDO } from './admin-layout.component';
 
 @Component({ template: '' })
 class TelaVaziaComponent {}
@@ -24,6 +24,7 @@ describe('AdminLayoutComponent', () => {
   let elemento: HTMLElement;
 
   beforeEach(() => {
+    localStorage.clear();
     TestBed.configureTestingModule({
       providers: [
         provideRouter([{ path: '**', component: TelaVaziaComponent }]),
@@ -60,6 +61,32 @@ describe('AdminLayoutComponent', () => {
     fixture.componentInstance.alternarMenu();
     await TestBed.inject(Router).navigateByUrl('/admin/pedidos');
     expect(fixture.componentInstance.menuAberto()).toBe(false);
+  });
+
+  it('recolhe o menu só nos ícones, com o nome no title, e lembra a escolha no aparelho', () => {
+    const botao = elemento.querySelector<HTMLButtonElement>('.lateral__recolher')!;
+    const primeiroLink = elemento.querySelector<HTMLAnchorElement>('.lateral__menu a')!;
+    expect(botao.getAttribute('aria-label')).toBe('Recolher menu');
+    expect(botao.getAttribute('aria-expanded')).toBe('true');
+    expect(primeiroLink.getAttribute('title')).toBeNull();
+
+    botao.click();
+    fixture.detectChanges();
+
+    expect(elemento.querySelector('.admin')?.classList).toContain('admin--recolhido');
+    expect(botao.getAttribute('aria-label')).toBe('Expandir menu');
+    expect(botao.getAttribute('aria-expanded')).toBe('false');
+    expect(primeiroLink.getAttribute('title')).toBe('Painel');
+    expect(primeiroLink.querySelector('.lateral__rotulo')?.textContent).toBe('Painel');
+    expect(localStorage.getItem(CHAVE_MENU_RECOLHIDO)).toBe('sim');
+
+    const outraAba = TestBed.createComponent(AdminLayoutComponent);
+    expect(outraAba.componentInstance.recolhido()).toBe(true);
+
+    botao.click();
+    fixture.detectChanges();
+    expect(elemento.querySelector('.admin')?.classList).not.toContain('admin--recolhido');
+    expect(localStorage.getItem(CHAVE_MENU_RECOLHIDO)).toBe('nao');
   });
 
   it('sai pelo botão do rodapé do menu', () => {

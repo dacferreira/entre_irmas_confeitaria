@@ -1,6 +1,6 @@
 <a class="pular" href="#conteudo-admin">Pular para o conteúdo</a>
 
-<div class="admin" [class.admin--menu-aberto]="menuAberto()">
+<div class="admin" [class.admin--menu-aberto]="menuAberto()" [class.admin--recolhido]="recolhido()">
   <header class="barra-movel">
     <button
       type="button"
@@ -20,16 +20,34 @@
   }
 
   <aside class="lateral" id="menu-admin" [cdkTrapFocus]="menuAberto()">
-    <div class="lateral__marca">
-      <span class="lateral__nome">Entre Irmãs</span>
-      <span class="lateral__sub">área da confeitaria</span>
+    <div class="lateral__topo">
+      <div class="lateral__marca">
+        <span class="lateral__nome">Entre Irmãs</span>
+        <span class="lateral__sub">área da confeitaria</span>
+      </div>
+      <!-- Só no computador: no celular o menu já é a gaveta da barra de cima. -->
+      <button
+        type="button"
+        class="botao-icone lateral__recolher"
+        aria-controls="menu-admin"
+        [attr.aria-expanded]="!recolhido()"
+        [attr.aria-label]="recolhido() ? 'Expandir menu' : 'Recolher menu'"
+        [title]="recolhido() ? 'Expandir menu' : 'Recolher menu'"
+        (click)="alternarRecolhido()">
+        <eirm-icone [nome]="recolhido() ? 'expandir' : 'recolher'" />
+      </button>
     </div>
 
     <nav class="lateral__menu" aria-label="Área administrativa">
       @for (item of menu; track item.rota) {
-        <a class="lateral__link" [routerLink]="item.rota" routerLinkActive="lateral__link--ativo" ariaCurrentWhenActive="page">
+        <a
+          class="lateral__link"
+          [routerLink]="item.rota"
+          routerLinkActive="lateral__link--ativo"
+          ariaCurrentWhenActive="page"
+          [attr.title]="recolhido() ? item.rotulo : null">
           <eirm-icone [nome]="item.icone" />
-          {{ item.rotulo }}
+          <span class="lateral__rotulo">{{ item.rotulo }}</span>
         </a>
       }
     </nav>
@@ -39,14 +57,14 @@
         type="button"
         class="lateral__link lateral__som"
         [attr.aria-pressed]="alerta.somLigado()"
-        title="Toca um aviso quando chega pedido pelo site"
+        [title]="recolhido() ? 'Aviso sonoro ' + (alerta.somLigado() ? 'ligado' : 'desligado') : 'Toca um aviso quando chega pedido pelo site'"
         (click)="alerta.alternarSom()">
         <eirm-icone [nome]="alerta.somLigado() ? 'som' : 'mudo'" />
-        Aviso sonoro: {{ alerta.somLigado() ? 'ligado' : 'desligado' }}
+        <span class="lateral__rotulo">Aviso sonoro: {{ alerta.somLigado() ? 'ligado' : 'desligado' }}</span>
       </button>
-      <a class="lateral__link" routerLink="/" target="_blank" rel="noopener">
+      <a class="lateral__link" routerLink="/" target="_blank" rel="noopener" [attr.title]="recolhido() ? 'Ver o site' : null">
         <eirm-icone nome="site" />
-        Ver o site
+        <span class="lateral__rotulo">Ver o site</span>
       </a>
       <div class="usuario">
         <span class="avatar" aria-hidden="true">{{ iniciais() }}</span>

@@ -385,6 +385,9 @@
   }
 
   &__corpo {
+    // Os campos escondidos (.somente-leitor, position: absolute) passam a ser presos aqui. Sem isso eles se
+    // posicionam pela superfície do MatDialog e esticam a rolagem dela: o diálogo ficava com duas barras.
+    position: relative;
     flex: 1;
     overflow-y: auto;
     // Espaço em cima para o rótulo do primeiro campo, que fica sobre a borda.

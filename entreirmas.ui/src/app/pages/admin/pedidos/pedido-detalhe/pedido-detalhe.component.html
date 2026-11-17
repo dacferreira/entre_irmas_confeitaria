@@ -162,7 +162,7 @@
         <eirm-icone nome="lixeira" />
         Excluir
       </button>
-      @if (impressora.suportada) {
+      @if (impressora.habilitada && impressora.suportada) {
         <button
           type="button"
           class="botao botao--contorno botao--pequeno imprimir"

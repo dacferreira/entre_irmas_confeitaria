@@ -40,9 +40,9 @@
     </mat-form-field>
     <mat-form-field>
       <mat-label>Número</mat-label>
-      <input matInput formControlName="numero" maxlength="20" />
+      <input matInput formControlName="numero" maxlength="20" placeholder="ou s/n" />
       @if (grupo().controls.numero.hasError('required')) {
-        <mat-error>Informe o número (ou s/n).</mat-error>
+        <mat-error>Informe o Nº</mat-error>
       }
     </mat-form-field>
   </div>

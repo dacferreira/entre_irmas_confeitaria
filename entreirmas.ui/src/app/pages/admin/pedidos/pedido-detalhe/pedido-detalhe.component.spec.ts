@@ -18,6 +18,7 @@ describe('PedidoDetalheComponent', () => {
 
   const conectada = signal(false);
   const impressora = {
+    habilitada: true,
     suportada: true,
     conectada,
     imprimindo: signal(false),
@@ -25,7 +26,8 @@ describe('PedidoDetalheComponent', () => {
     imprimir: jest.fn(async () => undefined),
   };
 
-  function criar(): void {
+  function criar(impressoraHabilitada = true): void {
+    impressora.habilitada = impressoraHabilitada;
     notificacao = criarNotificacaoFalsa();
     dialogo = criarDialogoFalso(true);
     conectada.set(false);
@@ -104,6 +106,13 @@ describe('PedidoDetalheComponent', () => {
     await componente.imprimirRecibo();
     expect(impressora.conectar).toHaveBeenCalledTimes(2);
     expect(notificacao.erro).toHaveBeenCalledWith(expect.stringContaining('Não foi possível imprimir'));
+  });
+
+  it('com a impressora desligada no environment, não mostra o botão do recibo', () => {
+    pedidoService.obter.mockReturnValue(of(criarPedidoDetalhe()));
+    criar(false);
+
+    expect(fixture.nativeElement.querySelector('.imprimir')).toBeNull();
   });
 
   it('entrega com parceiro: mostra taxa e total, e ao ficar Pronto avisa que chamou o entregador', () => {

@@ -17,11 +17,12 @@ describe('ImpressoraRecibosComponent', () => {
   let fixture: ComponentFixture<ImpressoraRecibosComponent>;
   let elemento: HTMLElement;
 
-  function criar(suportada = true): void {
+  function criar(suportada = true, habilitada = true): void {
     notificacao = criarNotificacaoFalsa();
     conectada = signal(false);
     automatica = signal(true);
     impressora = {
+      habilitada,
       suportada,
       conectada,
       automatica,
@@ -52,6 +53,14 @@ describe('ImpressoraRecibosComponent', () => {
     criar(false);
 
     expect(elemento.textContent).toContain('Use o Chrome ou o Edge');
+    expect(botoes()).toHaveLength(0);
+  });
+
+  it('desligada no environment, avisa que não imprime e não mostra os botões', () => {
+    criar(true, false);
+
+    expect(elemento.textContent).toContain('Impressora desligada neste ambiente');
+    expect(elemento.querySelector('.impressora__automatica')).toBeNull();
     expect(botoes()).toHaveLength(0);
   });
 

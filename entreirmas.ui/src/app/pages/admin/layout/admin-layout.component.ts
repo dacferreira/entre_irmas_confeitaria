@@ -9,6 +9,8 @@ import { AuthService } from '@services/auth.service';
 import { ImpressoraService } from '@services/impressora.service';
 import { filter } from 'rxjs';
 
+export const CHAVE_MENU_RECOLHIDO = 'eirm.menu-recolhido';
+
 interface ItemDoMenu {
   rota: string;
   rotulo: string;
@@ -28,6 +30,8 @@ export class AdminLayoutComponent {
   readonly alerta = inject(AlertaPedidosService);
   private readonly impressora = inject(ImpressoraService);
   readonly menuAberto = signal(false);
+  /** Menu do computador só com os ícones (a escolha fica no aparelho). */
+  readonly recolhido = signal(lerMenuRecolhido());
 
   readonly menu: readonly ItemDoMenu[] = [
     { rota: ROTAS_ADMIN.PAINEL, rotulo: 'Painel', icone: 'painel' },
@@ -72,6 +76,16 @@ export class AdminLayoutComponent {
     this.menuAberto.update((aberto) => !aberto);
   }
 
+  alternarRecolhido(): void {
+    const recolhido = !this.recolhido();
+    this.recolhido.set(recolhido);
+    try {
+      localStorage.setItem(CHAVE_MENU_RECOLHIDO, recolhido ? 'sim' : 'nao');
+    } catch {
+      // Sem localStorage a escolha vale só nesta aba.
+    }
+  }
+
   sair(): void {
     this.auth.sair();
   }
@@ -84,5 +98,13 @@ export class AdminLayoutComponent {
       .slice(0, 2)
       .map((parte) => parte[0].toUpperCase())
       .join('');
+  }
+}
+
+function lerMenuRecolhido(): boolean {
+  try {
+    return localStorage.getItem(CHAVE_MENU_RECOLHIDO) === 'sim';
+  } catch {
+    return false;
   }
 }

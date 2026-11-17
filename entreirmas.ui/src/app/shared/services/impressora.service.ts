@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { environment } from '@environments/environment';
 import { PedidoDetalhe } from '@models/admin.model';
 import { NotificacaoService } from './notificacao.service';
 import { montarRecibo, montarReciboDeTeste } from './recibo-termico';
@@ -30,7 +31,11 @@ interface WebSerial {
 @Injectable({ providedIn: 'root' })
 export class ImpressoraService {
   private readonly notificacao = inject(NotificacaoService);
-  private readonly serial = (navigator as Navigator & { serial?: WebSerial }).serial ?? null;
+  private readonly webSerial = (navigator as Navigator & { serial?: WebSerial }).serial ?? null;
+
+  /** `impressoraHabilitada` do environment: desligada, nada conecta nem imprime (ambientes de teste). */
+  readonly habilitada = environment.impressoraHabilitada;
+  private readonly serial = this.habilitada ? this.webSerial : null;
 
   private readonly _porta = signal<PortaSerial | null>(null);
   private readonly _automatica = signal(lerPreferenciaDeImpressao());
@@ -39,7 +44,7 @@ export class ImpressoraService {
   private fila: Promise<void> = Promise.resolve();
 
   /** Chrome e Edge no computador; Firefox, Safari e celulares não têm a Web Serial. */
-  readonly suportada = this.serial !== null;
+  readonly suportada = this.webSerial !== null;
   readonly conectada = computed(() => this._porta() !== null);
   readonly automatica = this._automatica.asReadonly();
   readonly imprimindo = this._imprimindo.asReadonly();
@@ -121,6 +126,9 @@ export class ImpressoraService {
   }
 
   private async escrever(bytes: Uint8Array): Promise<void> {
+    if (!this.habilitada) {
+      throw new Error('Impressora desligada neste ambiente.');
+    }
     const porta = this._porta();
     if (!porta) {
       throw new Error('Nenhuma impressora conectada.');

@@ -7,7 +7,11 @@
     </div>
   </div>
 
-  @if (!impressora.suportada) {
+  @if (!impressora.habilitada) {
+    <p class="impressora__aviso" role="status">
+      Impressora desligada neste ambiente (testes): nenhum recibo é impresso. Ela só funciona no site de produção.
+    </p>
+  } @else if (!impressora.suportada) {
     <p class="impressora__aviso" role="status">
       Este navegador não acessa a impressora. Use o Chrome ou o Edge no computador onde ela está pareada.
     </p>

@@ -9,4 +9,6 @@ export const environment = {
   /** Latitude,longitude da loja: o pino do mapa ("Rua A" sozinho o Google acha no lugar errado). */
   coordenadasLoja: '-22.9161966,-43.6447006',
   antecedenciaMinimaDias: 1,
+  /** Libera a impressora de recibos no admin. Desligada fora da produção, para os testes não imprimirem. */
+  impressoraHabilitada: true,
 };

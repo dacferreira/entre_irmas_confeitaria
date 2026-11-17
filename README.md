@@ -100,6 +100,11 @@ em todas). Ele traz o código, retirada ou entrega, a data, o cliente, o telefon
 observação. Impressoras só BLE (sem o perfil serial SPP) não aparecem na lista. Se a impressão falhar, o admin
 avisa; a fila tenta reabrir a conexão uma vez antes de desistir.
 
+A impressora só funciona onde `impressoraHabilitada` é `true` no `src/environments/*`: hoje só no
+`environment.prod.ts` (produção). No `ng serve`, no `prod-local`, no `dsv` e no `tst` ela fica desligada, para
+os testes não imprimirem: a tela da Loja avisa, o botão **Imprimir recibo** some e nada conecta. Para testar a
+impressora no computador, troque para `true` no `environment.ts` (sem commitar).
+
 `POST /api/pedidos` tem limite de `PEDIDO_LIMITE_POR_MINUTO` por IP. `GET /api/pedidos/{codigo}` (público, aceita
 o código com ou sem `EI-`) devolve só etapa, primeiro nome, data, forma, itens e total, sem telefone, endereço ou
 observação, com limite de `ACOMPANHAMENTO_LIMITE_POR_MINUTO` por IP para dificultar a tentativa de códigos.
@@ -126,6 +131,10 @@ mostra o link "Painel" e a área tem menu próprio:
 | Categorias | Cadastro e ordem no cardápio; só exclui categoria sem produtos |
 | Despesas e perdas | Lançamentos que entram no cálculo do lucro |
 | Usuários | Criar, redefinir senha, bloquear e excluir (ninguém tira o próprio acesso) |
+
+No computador, o botão no topo do menu (**Recolher menu** / **Expandir menu**) deixa só a coluna dos ícones,
+com o nome de cada item ao parar o mouse; a escolha fica no aparelho. No celular o menu é uma gaveta aberta pelo
+botão da barra de cima.
 
 **Como o lucro é calculado:** vendas são os pedidos confirmados e não cancelados, pela data desejada.
 Lucro = vendas − custo dos produtos vendidos − despesas − perdas. O custo é copiado para o item no momento

@@ -158,11 +158,17 @@
     stroke: currentColor;
     stroke-width: 2.6;
     stroke-linecap: round;
+    transition: transform var(--transicao);
   }
 
+  // Só o "+" gira; o botão inteiro giraria junto o contador da sacola.
   &:hover {
-    transform: rotate(90deg) scale(1.06);
+    transform: scale(1.06);
     background: var(--cor-primaria-escura);
+
+    svg {
+      transform: rotate(90deg);
+    }
   }
 
   &:active {

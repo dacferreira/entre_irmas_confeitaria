@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { environment } from '@environments/environment';
 import { criarNotificacaoFalsa, criarPedidoDetalhe } from '@testing/dados-admin';
 import { CHAVE_IMPRESSAO_AUTOMATICA, ImpressoraService } from './impressora.service';
 import { NotificacaoService } from './notificacao.service';
@@ -33,7 +34,8 @@ describe('ImpressoraService', () => {
   let serial: { getPorts: jest.Mock; requestPort: jest.Mock };
   let servico: ImpressoraService;
 
-  function criar(comSerial = true): void {
+  function criar(comSerial = true, habilitada = true): void {
+    environment.impressoraHabilitada = habilitada;
     notificacao = criarNotificacaoFalsa();
     if (comSerial) {
       Object.defineProperty(navigator, 'serial', { value: serial, configurable: true });
@@ -49,6 +51,26 @@ describe('ImpressoraService', () => {
 
   afterEach(() => {
     delete (navigator as { serial?: unknown }).serial;
+    environment.impressoraHabilitada = false;
+  });
+
+  it('desligada no environment, não reconecta, não abre a lista de portas e não imprime', async () => {
+    const porta = new PortaFalsa();
+    serial.getPorts.mockResolvedValue([porta]);
+    criar(true, false);
+
+    expect(servico.habilitada).toBe(false);
+    expect(servico.suportada).toBe(true);
+    await servico.reconectar();
+    expect(await servico.conectar()).toBe(false);
+    await servico.imprimirPedidoNovo(criarPedidoDetalhe());
+    await expect(servico.imprimirTeste()).rejects.toThrow('Impressora desligada neste ambiente.');
+
+    expect(servico.conectada()).toBe(false);
+    expect(serial.getPorts).not.toHaveBeenCalled();
+    expect(serial.requestPort).not.toHaveBeenCalled();
+    expect(porta.open).not.toHaveBeenCalled();
+    expect(notificacao.erro).not.toHaveBeenCalled();
   });
 
   it('sem Web Serial (Firefox, Safari, celular) não é suportada e não quebra', async () => {
