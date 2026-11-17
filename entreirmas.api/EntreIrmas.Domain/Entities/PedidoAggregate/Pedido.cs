@@ -53,8 +53,68 @@ public class Pedido : Entity, IAggregateRoot
     public StatusPedido Status { get; private set; }
     public IReadOnlyCollection<ItemPedido> Itens => _itens;
 
+    // Entrega por parceiro (V1.0.13). Tudo nulo na retirada e quando a taxa é combinada pelo WhatsApp.
+
+    /// <summary>Taxa de entrega cobrada do cliente. Fica fora do <see cref="ValorTotal"/> (soma dos itens).</summary>
+    public decimal? TaxaEntrega { get; private set; }
+
+    public ParceiroEntrega? ParceiroEntrega { get; private set; }
+    public SituacaoEntrega? SituacaoEntrega { get; private set; }
+
+    /// <summary>Id da entrega no sistema do parceiro.</summary>
+    public string? IdEntregaParceiro { get; private set; }
+
+    /// <summary>Link para acompanhar o entregador.</summary>
+    public string? RastreioEntrega { get; private set; }
+
+    /// <summary>Motivo da última falha ao chamar o entregador.</summary>
+    public string? ErroEntrega { get; private set; }
+
+    /// <summary>O que o cliente paga: itens + taxa de entrega.</summary>
+    public decimal TotalAPagar => ValorTotal + (TaxaEntrega ?? 0);
+
+    /// <summary>Entrega com parceiro escolhido e entregador ainda não chamado (ou com a chamada anterior falha).</summary>
+    public bool PodeChamarEntregador =>
+        TipoEntrega == TipoEntrega.Entrega && ParceiroEntrega.HasValue && SituacaoEntrega != PedidoAggregate.SituacaoEntrega.Solicitada;
+
     /// <summary>Custo dos produtos do pedido, pelo custo copiado em cada item.</summary>
     public decimal CustoTotal => _itens.Sum(i => i.CustoTotal);
+
+    /// <summary>Taxa da cotação escolhida (a mais barata), cobrada junto com o pedido.</summary>
+    public void DefinirTaxaEntrega(ParceiroEntrega parceiro, decimal taxa)
+    {
+        if (TipoEntrega != TipoEntrega.Entrega)
+            throw new DomainException("Só pedidos de entrega têm taxa de entrega.");
+        if (!Enum.IsDefined(parceiro))
+            throw new DomainException("Parceiro de entrega inválido.");
+        if (taxa < 0)
+            throw new DomainException("A taxa de entrega não pode ser negativa.");
+
+        ParceiroEntrega = parceiro;
+        TaxaEntrega = decimal.Round(taxa, 2);
+    }
+
+    public void RegistrarEntregadorChamado(string idEntregaParceiro, string? rastreio)
+    {
+        if (!PodeChamarEntregador)
+            throw new DomainException("Este pedido não tem entrega por parceiro para chamar.");
+        if (string.IsNullOrWhiteSpace(idEntregaParceiro))
+            throw new DomainException("O parceiro não informou o id da entrega.");
+
+        SituacaoEntrega = PedidoAggregate.SituacaoEntrega.Solicitada;
+        IdEntregaParceiro = idEntregaParceiro.Trim();
+        RastreioEntrega = string.IsNullOrWhiteSpace(rastreio) ? null : rastreio.Trim();
+        ErroEntrega = null;
+    }
+
+    public void RegistrarFalhaAoChamarEntregador(string motivo)
+    {
+        if (!PodeChamarEntregador)
+            throw new DomainException("Este pedido não tem entrega por parceiro para chamar.");
+
+        SituacaoEntrega = PedidoAggregate.SituacaoEntrega.Falhou;
+        ErroEntrega = string.IsNullOrWhiteSpace(motivo) ? "Falha ao chamar o entregador." : motivo.Trim()[..Math.Min(300, motivo.Trim().Length)];
+    }
 
     /// <summary>Pedidos que contam como venda: confirmados pela confeitaria e não cancelados.</summary>
     public bool ContaComoVenda => Status is not (StatusPedido.Recebido or StatusPedido.Cancelado);

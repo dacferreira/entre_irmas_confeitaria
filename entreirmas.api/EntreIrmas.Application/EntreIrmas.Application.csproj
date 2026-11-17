@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="Mapster" Version="10.0.14" />
+    <!-- ILogger nos serviços (Microsoft, licença MIT). -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.15" />
   </ItemGroup>
 
   <ItemGroup>

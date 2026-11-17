@@ -122,6 +122,64 @@
 }
 
 // Pedido normal: no lugar do campo de data.
+// Cálculo da entrega (Uber / 99) e o trajeto no mapa.
+.entrega {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+
+  &__erro {
+    margin: 0;
+    color: #b3261e;
+    font-weight: 600;
+  }
+
+  &__resultado,
+  &__aviso {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: var(--raio-p);
+    background: var(--cor-fundo-alt);
+    line-height: 1.5;
+  }
+
+  &__resultado span,
+  &__aviso {
+    font-size: 0.92rem;
+    color: var(--cor-texto-suave);
+  }
+
+  &__mapa {
+    width: 100%;
+    height: clamp(220px, 45vw, 300px);
+    border: 0;
+    border-radius: var(--raio-m);
+  }
+}
+
+// Endereço da loja quando a pessoa escolhe retirar.
+.retirada {
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  border-radius: var(--raio-p);
+  background: var(--cor-fundo-alt);
+  font-size: 0.95rem;
+  line-height: 1.5;
+
+  a {
+    margin-left: 4px;
+    color: var(--cor-primaria);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}
+
 .para-hoje {
   margin-bottom: 18px;
   padding: 12px 16px;
@@ -219,6 +277,13 @@
 .resumo__valor {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+}
+
+.resumo__entrega {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.95rem;
 }
 
 .resumo__total {

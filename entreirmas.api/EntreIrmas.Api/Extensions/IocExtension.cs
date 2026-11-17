@@ -27,9 +27,11 @@ public static class IocExtension
         services.AddScoped<ILojaAppService, LojaAppService>();
         services.AddScoped<IPainelAppService, PainelAppService>();
         services.AddScoped<IEnderecoAppService, EnderecoAppService>();
+        services.AddScoped<IEntregaAppService, EntregaAppService>();
 
         // Services
         services.AddScoped<IMensagemPedidoService, MensagemPedidoService>();
+        services.AddScoped<IEntregaService, EntregaService>();
         services.AddScoped<IAuthentication, HttpContextAuthentication>();
         services.AddSingleton<ISenhaService, SenhaService>();
         services.AddSingleton<ITokenService, TokenService>();

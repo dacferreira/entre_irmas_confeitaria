@@ -21,6 +21,8 @@ public static class EnviromentExtension
         builder.Services.AddSingleton<IMySqlEnvironmentVariables>(variaveis);
         builder.Services.AddSingleton<IWhatsAppEnvironmentVariables>(variaveis);
         builder.Services.AddSingleton<IViaCepEnvironmentVariables>(variaveis);
+        builder.Services.AddSingleton<IEntregaEnvironmentVariables>(variaveis);
+        builder.Services.AddSingleton<IUberEnvironmentVariables>(variaveis);
         builder.Services.AddSingleton<IPedidoEnvironmentVariables>(variaveis);
         builder.Services.AddSingleton<ISwaggerEnvironmentVariables>(variaveis);
         builder.Services.AddSingleton<ICorsEnvironmentVariables>(variaveis);

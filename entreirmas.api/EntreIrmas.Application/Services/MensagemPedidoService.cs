@@ -27,8 +27,15 @@ public class MensagemPedidoService : IMensagemPedidoService
             mensagem.AppendLine($"• {item.Quantidade}x {item.NomeProduto} ({item.Unidade}) — {Moeda(item.ValorTotal)}");
 
         mensagem
-            .AppendLine()
-            .AppendLine($"*Total: {Moeda(pedido.ValorTotal)}*")
+            .AppendLine();
+
+        if (pedido.TaxaEntrega is { } taxa)
+            mensagem.AppendLine($"Entrega ({pedido.ParceiroEntrega?.Nome()}): {Moeda(taxa)}");
+        else if (pedido.TipoEntrega == TipoEntrega.Entrega)
+            mensagem.AppendLine("Entrega: taxa a combinar");
+
+        mensagem
+            .AppendLine($"*Total: {Moeda(pedido.TotalAPagar)}*")
             .AppendLine()
             .AppendLine($"Nome: {pedido.NomeCliente}")
             .AppendLine($"Data desejada: {pedido.DataDesejada.ToString("dd/MM/yyyy", CulturaPtBr)}")

@@ -78,6 +78,13 @@ export function criarPedidoDetalhe(parcial: Partial<PedidoDetalhe> = {}): Pedido
     endereco: null,
     observacao: 'Sem lactose',
     custoTotal: 36,
+    taxaEntrega: null,
+    parceiroEntrega: null,
+    totalAPagar: 90,
+    situacaoEntrega: null,
+    rastreioEntrega: null,
+    erroEntrega: null,
+    podeChamarEntregador: false,
     itens: [
       {
         produtoId: 10,

@@ -9,7 +9,7 @@ import { of, throwError } from 'rxjs';
 import { PedidoDetalheComponent } from './pedido-detalhe.component';
 
 describe('PedidoDetalheComponent', () => {
-  const pedidoService = { obter: jest.fn(), alterarStatus: jest.fn(), excluir: jest.fn() };
+  const pedidoService = { obter: jest.fn(), alterarStatus: jest.fn(), excluir: jest.fn(), chamarEntregador: jest.fn() };
   const referencia = { close: jest.fn() };
   let notificacao: ReturnType<typeof criarNotificacaoFalsa>;
   let dialogo: ReturnType<typeof criarDialogoFalso>;
@@ -104,6 +104,62 @@ describe('PedidoDetalheComponent', () => {
     await componente.imprimirRecibo();
     expect(impressora.conectar).toHaveBeenCalledTimes(2);
     expect(notificacao.erro).toHaveBeenCalledWith(expect.stringContaining('Não foi possível imprimir'));
+  });
+
+  it('entrega com parceiro: mostra taxa e total, e ao ficar Pronto avisa que chamou o entregador', () => {
+    const entrega = { tipoEntrega: 'Entrega' as const, taxaEntrega: 12.5, parceiroEntrega: 'NoventaENove' as const, totalAPagar: 102.5 };
+    pedidoService.obter.mockReturnValue(of(criarPedidoDetalhe({ ...entrega, podeChamarEntregador: true })));
+    pedidoService.alterarStatus.mockReturnValue(
+      of(criarPedidoDetalhe({ ...entrega, status: 'Pronto', situacaoEntrega: 'Solicitada', rastreioEntrega: 'https://99.test/r' })),
+    );
+    criar();
+    const elemento: HTMLElement = fixture.nativeElement;
+    expect(elemento.querySelector('.entrega')?.textContent).toContain('99');
+    expect(elemento.querySelector('.entrega__situacao')?.textContent).toContain('chamado automaticamente');
+    expect(elemento.querySelector('.itens tfoot')?.textContent).toContain('Cliente paga');
+
+    componente.alterarStatus('Pronto');
+    fixture.detectChanges();
+
+    expect(notificacao.sucesso).toHaveBeenCalledWith('Pedido EI-ABC234: pronto. Entregador da 99 chamado.');
+    expect(elemento.querySelector('.entrega__situacao--ok')?.textContent).toContain('Entregador chamado');
+    expect(elemento.querySelector<HTMLAnchorElement>('.entrega__rastreio')?.href).toBe('https://99.test/r');
+  });
+
+  it('falha ao chamar o entregador: avisa e deixa chamar de novo', () => {
+    const entrega = { tipoEntrega: 'Entrega' as const, taxaEntrega: 10, parceiroEntrega: 'Uber' as const, totalAPagar: 100 };
+    const falhou = { ...entrega, status: 'Pronto' as const, situacaoEntrega: 'Falhou' as const, erroEntrega: 'A Uber demorou.', podeChamarEntregador: true };
+    pedidoService.obter.mockReturnValue(of(criarPedidoDetalhe({ ...entrega, podeChamarEntregador: true })));
+    pedidoService.alterarStatus.mockReturnValue(of(criarPedidoDetalhe(falhou)));
+    criar();
+    const elemento: HTMLElement = fixture.nativeElement;
+
+    componente.alterarStatus('Pronto');
+    fixture.detectChanges();
+
+    expect(notificacao.erro).toHaveBeenCalledWith('Pedido EI-ABC234 pronto, mas o entregador não foi chamado: A Uber demorou.');
+    expect(elemento.querySelector('.entrega__situacao--erro')?.textContent).toContain('A Uber demorou.');
+
+    pedidoService.chamarEntregador.mockReturnValueOnce(of(criarPedidoDetalhe(falhou)));
+    elemento.querySelector<HTMLButtonElement>('.entrega__chamar')!.click();
+    expect(notificacao.erro).toHaveBeenLastCalledWith('O entregador não foi chamado: A Uber demorou.');
+
+    pedidoService.chamarEntregador.mockReturnValueOnce(
+      of(criarPedidoDetalhe({ ...entrega, status: 'Pronto', situacaoEntrega: 'Solicitada' })),
+    );
+    componente.chamarEntregador();
+    fixture.detectChanges();
+
+    expect(pedidoService.chamarEntregador).toHaveBeenCalledWith(5);
+    expect(notificacao.sucesso).toHaveBeenLastCalledWith('Entregador da Uber chamado.');
+    expect(elemento.querySelector('.entrega__chamar')).toBeNull();
+  });
+
+  it('entrega sem parceiro mostra que é combinada pelo WhatsApp', () => {
+    pedidoService.obter.mockReturnValue(of(criarPedidoDetalhe({ tipoEntrega: 'Entrega' })));
+    criar();
+
+    expect(fixture.nativeElement.querySelector('.entrega')?.textContent).toContain('combinados pelo WhatsApp');
   });
 
   it('não exclui se a pessoa desistir e mostra o erro de carregamento', () => {

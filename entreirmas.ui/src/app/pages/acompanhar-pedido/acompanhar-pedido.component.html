@@ -95,6 +95,15 @@
           <dt>Feito em</dt>
           <dd>{{ pedido.dataDoPedido | dataBr }}</dd>
         </div>
+        @if (pedido.tipoEntrega === 'Retirada') {
+          <div class="detalhes__retirada">
+            <dt>Onde retirar</dt>
+            <dd>
+              {{ contato.enderecoLoja }}
+              <a [href]="contato.linkMapa" target="_blank" rel="noopener">Ver no mapa</a>
+            </dd>
+          </div>
+        }
       </dl>
 
       <ul class="itens">
@@ -105,10 +114,22 @@
           </li>
         }
       </ul>
+      @if (pedido.taxaEntrega !== null) {
+        <div class="entrega">
+          <span>Entrega ({{ nomeDoParceiro(pedido.parceiroEntrega) }})</span>
+          <span>{{ pedido.taxaEntrega | currency }}</span>
+        </div>
+      }
       <div class="total">
         <span>Total</span>
-        <strong>{{ pedido.valorTotal | currency }}</strong>
+        <strong>{{ pedido.totalAPagar | currency }}</strong>
       </div>
+
+      @if (pedido.rastreioEntrega) {
+        <a class="botao botao--bloco rastreio" [href]="pedido.rastreioEntrega" target="_blank" rel="noopener">
+          Acompanhar o entregador
+        </a>
+      }
 
       <div class="acoes">
         <button type="button" class="botao botao--contorno" [disabled]="carregando()" (click)="atualizar()">

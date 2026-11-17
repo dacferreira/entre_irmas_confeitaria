@@ -39,6 +39,19 @@ public class PedidoDetalheDto : PedidoResumoDto
     public string? Endereco { get; set; }
     public string? Observacao { get; set; }
     public decimal CustoTotal { get; set; }
+
+    /// <summary>Taxa de entrega cobrada (nula na retirada e quando é combinada pelo WhatsApp).</summary>
+    public decimal? TaxaEntrega { get; set; }
+    public ParceiroEntrega? ParceiroEntrega { get; set; }
+
+    /// <summary>Itens + taxa de entrega.</summary>
+    public decimal TotalAPagar { get; set; }
+    public SituacaoEntrega? SituacaoEntrega { get; set; }
+    public string? RastreioEntrega { get; set; }
+    public string? ErroEntrega { get; set; }
+
+    /// <summary>Entrega com parceiro ainda sem entregador (ou com a chamada anterior falha).</summary>
+    public bool PodeChamarEntregador { get; set; }
     public List<ItemPedidoAdminDto> Itens { get; set; } = new();
 }
 

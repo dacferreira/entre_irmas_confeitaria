@@ -31,6 +31,14 @@ internal sealed class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
         builder.Property(b => b.DataDesejada).HasColumnName("PEDI_DT_DESEJADA").IsRequired();
         builder.Property(b => b.Observacao).HasColumnName("PEDI_TX_OBSERVACAO").HasMaxLength(500);
         builder.Property(b => b.ValorTotal).HasColumnName("PEDI_NR_VALOR_TOTAL").HasPrecision(10, 2).IsRequired();
+
+        // Entrega por parceiro (V1.0.13).
+        builder.Property(b => b.TaxaEntrega).HasColumnName("PEDI_NR_TAXA_ENTREGA").HasPrecision(10, 2);
+        builder.Property(b => b.ParceiroEntrega).HasColumnName("PEDI_CD_PARCEIRO_ENTREGA").HasConversion<string>().HasMaxLength(20);
+        builder.Property(b => b.SituacaoEntrega).HasColumnName("PEDI_CD_SITUACAO_ENTREGA").HasConversion<string>().HasMaxLength(20);
+        builder.Property(b => b.IdEntregaParceiro).HasColumnName("PEDI_CD_ENTREGA_PARCEIRO").HasMaxLength(100);
+        builder.Property(b => b.RastreioEntrega).HasColumnName("PEDI_DS_RASTREIO_ENTREGA").HasMaxLength(500);
+        builder.Property(b => b.ErroEntrega).HasColumnName("PEDI_TX_ERRO_ENTREGA").HasMaxLength(300);
         builder.Property(b => b.Status).HasColumnName("PEDI_CD_STATUS").HasConversion<string>().HasMaxLength(20).IsRequired();
         builder.Property(b => b.CadastradoPor).HasColumnName("PEDI_NM_CADASTRADO_POR").HasMaxLength(30).IsRequired();
         builder.Property(b => b.Estado).HasColumnName("PEDI_IN_ATIVO").HasConversion<int>().IsRequired();
@@ -38,6 +46,8 @@ internal sealed class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
 
         builder.Ignore(b => b.CustoTotal);
         builder.Ignore(b => b.ContaComoVenda);
+        builder.Ignore(b => b.TotalAPagar);
+        builder.Ignore(b => b.PodeChamarEntregador);
 
         builder.HasMany(p => p.Itens)
             .WithOne()

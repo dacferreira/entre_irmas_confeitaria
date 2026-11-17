@@ -1,0 +1,18 @@
+<section class="onde container" id="onde-estamos" aria-labelledby="titulo-onde-estamos">
+  <div class="onde__texto">
+    <span class="sobretitulo">Retirada na loja</span>
+    <h2 id="titulo-onde-estamos" class="titulo-secao">Onde <em>estamos</em></h2>
+    <p class="texto-suave">Escolheu retirar? É só passar aqui no dia do pedido. Avisamos pelo WhatsApp quando estiver pronto.</p>
+    <address class="onde__endereco">{{ contato.enderecoLoja }}</address>
+    <a class="botao" [href]="contato.linkRota" target="_blank" rel="noopener">Como chegar</a>
+  </div>
+
+  <div class="onde__mapa">
+    <iframe
+      [src]="urlMapa"
+      title="Mapa com o endereço da Entre Irmãs Confeitaria"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen></iframe>
+  </div>
+</section>

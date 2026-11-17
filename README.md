@@ -29,10 +29,43 @@ Há dois fluxos, decididos pelo cadastro dos produtos (a API confere, o navegado
 3. A API recalcula os preços pelo cadastro (o valor do navegador é ignorado), grava `PEDIDO` + `ITEM_PEDIDO`
    e devolve o código (`EI-XXXXXX`) com o link `wa.me` e a mensagem pronta.
 4. A confeitaria confirma pagamento e entrega pelo WhatsApp.
+   Na entrega, o cliente clica em **Calcular entrega** (ver abaixo) e a taxa entra no total.
 5. O cliente acompanha a etapa (recebido → confirmado → em preparo → pronto → entregue, ou cancelado) em
    **Meu pedido** (`/acompanhar-pedido`), digitando o código ou pelo botão da tela de pedido recebido. Os pedidos
    feitos ou consultados no aparelho ficam no `localStorage` para um clique. A etapa muda quando a confeitaria
    altera o status na tela Pedidos.
+
+### Entrega pela Uber ou 99
+
+No checkout, na entrega, o botão **Calcular entrega** manda o endereço para `POST /api/entregas/cotacao` (público,
+limite de `ENTREGA_LIMITE_POR_MINUTO` por IP). A API cota na Uber e na 99 ao mesmo tempo e devolve só a **mais
+barata** (parceiro, valor e minutos até a entrega); a tela mostra o valor, soma no total e desenha o trajeto da loja
+até o endereço no mapa do Google (sem chave de API). Mudar o endereço apaga o cálculo; o pedido de entrega só é
+enviado depois de calcular.
+
+- No envio, a API **cota de novo** (o valor do navegador não vale) e grava a taxa e o parceiro no pedido
+  (`V1.0.13`). `PEDI_NR_VALOR_TOTAL` continua sendo só os itens (painel e lucro não mudam); o cliente paga
+  itens + taxa (`totalAPagar`), que aparecem na confirmação, no Meu pedido, no admin, no recibo e no WhatsApp.
+- Sem parceiro configurado, endereço fora da área ou parceiro fora do ar: o checkout avisa e a taxa é combinada
+  pelo WhatsApp, como antes. Pedidos lançados no admin não cotam.
+- **Ao marcar o pedido como Pronto** no admin, a API chama o entregador do parceiro escolhido e guarda o id e o
+  link de rastreio (o cliente vê "Acompanhar o entregador" no Meu pedido). Se a chamada falhar, a etapa muda mesmo
+  assim, o motivo aparece no detalhe do pedido e o botão **Chamar entregador de novo** tenta outra vez
+  (`POST /api/admin/pedidos/{id}/entregador`).
+
+Situação de cada parceiro:
+
+| Parceiro | Integração | Para ligar |
+|---|---|---|
+| Uber (Uber Direct) | Pronta: token OAuth, cotação (`delivery_quotes`) e entrega (`deliveries`) | Criar a conta no Uber Direct, pegar no painel Developer o Client ID, o Client Secret e o Customer ID e configurar `UBER_CLIENT_ID`, `UBER_CLIENT_SECRET` e `UBER_CUSTOMER_ID` (segredos). Comece com `UBER_MODO_TESTE = true` (entregador-robô) |
+| 99 (99Entrega) | Só no simulador | A documentação da API da 99Entrega não é pública: é liberada pelo time comercial junto com a conta empresarial. Com ela em mãos, entra um gateway como o da Uber (`IEntregaParceiroService`) |
+
+**Simulador** (`ENTREGA_SIMULADOR = true`, ligado no ambiente `Local` e nos testes): Uber e 99 de mentira, sem
+chamar ninguém. O valor sai da diferença entre o CEP da loja e o do cliente (a Uber fica mais barata perto da loja
+e a 99 mais longe) e fora da UF da loja ninguém atende. **Nunca ligue em produção**: os clientes veriam taxas
+inventadas.
+
+O endereço de coleta (a loja) fica em `LOJA_*` no `appsettings.json`.
 
 ### Loja aberta ou fechada
 
@@ -127,7 +160,8 @@ Aplique os scripts (sem Flyway instalado, o script abaixo usa o cliente `mysql`;
 Banco que já tem as versões anteriores: aplique só as novas com `-APartirDe` (ex.: `-APartirDe 1.0.6`).
 O `V1.0.9` cria a tabela das fotos dos produtos; o `V1.0.10` marca os produtos sob encomenda (os já cadastrados
 começam sem: marque na tela Produtos); o `V1.0.11` separa o endereço de entrega em colunas (os pedidos antigos
-mantêm só o texto em `PEDI_DS_ENDERECO`); o `V1.0.12` cria a tabela `LOJA` (já aberta).
+mantêm só o texto em `PEDI_DS_ENDERECO`); o `V1.0.12` cria a tabela `LOJA` (já aberta); o `V1.0.13` acrescenta
+ao pedido a taxa de entrega, o parceiro (Uber/99) e os dados da chamada do entregador.
 
 Usuários iniciais (suellen e tatiane): o script `entreirmas.dados/local/criar-usuarios-iniciais.sql`
 **não vai para o git** (está no `.gitignore`, porque o repositório é público) e traz a senha padrão no
@@ -181,6 +215,11 @@ cd entreirmas.ui && npx jest && npm run lint && npx ng build --configuration pro
 | `JWT_EXPIRACAO_HORAS`, `LOGIN_LIMITE_POR_MINUTO` | comum | só no `appsettings.json` (12 h e 5 tentativas) |
 | `WHATSAPP_NUMERO`, `PEDIDO_ANTECEDENCIA_MINIMA_DIAS`, `PEDIDO_LIMITE_POR_MINUTO`, `ACOMPANHAMENTO_LIMITE_POR_MINUTO` | comum | só no `appsettings.json` (acompanhamento: 30 consultas) |
 | `VIACEP_URL`, `VIACEP_TIMEOUT_SEGUNDOS`, `VIACEP_CACHE_HORAS`, `CEP_LIMITE_POR_MINUTO` | comum | só no `appsettings.json` (5 s, 24 h e 30 consultas) |
+| `ENTREGA_SIMULADOR` | muda por ambiente | `true` só no `Local` e nos testes; `false` nos demais |
+| `ENTREGA_TIMEOUT_SEGUNDOS`, `ENTREGA_LIMITE_POR_MINUTO`, `LOJA_*` | comum | só no `appsettings.json` (10 s, 20 cálculos; endereço e coordenadas da loja) |
+| `UBER_CLIENT_ID`, `UBER_CLIENT_SECRET`, `UBER_CUSTOMER_ID` | **segredo** | user-secrets no local; ConfigMap/secret nos ambientes. Vazios, a Uber fica desligada |
+| `UBER_MODO_TESTE` | muda por ambiente | `true` usa o entregador-robô do Uber Direct (nenhum entregador sai) |
+| `UBER_AUTH_URL`, `UBER_API_URL` | comum | só no `appsettings.json` |
 
 No front, `whatsappNumero` e `antecedenciaMinimaDias` estão em todos os `src/environments/*` e precisam
 acompanhar os valores da API.

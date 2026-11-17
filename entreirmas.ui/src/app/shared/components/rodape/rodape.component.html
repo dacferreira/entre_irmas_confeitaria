@@ -23,6 +23,7 @@
       <a routerLink="/" fragment="como-funciona">Como funciona</a>
       <a [routerLink]="['/', rotas.FINALIZAR_PEDIDO]">Finalizar pedido</a>
       <a [routerLink]="['/', rotas.ACOMPANHAR_PEDIDO]">Acompanhar pedido</a>
+      <a routerLink="/" fragment="onde-estamos">Onde estamos</a>
     </nav>
 
     <div class="rodape__coluna">
@@ -30,6 +31,9 @@
       <a [href]="contato.instagramUrl" target="_blank" rel="noopener">Instagram {{ contato.instagramUsuario }}</a>
       <p>Encomendas com {{ antecedencia }} dia(s) de antecedência.</p>
       <p>Entrega e pagamento combinados pelo WhatsApp.</p>
+      <a class="rodape__endereco" [href]="contato.linkMapa" target="_blank" rel="noopener">
+        Retirada: {{ contato.enderecoLoja }}
+      </a>
     </div>
   </div>
 

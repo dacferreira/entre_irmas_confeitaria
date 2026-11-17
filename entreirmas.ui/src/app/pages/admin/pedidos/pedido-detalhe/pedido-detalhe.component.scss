@@ -77,6 +77,42 @@
   }
 }
 
+// Entrega pela Uber/99: parceiro, situação da chamada e o rastreio.
+.entrega {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: var(--raio-p);
+  background: var(--cor-fundo);
+
+  &__linha,
+  &__situacao {
+    margin: 0;
+  }
+
+  &__situacao {
+    color: var(--cor-texto-suave);
+
+    &--ok {
+      color: #1e7a45;
+      font-weight: 600;
+    }
+
+    &--erro {
+      color: #b3261e;
+      font-weight: 600;
+    }
+  }
+
+  &__rastreio {
+    color: var(--cor-primaria);
+    font-weight: 600;
+  }
+}
+
 .observacao {
   white-space: pre-line;
 }

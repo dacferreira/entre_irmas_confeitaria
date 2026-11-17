@@ -42,7 +42,7 @@
         title="Toca um aviso quando chega pedido pelo site"
         (click)="alerta.alternarSom()">
         <eirm-icone [nome]="alerta.somLigado() ? 'som' : 'mudo'" />
-        Som de pedido novo: {{ alerta.somLigado() ? 'ligado' : 'desligado' }}
+        Aviso sonoro: {{ alerta.somLigado() ? 'ligado' : 'desligado' }}
       </button>
       <a class="lateral__link" routerLink="/" target="_blank" rel="noopener">
         <eirm-icone nome="site" />

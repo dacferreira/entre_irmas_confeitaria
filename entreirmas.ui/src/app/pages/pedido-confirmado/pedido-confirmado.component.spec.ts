@@ -27,6 +27,31 @@ describe('PedidoConfirmadoComponent', () => {
     expect(elemento.querySelectorAll('.cartao__itens li').length).toBe(1);
     expect(elemento.querySelectorAll('.confete').length).toBe(24);
     expect(elemento.querySelector('.acompanhar')?.getAttribute('href')).toBe('/acompanhar-pedido/EI-ABC234');
+    expect(elemento.querySelector('.cartao__retirada')).toBeNull();
+  });
+
+  it('na retirada mostra onde retirar, com link para o mapa', () => {
+    const elemento = renderizar(criarPedido({ tipoEntrega: 'Retirada' }));
+    const retirada = elemento.querySelector('.cartao__retirada');
+
+    expect(retirada?.textContent).toContain('Rua A, 41 - Paciência, Rio de Janeiro - RJ, 23580-250');
+    expect(retirada?.querySelector('a')?.getAttribute('href')).toContain('google.com/maps/search');
+  });
+
+  it('na entrega mostra a taxa com o parceiro e o total a pagar', () => {
+    const comTaxa = renderizar(
+      criarPedido({ tipoEntrega: 'Entrega', taxaEntrega: 10.21, parceiroEntrega: 'Uber', totalAPagar: 28.21 }),
+    );
+
+    expect(comTaxa.querySelector('.cartao__entrega')?.textContent).toContain('Entrega (Uber)');
+    expect(comTaxa.querySelector('.cartao__entrega')?.textContent).toContain('10.21');
+    expect(comTaxa.querySelector('.cartao__total')?.textContent).toContain('28.21');
+  });
+
+  it('entrega sem taxa calculada avisa que é combinada pelo WhatsApp', () => {
+    const elemento = renderizar(criarPedido({ tipoEntrega: 'Entrega' }));
+
+    expect(elemento.querySelector('.cartao__entrega')?.textContent).toContain('combinada pelo WhatsApp');
   });
 
   it('orienta quando não há pedido recente', () => {

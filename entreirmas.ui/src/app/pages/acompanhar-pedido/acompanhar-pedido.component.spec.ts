@@ -22,6 +22,7 @@ describe('etapasDoPedido', () => {
 
     expect(etapas.map((e) => e.estado)).toEqual(['concluida', 'concluida', 'atual', 'futura', 'futura']);
     expect(etapas[3].titulo).toBe('Pronto para retirar');
+    expect(etapas[3].texto).toBe('Já pode buscar na nossa loja.');
     expect(etapas[4].titulo).toBe('Retirado');
   });
 
@@ -94,7 +95,30 @@ describe('AcompanharPedidoComponent', () => {
     expect(atual?.textContent).toContain('Confirmado');
     expect(elemento().querySelectorAll('.etapa--concluida').length).toBe(1);
     expect(elemento().querySelector('.detalhes')?.textContent).toContain('20/11/2026');
+    expect(elemento().querySelector('.detalhes__retirada')?.textContent).toContain('Rua A, 41 - Paciência');
     expect(elemento().querySelector('.botao--whatsapp')?.getAttribute('href')).toContain(encodeURIComponent('EI-ABC234'));
+  });
+
+  it('entrega com parceiro mostra a taxa, o total a pagar e o link do entregador', () => {
+    pedidoService.acompanhar.mockReturnValue(
+      of(
+        criarAcompanhamento({
+          tipoEntrega: 'Entrega',
+          status: 'Pronto',
+          taxaEntrega: 10.21,
+          parceiroEntrega: 'Uber',
+          totalAPagar: 28.21,
+          rastreioEntrega: 'https://uber.test/r',
+        }),
+      ),
+    );
+
+    abrirCom('EI-ABC234');
+
+    expect(elemento().querySelector('.entrega')?.textContent).toContain('Entrega (Uber)');
+    expect(elemento().querySelector('.total')?.textContent).toContain('28.21');
+    expect(elemento().querySelector<HTMLAnchorElement>('.rastreio')?.href).toBe('https://uber.test/r');
+    expect(elemento().querySelector('.detalhes__retirada')).toBeNull();
   });
 
   it('mostra o carregamento enquanto consulta', () => {

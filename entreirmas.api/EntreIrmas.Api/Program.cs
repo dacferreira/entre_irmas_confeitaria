@@ -21,8 +21,9 @@ builder.Services
     .AddSwagger()
     .AddHealthCheck(variaveis)
     .AddAuthenticationJwt(variaveis)
-    .AddRateLimit(variaveis, variaveis, variaveis)
+    .AddRateLimit(variaveis, variaveis, variaveis, variaveis)
     .AddViaCepApiService(variaveis)
+    .AddEntregaParceiros(variaveis, variaveis)
     .AddMapsterMapper()
     .AddIoC()
     .AddResponseCompression(options => options.EnableForHttps = true);

@@ -36,6 +36,20 @@ public class MensagemPedidoServiceTests
     }
 
     [Fact]
+    public void MontarMensagem_ComTaxaDeEntrega_MostraOParceiroEOTotalComATaxa()
+    {
+        var pedido = DadosDeTeste.Pedido(TipoEntrega.Entrega, DadosDeTeste.Endereco());
+        pedido.AdicionarItem(DadosDeTeste.Produto(1, preco: 12.5m), 2);
+        var semTaxa = _service.MontarMensagem(pedido);
+        pedido.DefinirTaxaEntrega(ParceiroEntrega.NoventaENove, 9.9m);
+
+        var mensagem = _service.MontarMensagem(pedido);
+
+        semTaxa.Should().Contain("Entrega: taxa a combinar");
+        mensagem.Should().Contain("Entrega (99): R$").And.Contain("9,90").And.Contain("34,90");
+    }
+
+    [Fact]
     public void MontarMensagem_ComRetirada_InformaRetirada()
     {
         var pedido = DadosDeTeste.Pedido();

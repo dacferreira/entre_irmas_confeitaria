@@ -1,4 +1,4 @@
-import { StatusPedido, TipoEntrega } from './pedido.model';
+import { ParceiroEntrega, StatusPedido, TipoEntrega } from './pedido.model';
 
 /** Resposta do login (guardada no localStorage). */
 export interface Sessao {
@@ -109,8 +109,20 @@ export interface PedidoDetalhe extends PedidoResumo {
   endereco: string | null;
   observacao: string | null;
   custoTotal: number;
+  taxaEntrega: number | null;
+  parceiroEntrega: ParceiroEntrega | null;
+  /** Itens + taxa de entrega. */
+  totalAPagar: number;
+  situacaoEntrega: SituacaoEntrega | null;
+  rastreioEntrega: string | null;
+  erroEntrega: string | null;
+  /** Entrega com parceiro ainda sem entregador (ou com a chamada anterior falha). */
+  podeChamarEntregador: boolean;
   itens: ItemPedidoAdmin[];
 }
+
+/** Chamada do entregador no parceiro. */
+export type SituacaoEntrega = 'Solicitada' | 'Falhou';
 
 // ---------- Despesas e perdas ----------
 export type TipoLancamento = 'Despesa' | 'Perda';

@@ -4,6 +4,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import {
   CamposEnderecoComponent,
@@ -15,7 +16,9 @@ import { PageComponent } from '@components/page/page.component';
 import { ROTAS } from '@constants/rotas';
 import { MascaraTelefoneDirective } from '@directives/mascara-telefone.directive';
 import { environment } from '@environments/environment';
-import { NovoPedido, TipoEntrega } from '@models/pedido.model';
+import { CotacaoEntrega, NovoPedido, TipoEntrega, nomeDoParceiro } from '@models/pedido.model';
+import { ContatoService } from '@services/contato.service';
+import { EntregaService } from '@services/entrega.service';
 import { LojaService } from '@services/loja.service';
 import { PedidoService } from '@services/pedido.service';
 import { SacolaService } from '@services/sacola.service';
@@ -43,9 +46,12 @@ export class FinalizarPedidoComponent {
   private readonly pedidoService = inject(PedidoService);
   private readonly router = inject(Router);
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly entregaService = inject(EntregaService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   readonly sacola = inject(SacolaService);
   readonly loja = inject(LojaService);
+  readonly contato = inject(ContatoService);
   readonly antecedencia = environment.antecedenciaMinimaDias;
 
   /**
@@ -58,6 +64,13 @@ export class FinalizarPedidoComponent {
   /** Loja fechada: pedido normal não pode ser enviado (encomenda pode). */
   readonly bloqueado = computed(() => !this.loja.aberta() && !this.encomenda());
   readonly enviando = signal(false);
+
+  // Entrega por Uber/99: a pessoa clica em "Calcular entrega"; mudar o endereço apaga o cálculo.
+  readonly nomeDoParceiro = nomeDoParceiro;
+  readonly cotacao = signal<CotacaoEntrega | null>(null);
+  readonly calculandoEntrega = signal(false);
+  readonly faltaCalcular = signal(false);
+  readonly urlTrajeto = signal<SafeResourceUrl | null>(null);
 
   readonly formulario = this.fb.group({
     nomeCliente: ['', [Validators.required, Validators.maxLength(100)]],
@@ -72,6 +85,15 @@ export class FinalizarPedidoComponent {
   readonly tipoEntrega = toSignal(this.formulario.controls.tipoEntrega.valueChanges, {
     initialValue: this.formulario.controls.tipoEntrega.value,
   });
+
+  /** Taxa calculada (nula na retirada, antes de calcular e quando é combinada pelo WhatsApp). */
+  readonly taxaEntrega = computed(() => {
+    const cotacao = this.cotacao();
+    return this.tipoEntrega() === 'Entrega' && cotacao?.disponivel ? (cotacao.valor ?? 0) : null;
+  });
+
+  /** O que o cliente paga: sacola + entrega. A API confere tudo de novo no envio. */
+  readonly total = computed(() => this.sacola.total() + (this.taxaEntrega() ?? 0));
 
   constructor() {
     // Se a sacola mudar (ex.: entra um doce sob encomenda), o campo de data e a validação acompanham.
@@ -105,6 +127,36 @@ export class FinalizarPedidoComponent {
         endereco.disable();
       }
     });
+
+    this.formulario.controls.endereco.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.descartarCalculo());
+  }
+
+  calcularEntrega(): void {
+    const endereco = this.formulario.controls.endereco;
+    if (endereco.invalid) {
+      endereco.markAllAsTouched();
+      this.focarPrimeiroErro();
+      return;
+    }
+    if (this.calculandoEntrega()) {
+      return;
+    }
+
+    const destino = enderecoDoFormulario(endereco);
+    this.calculandoEntrega.set(true);
+    this.entregaService
+      .cotar(destino)
+      .pipe(finalize(() => this.calculandoEntrega.set(false)))
+      .subscribe({
+        next: (cotacao) => {
+          this.cotacao.set(cotacao);
+          this.faltaCalcular.set(false);
+          // A URL é montada pelo serviço, com o endereço do formulário, só para o mapa do Google.
+          this.urlTrajeto.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.entregaService.urlDoTrajeto(destino)));
+        },
+        // A mensagem de erro é exibida pelo interceptor.
+        error: () => undefined,
+      });
   }
 
   enviar(): void {
@@ -114,6 +166,11 @@ export class FinalizarPedidoComponent {
       return;
     }
     if (this.sacola.vazia() || this.enviando() || this.bloqueado()) {
+      return;
+    }
+    if (this.tipoEntrega() === 'Entrega' && !this.cotacao()) {
+      this.faltaCalcular.set(true);
+      this.elemento.nativeElement.querySelector<HTMLElement>('.entrega__calcular')?.focus();
       return;
     }
 
@@ -147,6 +204,13 @@ export class FinalizarPedidoComponent {
       observacao: valores.observacao.trim() || null,
       itens: this.sacola.itens().map((item) => ({ produtoId: item.produto.id, quantidade: item.quantidade })),
     };
+  }
+
+  private descartarCalculo(): void {
+    if (this.cotacao() || this.urlTrajeto()) {
+      this.cotacao.set(null);
+      this.urlTrajeto.set(null);
+    }
   }
 
   private focarPrimeiroErro(): void {

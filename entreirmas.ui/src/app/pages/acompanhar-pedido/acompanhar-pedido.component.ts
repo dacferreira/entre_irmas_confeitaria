@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { PageComponent } from '@components/page/page.component';
 import { ROTAS } from '@constants/rotas';
-import { AcompanhamentoPedido, StatusPedido, TipoEntrega } from '@models/pedido.model';
+import { AcompanhamentoPedido, StatusPedido, TipoEntrega, nomeDoParceiro } from '@models/pedido.model';
 import { DataBrPipe } from '@pipes/data-br.pipe';
 import { ContatoService } from '@services/contato.service';
 import { PedidoService, normalizarCodigoPedido } from '@services/pedido.service';
@@ -40,7 +40,7 @@ export function etapasDoPedido(status: StatusPedido, tipoEntrega: TipoEntrega): 
     EmPreparo: ['Em preparo', 'Seus doces estão sendo feitos com carinho.'],
     Pronto: entrega
       ? ['Pronto para entrega', 'Já vai sair para o endereço combinado.']
-      : ['Pronto para retirar', 'Já pode buscar no local combinado.'],
+      : ['Pronto para retirar', 'Já pode buscar na nossa loja.'],
     Entregue: [entrega ? 'Entregue' : 'Retirado', 'Bom apetite!'],
     Cancelado: ['Cancelado', ''],
   };
@@ -87,13 +87,14 @@ type Resultado = { pedido: AcompanhamentoPedido } | { erro: string };
 })
 export class AcompanharPedidoComponent {
   private readonly pedidoService = inject(PedidoService);
-  private readonly contato = inject(ContatoService);
+  readonly contato = inject(ContatoService);
   private readonly router = inject(Router);
 
   /** Código vindo da rota. */
   readonly codigo = input<string>();
 
   readonly rotas = ROTAS;
+  readonly nomeDoParceiro = nomeDoParceiro;
   readonly campoCodigo = new FormControl('', { nonNullable: true, validators: [Validators.required, codigoValidator] });
   // O [formGroup] no <form> faz o Enter disparar o ngSubmit em vez de recarregar a página.
   readonly busca = new FormGroup({ codigo: this.campoCodigo });

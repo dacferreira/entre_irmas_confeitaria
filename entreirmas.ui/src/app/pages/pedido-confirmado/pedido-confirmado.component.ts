@@ -4,7 +4,9 @@ import { RouterLink } from '@angular/router';
 import { IlustracaoComponent } from '@components/ilustracao/ilustracao.component';
 import { PageComponent } from '@components/page/page.component';
 import { ROTAS } from '@constants/rotas';
+import { nomeDoParceiro } from '@models/pedido.model';
 import { DataBrPipe } from '@pipes/data-br.pipe';
+import { ContatoService } from '@services/contato.service';
 import { PedidoService } from '@services/pedido.service';
 
 const CORES_DO_CONFETE = ['#ec6a91', '#f8e3b0', '#c5dc9a', '#d9954a', '#c2385f'];
@@ -25,7 +27,9 @@ interface Confete {
 })
 export class PedidoConfirmadoComponent {
   readonly pedido = inject(PedidoService).ultimoPedido;
+  readonly contato = inject(ContatoService);
   readonly rotas = ROTAS;
+  readonly nomeDoParceiro = nomeDoParceiro;
 
   // Posições espalhadas de forma determinística (sem Math.random, para o teste ser estável).
   readonly confetes: Confete[] = Array.from({ length: 24 }, (_, i) => ({

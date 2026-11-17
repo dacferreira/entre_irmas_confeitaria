@@ -38,6 +38,15 @@
           <dt>Forma</dt>
           <dd>{{ pedido.tipoEntrega === 'Entrega' ? 'Entrega' : 'Retirada' }}</dd>
         </div>
+        @if (pedido.tipoEntrega === 'Retirada') {
+          <div class="cartao__retirada">
+            <dt>Onde retirar</dt>
+            <dd>
+              {{ contato.enderecoLoja }}
+              <a [href]="contato.linkMapa" target="_blank" rel="noopener">Ver no mapa</a>
+            </dd>
+          </div>
+        }
       </dl>
 
       <ul class="cartao__itens">
@@ -49,9 +58,18 @@
         }
       </ul>
 
+      @if (pedido.taxaEntrega !== null) {
+        <div class="cartao__entrega">
+          <span>Entrega ({{ nomeDoParceiro(pedido.parceiroEntrega) }})</span>
+          <span>{{ pedido.taxaEntrega | currency }}</span>
+        </div>
+      } @else if (pedido.tipoEntrega === 'Entrega') {
+        <p class="cartao__entrega">Taxa de entrega combinada pelo WhatsApp.</p>
+      }
+
       <div class="cartao__total">
         <span>Total</span>
-        <strong>{{ pedido.valorTotal | currency }}</strong>
+        <strong>{{ pedido.totalAPagar | currency }}</strong>
       </div>
     </div>
 

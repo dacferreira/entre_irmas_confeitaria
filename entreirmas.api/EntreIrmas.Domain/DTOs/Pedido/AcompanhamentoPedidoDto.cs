@@ -15,5 +15,15 @@ public class AcompanhamentoPedidoDto
     public DateTime DataDoPedido { get; set; }
     public StatusPedido Status { get; set; }
     public decimal ValorTotal { get; set; }
+
+    /// <summary>Taxa de entrega cobrada (nula na retirada e quando é combinada pelo WhatsApp).</summary>
+    public decimal? TaxaEntrega { get; set; }
+    public ParceiroEntrega? ParceiroEntrega { get; set; }
+
+    /// <summary>Itens + taxa de entrega.</summary>
+    public decimal TotalAPagar { get; set; }
+
+    /// <summary>Link para acompanhar o entregador, depois que ele é chamado.</summary>
+    public string? RastreioEntrega { get; set; }
     public List<ItemPedidoDto> Itens { get; set; } = new();
 }

@@ -107,6 +107,11 @@ export class PedidoAdminService {
     return this.api.patch<PedidoDetalhe>(`${this.caminho}/${id}/status`, { status });
   }
 
+  /** Chama de novo o entregador da Uber/99 (quando a chamada automática do "Pronto" falhou). */
+  chamarEntregador(id: number): Observable<PedidoDetalhe> {
+    return this.api.post<PedidoDetalhe>(`${this.caminho}/${id}/entregador`, {});
+  }
+
   excluir(id: number): Observable<void> {
     return this.api.delete(`${this.caminho}/${id}`);
   }

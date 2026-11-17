@@ -75,6 +75,25 @@ describe('recibo térmico', () => {
     expect(linhas).not.toContain('Observacao:');
   });
 
+  it('com taxa de entrega, mostra subtotal, a entrega com o parceiro e o total a pagar', () => {
+    const linhas = linhasDoTexto(
+      montarRecibo(
+        criarPedidoDetalhe({ tipoEntrega: 'Entrega', taxaEntrega: 12.5, parceiroEntrega: 'NoventaENove', totalAPagar: 102.5 }),
+      ),
+    );
+
+    expect(linhas.find((linha) => linha.startsWith('Subtotal'))).toMatch(/R\$ 90,00$/);
+    expect(linhas.find((linha) => linha.startsWith('Entrega (99)'))).toMatch(/R\$ 12,50$/);
+    expect(linhas.find((linha) => linha.startsWith('TOTAL'))).toMatch(/R\$ 102,50$/);
+  });
+
+  it('entrega sem taxa calculada avisa que é combinada', () => {
+    const linhas = linhasDoTexto(montarRecibo(criarPedidoDetalhe({ tipoEntrega: 'Entrega' })));
+
+    expect(linhas).toContain('Entrega: taxa combinada pelo');
+    expect(linhas.some((linha) => linha.startsWith('Subtotal'))).toBe(false);
+  });
+
   it('monta o recibo de teste', () => {
     const linhas = linhasDoTexto(montarReciboDeTeste());
 

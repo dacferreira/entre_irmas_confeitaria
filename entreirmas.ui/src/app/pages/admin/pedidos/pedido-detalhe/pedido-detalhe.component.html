@@ -63,6 +63,44 @@
         }
       </section>
 
+      @if (p.tipoEntrega === 'Entrega') {
+        <section class="entrega" aria-labelledby="titulo-entrega">
+          <h3 id="titulo-entrega" class="subtitulo">Entrega</h3>
+          @if (p.parceiroEntrega) {
+            <p class="entrega__linha">
+              <strong>{{ nomeDoParceiro(p.parceiroEntrega) }}</strong> · taxa de {{ p.taxaEntrega | currency }} paga pelo cliente
+            </p>
+            @switch (p.situacaoEntrega) {
+              @case ('Solicitada') {
+                <p class="entrega__situacao entrega__situacao--ok" role="status">Entregador chamado.</p>
+                @if (p.rastreioEntrega) {
+                  <a class="entrega__rastreio" [href]="p.rastreioEntrega" target="_blank" rel="noopener">Acompanhar o entregador</a>
+                }
+              }
+              @case ('Falhou') {
+                <p class="entrega__situacao entrega__situacao--erro" role="alert">
+                  Não foi possível chamar o entregador: {{ p.erroEntrega }}
+                </p>
+              }
+              @default {
+                <p class="entrega__situacao">O entregador é chamado automaticamente quando o pedido fica Pronto.</p>
+              }
+            }
+            @if (p.podeChamarEntregador && p.situacaoEntrega === 'Falhou') {
+              <button
+                type="button"
+                class="botao botao--pequeno entrega__chamar"
+                [disabled]="chamandoEntregador()"
+                (click)="chamarEntregador()">
+                {{ chamandoEntregador() ? 'Chamando…' : 'Chamar entregador de novo' }}
+              </button>
+            }
+          } @else {
+            <p class="entrega__situacao">Taxa e entregador combinados pelo WhatsApp.</p>
+          }
+        </section>
+      }
+
       <table class="itens">
         <caption class="somente-leitor">Itens do pedido</caption>
         <thead>
@@ -91,6 +129,16 @@
             <th scope="row" colspan="3">Total</th>
             <td class="numero total">{{ p.valorTotal | currency }}</td>
           </tr>
+          @if (p.taxaEntrega !== null) {
+            <tr>
+              <th scope="row" colspan="3">Entrega ({{ nomeDoParceiro(p.parceiroEntrega) }})</th>
+              <td class="numero">{{ p.taxaEntrega | currency }}</td>
+            </tr>
+            <tr>
+              <th scope="row" colspan="3">Cliente paga</th>
+              <td class="numero">{{ p.totalAPagar | currency }}</td>
+            </tr>
+          }
           <tr>
             <th scope="row" colspan="3">Custo dos produtos</th>
             <td class="numero">{{ p.custoTotal | currency }}</td>

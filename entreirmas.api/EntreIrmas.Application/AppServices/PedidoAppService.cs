@@ -19,6 +19,8 @@ public class PedidoAppService : IPedidoAppService
     internal const int MaximoDeNovosDoSite = 20;
     internal const string MensagemCodigoInvalido = "Código inválido. Ele tem o formato EI-XXXXXX.";
     internal const string MensagemNaoEncontrado = "Pedido não encontrado. Confira o código.";
+    internal const string MensagemSemEntregadorParaChamar =
+        "Este pedido não tem entregador para chamar: só entregas com Uber ou 99 ainda não chamadas.";
     internal const string MensagemLojaFechada =
         "A loja está fechada agora e só aceita encomendas. Inclua um doce sob encomenda ou volte quando abrirmos.";
 
@@ -30,6 +32,7 @@ public class PedidoAppService : IPedidoAppService
     private readonly IPedidoRepository _pedidoRepository;
     private readonly IProdutoRepository _produtoRepository;
     private readonly ILojaRepository _lojaRepository;
+    private readonly IEntregaService _entregaService;
     private readonly IMensagemPedidoService _mensagemPedidoService;
     private readonly IPedidoEnvironmentVariables _variaveis;
     private readonly IAuthentication _authentication;
@@ -37,13 +40,14 @@ public class PedidoAppService : IPedidoAppService
     private readonly TimeProvider _timeProvider;
 
     public PedidoAppService(IPedidoRepository pedidoRepository, IProdutoRepository produtoRepository,
-        ILojaRepository lojaRepository,
+        ILojaRepository lojaRepository, IEntregaService entregaService,
         IMensagemPedidoService mensagemPedidoService, IPedidoEnvironmentVariables variaveis,
         IAuthentication authentication, IMapper mapper, TimeProvider timeProvider)
     {
         _pedidoRepository = pedidoRepository;
         _produtoRepository = produtoRepository;
         _lojaRepository = lojaRepository;
+        _entregaService = entregaService;
         _mensagemPedidoService = mensagemPedidoService;
         _variaveis = variaveis;
         _authentication = authentication;
@@ -113,6 +117,24 @@ public class PedidoAppService : IPedidoAppService
         var pedido = await ObterPedidoAsync(id, cancellationToken);
 
         pedido.AlterarStatus(status);
+
+        // Pronto para entrega com parceiro: o entregador já sai para buscar. Falha do parceiro não impede a
+        // mudança de etapa; o motivo fica no pedido e dá para chamar de novo.
+        if (status == StatusPedido.Pronto)
+            await _entregaService.ChamarEntregadorAsync(pedido, cancellationToken);
+
+        await _pedidoRepository.SalvarAlteracoesAsync(cancellationToken);
+        return _mapper.Map<PedidoDetalheDto>(pedido);
+    }
+
+    public async Task<PedidoDetalheDto> ChamarEntregadorAsync(long id, CancellationToken cancellationToken = default)
+    {
+        var pedido = await ObterPedidoAsync(id, cancellationToken);
+
+        if (!pedido.PodeChamarEntregador || pedido.Status is StatusPedido.Cancelado or StatusPedido.Entregue)
+            throw new DomainException(MensagemSemEntregadorParaChamar);
+
+        await _entregaService.ChamarEntregadorAsync(pedido, cancellationToken);
         await _pedidoRepository.SalvarAlteracoesAsync(cancellationToken);
         return _mapper.Map<PedidoDetalheDto>(pedido);
     }
@@ -157,6 +179,13 @@ public class PedidoAppService : IPedidoAppService
             pedido.AdicionarItem(produtos.First(p => p.Id == item.ProdutoId), item.Quantidade);
 
         pedido.ValidarParaEnvio();
+
+        // Taxa de entrega cotada de novo aqui (a do navegador não vale): a mais barata entre os parceiros.
+        // Sem cotação, o pedido segue com a taxa combinada pelo WhatsApp.
+        if (regrasDoSite && pedido.EnderecoEntrega is { } destino && _entregaService.Disponivel
+            && await _entregaService.CotarMaisBarataAsync(destino, cancellationToken) is { } cotacao)
+            pedido.DefinirTaxaEntrega(cotacao.Parceiro, cotacao.Valor);
+
         if (status.HasValue)
             pedido.AlterarStatus(status.Value);
 

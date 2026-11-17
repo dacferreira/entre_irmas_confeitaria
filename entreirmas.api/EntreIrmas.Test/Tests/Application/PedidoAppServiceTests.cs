@@ -201,6 +201,92 @@ public class PedidoAppServiceTests
         gravado!.CadastradoPor.Should().Be("suellen");
     }
 
+    private static CriarPedidoDto DtoDeEntrega()
+    {
+        var dto = Dto();
+        dto.TipoEntrega = TipoEntrega.Entrega;
+        dto.Endereco = new EntreIrmas.Domain.DTOs.Endereco.EnderecoDto
+        {
+            Cep = "23585-000", Logradouro = "Rua B", Numero = "1", Bairro = "Paciência", Cidade = "Rio de Janeiro", Uf = "RJ"
+        };
+        return dto;
+    }
+
+    [Fact]
+    public async Task CriarAsync_EntregaPeloSite_CotaDeNovoECobraAMaisBarata()
+    {
+        ComProdutos(DadosDeTeste.Produto(1, preco: 12m));
+        var entrega = _mocker.GetMock<IEntregaService>();
+        entrega.Setup(e => e.Disponivel).Returns(true);
+        entrega.Setup(e => e.CotarMaisBarataAsync(It.Is<EnderecoEntrega>(d => d.Cep == "23585000"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EntreIrmas.Domain.DTOs.Entrega.CotacaoParceiro(ParceiroEntrega.NoventaENove, 9.5m, 30));
+
+        var resultado = await _appService.CriarAsync(DtoDeEntrega());
+
+        resultado.ValorTotal.Should().Be(24m);
+        resultado.TaxaEntrega.Should().Be(9.5m);
+        resultado.ParceiroEntrega.Should().Be(ParceiroEntrega.NoventaENove);
+        resultado.TotalAPagar.Should().Be(33.5m);
+    }
+
+    [Fact]
+    public async Task CriarAsync_EntregaSemCotacaoOuLancadaNoAdmin_FicaComATaxaCombinada()
+    {
+        ComProdutos(DadosDeTeste.Produto(1, preco: 12m));
+        var entrega = _mocker.GetMock<IEntregaService>();
+        entrega.Setup(e => e.Disponivel).Returns(true);
+
+        var semCotacao = await _appService.CriarAsync(DtoDeEntrega());
+        entrega.Setup(e => e.CotarMaisBarataAsync(It.IsAny<EnderecoEntrega>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EntreIrmas.Domain.DTOs.Entrega.CotacaoParceiro(ParceiroEntrega.Uber, 9.5m, 30));
+        var manual = await _appService.CriarManualAsync(DtoDeEntrega());
+
+        semCotacao.TaxaEntrega.Should().BeNull();
+        semCotacao.TotalAPagar.Should().Be(24m);
+        manual.TaxaEntrega.Should().BeNull();
+        entrega.Verify(e => e.CotarMaisBarataAsync(It.IsAny<EnderecoEntrega>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task AlterarStatusAsync_Pronto_ChamaOEntregadorAntesDeGravar()
+    {
+        var pedido = DadosDeTeste.Pedido(TipoEntrega.Entrega, DadosDeTeste.Endereco());
+        pedido.AdicionarItem(DadosDeTeste.Produto(1), 1);
+        pedido.DefinirTaxaEntrega(ParceiroEntrega.Uber, 10m);
+        _mocker.GetMock<IPedidoRepository>()
+            .Setup(r => r.ObterPorIdAsync(5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pedido);
+        _mocker.GetMock<IEntregaService>()
+            .Setup(e => e.ChamarEntregadorAsync(pedido, It.IsAny<CancellationToken>()))
+            .Callback(() => pedido.RegistrarEntregadorChamado("del_1", "https://uber.test/r"));
+
+        await _appService.AlterarStatusAsync(5, StatusPedido.EmPreparo);
+        var resultado = await _appService.AlterarStatusAsync(5, StatusPedido.Pronto);
+
+        _mocker.Verify<IEntregaService>(e => e.ChamarEntregadorAsync(pedido, It.IsAny<CancellationToken>()), Times.Once);
+        resultado.SituacaoEntrega.Should().Be(SituacaoEntrega.Solicitada);
+        resultado.RastreioEntrega.Should().Be("https://uber.test/r");
+        resultado.PodeChamarEntregador.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ChamarEntregadorAsync_ChamaDeNovoSoQuandoAindaHaEntregadorParaChamar()
+    {
+        var comParceiro = DadosDeTeste.Pedido(TipoEntrega.Entrega, DadosDeTeste.Endereco());
+        comParceiro.AdicionarItem(DadosDeTeste.Produto(1), 1);
+        comParceiro.DefinirTaxaEntrega(ParceiroEntrega.Uber, 10m);
+        var retirada = DadosDeTeste.Pedido();
+        _mocker.GetMock<IPedidoRepository>().Setup(r => r.ObterPorIdAsync(5, It.IsAny<CancellationToken>())).ReturnsAsync(comParceiro);
+        _mocker.GetMock<IPedidoRepository>().Setup(r => r.ObterPorIdAsync(6, It.IsAny<CancellationToken>())).ReturnsAsync(retirada);
+
+        await _appService.ChamarEntregadorAsync(5);
+        var semEntregador = () => _appService.ChamarEntregadorAsync(6);
+
+        _mocker.Verify<IEntregaService>(e => e.ChamarEntregadorAsync(comParceiro, It.IsAny<CancellationToken>()), Times.Once);
+        _mocker.Verify<IPedidoRepository>(r => r.SalvarAlteracoesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        await semEntregador.Should().ThrowAsync<DomainException>().WithMessage(PedidoAppService.MensagemSemEntregadorParaChamar);
+    }
+
     [Fact]
     public async Task AlterarStatusAsync_PedidoExistente_SalvaONovoStatus()
     {

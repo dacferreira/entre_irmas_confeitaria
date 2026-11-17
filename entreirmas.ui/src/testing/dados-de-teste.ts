@@ -85,6 +85,10 @@ export function criarAcompanhamento(parcial: Partial<AcompanhamentoPedido> = {})
     dataDoPedido: '2026-11-14T15:30:00',
     status: 'Recebido',
     valorTotal: 18,
+    taxaEntrega: null,
+    parceiroEntrega: null,
+    totalAPagar: 18,
+    rastreioEntrega: null,
     itens: [
       { produtoId: 1, nomeProduto: 'Brownie Tradicional', unidade: 'unidade', quantidade: 2, precoUnitario: 9, valorTotal: 18 },
     ],
@@ -99,6 +103,9 @@ export function criarPedido(parcial: Partial<PedidoCriado> = {}): PedidoCriado {
     tipoEntrega: 'Retirada',
     dataDesejada: '2026-11-20',
     valorTotal: 18,
+    taxaEntrega: null,
+    parceiroEntrega: null,
+    totalAPagar: 18,
     status: 'Recebido',
     itens: [
       { produtoId: 1, nomeProduto: 'Brownie Tradicional', unidade: 'unidade', quantidade: 2, precoUnitario: 9, valorTotal: 18 },

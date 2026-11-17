@@ -41,18 +41,63 @@
             <input type="radio" formControlName="tipoEntrega" value="Retirada" />
             <span class="opcao__icone" aria-hidden="true">🛍️</span>
             <span class="opcao__titulo">Vou retirar</span>
-            <span class="opcao__texto">Combinamos o local pelo WhatsApp</span>
+            <span class="opcao__texto">Na nossa loja, em Paciência</span>
           </label>
           <label class="opcao" [class.opcao--ativa]="tipoEntrega() === 'Entrega'">
             <input type="radio" formControlName="tipoEntrega" value="Entrega" />
             <span class="opcao__icone" aria-hidden="true">🛵</span>
             <span class="opcao__titulo">Quero receber</span>
-            <span class="opcao__texto">Taxa de entrega combinada à parte</span>
+            <span class="opcao__texto">Pela Uber ou 99, no menor preço</span>
           </label>
         </div>
 
+        @if (tipoEntrega() === 'Retirada') {
+          <p class="retirada">
+            <strong>Retire em:</strong>
+            {{ contato.enderecoLoja }}
+            <a [href]="contato.linkMapa" target="_blank" rel="noopener">Ver no mapa</a>
+          </p>
+        }
+
         @if (tipoEntrega() === 'Entrega') {
           <eirm-campos-endereco [grupo]="formulario.controls.endereco" />
+
+          <div class="entrega">
+            <button
+              type="button"
+              class="botao botao--contorno entrega__calcular"
+              [disabled]="calculandoEntrega()"
+              (click)="calcularEntrega()">
+              {{ calculandoEntrega() ? 'Calculando…' : cotacao() ? 'Calcular de novo' : 'Calcular entrega' }}
+            </button>
+
+            @if (faltaCalcular()) {
+              <p class="entrega__erro" role="alert">Calcule a entrega para ver a taxa antes de enviar o pedido.</p>
+            }
+
+            @if (cotacao(); as c) {
+              @if (c.disponivel) {
+                <p class="entrega__resultado" role="status">
+                  <strong>Entrega pela {{ nomeDoParceiro(c.parceiro) }}: {{ c.valor | currency }}</strong>
+                  <span>
+                    O menor valor entre Uber e 99. Chega em cerca de {{ c.prazoMinutos }} min depois que o pedido fica
+                    pronto.
+                  </span>
+                </p>
+              } @else {
+                <p class="entrega__aviso" role="status">{{ c.mensagem }}</p>
+              }
+            }
+
+            @if (urlTrajeto(); as url) {
+              <iframe
+                class="entrega__mapa"
+                [src]="url"
+                title="Trajeto da loja até o endereço de entrega"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+            }
+          </div>
         }
 
         @if (encomenda()) {
@@ -100,7 +145,7 @@
           <span class="enviar__girando" aria-hidden="true"></span>
           Enviando pedido…
         } @else {
-          Enviar pedido · {{ sacola.total() | currency }}
+          Enviar pedido · {{ total() | currency }}
         }
       </button>
       <p class="formulario__nota">
@@ -126,11 +171,23 @@
         }
       </ul>
 
+      @if (tipoEntrega() === 'Entrega') {
+        <div class="resumo__entrega">
+          <span>Entrega{{ taxaEntrega() !== null ? ' (' + nomeDoParceiro(cotacao()?.parceiro) + ')' : '' }}</span>
+          <span>{{ taxaEntrega() !== null ? (taxaEntrega() | currency) : 'calcule ao lado' }}</span>
+        </div>
+      }
+
       <div class="resumo__total">
         <span>Total</span>
-        <strong>{{ sacola.total() | currency }}</strong>
+        <strong>{{ total() | currency }}</strong>
       </div>
-      <p class="resumo__nota">Os preços são confirmados no envio. Entrega combinada à parte.</p>
+      <p class="resumo__nota">
+        Os preços e a taxa de entrega são confirmados no envio.
+        @if (tipoEntrega() === 'Entrega' && cotacao()?.disponivel === false) {
+          A entrega é combinada à parte.
+        }
+      </p>
     </aside>
   </div>
 </eirm-page>

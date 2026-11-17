@@ -6,6 +6,7 @@ import { IconeComponent } from '@components/icone/icone.component';
 import { STATUS_PEDIDO, opcaoStatus } from '@constants/admin';
 import { formatarTelefone } from '@directives/mascara-telefone.directive';
 import { PedidoDetalhe, StatusPedido } from '@models/admin.model';
+import { nomeDoParceiro } from '@models/pedido.model';
 import { DataBrPipe } from '@pipes/data-br.pipe';
 import { PedidoAdminService } from '@services/admin.service';
 import { ImpressoraService } from '@services/impressora.service';
@@ -32,7 +33,9 @@ export class PedidoDetalheComponent {
   readonly opcaoStatus = opcaoStatus;
   readonly pedido = signal<PedidoDetalhe | null>(null);
   readonly salvando = signal(false);
+  readonly chamandoEntregador = signal(false);
   readonly falhou = signal(false);
+  readonly nomeDoParceiro = nomeDoParceiro;
   private alterou = false;
 
   readonly lucro = computed(() => {
@@ -68,9 +71,39 @@ export class PedidoDetalheComponent {
       .alterarStatus(pedido.id, status)
       .pipe(finalize(() => this.salvando.set(false)))
       .subscribe((atualizado) => {
+        const chamouAgora = atualizado.situacaoEntrega !== pedido.situacaoEntrega;
         this.pedido.set(atualizado);
         this.alterou = true;
-        this.notificacao.sucesso(`Pedido ${atualizado.codigo}: ${opcaoStatus(status).rotulo.toLowerCase()}.`);
+        if (chamouAgora && atualizado.situacaoEntrega === 'Falhou') {
+          this.notificacao.erro(`Pedido ${atualizado.codigo} pronto, mas o entregador não foi chamado: ${atualizado.erroEntrega}`);
+          return;
+        }
+        const entregador =
+          chamouAgora && atualizado.situacaoEntrega === 'Solicitada'
+            ? ` Entregador da ${nomeDoParceiro(atualizado.parceiroEntrega)} chamado.`
+            : '';
+        this.notificacao.sucesso(`Pedido ${atualizado.codigo}: ${opcaoStatus(status).rotulo.toLowerCase()}.${entregador}`);
+      });
+  }
+
+  /** Tenta de novo chamar o entregador da Uber/99 depois de uma falha. */
+  chamarEntregador(): void {
+    const pedido = this.pedido();
+    if (!pedido || this.chamandoEntregador()) {
+      return;
+    }
+    this.chamandoEntregador.set(true);
+    this.pedidoService
+      .chamarEntregador(pedido.id)
+      .pipe(finalize(() => this.chamandoEntregador.set(false)))
+      .subscribe((atualizado) => {
+        this.pedido.set(atualizado);
+        this.alterou = true;
+        if (atualizado.situacaoEntrega === 'Solicitada') {
+          this.notificacao.sucesso(`Entregador da ${nomeDoParceiro(atualizado.parceiroEntrega)} chamado.`);
+        } else {
+          this.notificacao.erro(`O entregador não foi chamado: ${atualizado.erroEntrega}`);
+        }
       });
   }
 

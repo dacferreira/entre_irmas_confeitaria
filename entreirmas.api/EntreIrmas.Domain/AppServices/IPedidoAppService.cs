@@ -27,6 +27,10 @@ public interface IPedidoAppService
     /// <summary>Pedido recebido fora do site (WhatsApp, Instagram, balcão). Já entra como confirmado.</summary>
     Task<PedidoDetalheDto> CriarManualAsync(CriarPedidoDto dto, CancellationToken cancellationToken = default);
 
+    /// <summary>Ao marcar Pronto um pedido de entrega com parceiro, chama o entregador automaticamente.</summary>
     Task<PedidoDetalheDto> AlterarStatusAsync(long id, StatusPedido status, CancellationToken cancellationToken = default);
+
+    /// <summary>Chama de novo o entregador (depois de uma falha). Só para entrega com parceiro ainda não chamado.</summary>
+    Task<PedidoDetalheDto> ChamarEntregadorAsync(long id, CancellationToken cancellationToken = default);
     Task ExcluirAsync(long id, CancellationToken cancellationToken = default);
 }

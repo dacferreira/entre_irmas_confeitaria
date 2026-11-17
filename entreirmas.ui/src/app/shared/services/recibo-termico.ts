@@ -1,5 +1,6 @@
 import { formatarTelefone } from '@directives/mascara-telefone.directive';
 import { PedidoDetalhe } from '@models/admin.model';
+import { nomeDoParceiro } from '@models/pedido.model';
 
 /** Colunas da impressora térmica de 58mm na fonte normal. */
 export const LARGURA_RECIBO = 32;
@@ -40,7 +41,13 @@ export function montarRecibo(pedido: PedidoDetalhe): Uint8Array {
     recibo.colunas(`   ${moeda.format(item.precoUnitario)} cada`, moeda.format(item.valorTotal));
   }
   recibo.separador();
-  recibo.tamanho('alto').negrito(true).colunas('TOTAL', moeda.format(pedido.valorTotal));
+  if (pedido.taxaEntrega !== null) {
+    recibo.colunas('Subtotal', moeda.format(pedido.valorTotal));
+    recibo.colunas(`Entrega (${nomeDoParceiro(pedido.parceiroEntrega)})`, moeda.format(pedido.taxaEntrega));
+  } else if (pedido.tipoEntrega === 'Entrega') {
+    recibo.texto('Entrega: taxa combinada pelo WhatsApp');
+  }
+  recibo.tamanho('alto').negrito(true).colunas('TOTAL', moeda.format(pedido.totalAPagar));
   recibo.tamanho('normal').negrito(false);
 
   if (pedido.observacao) {

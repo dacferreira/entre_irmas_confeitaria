@@ -11,6 +11,8 @@ public class Variables :
     IMySqlEnvironmentVariables,
     IWhatsAppEnvironmentVariables,
     IViaCepEnvironmentVariables,
+    IEntregaEnvironmentVariables,
+    IUberEnvironmentVariables,
     IPedidoEnvironmentVariables,
     ISwaggerEnvironmentVariables,
     ICorsEnvironmentVariables,
@@ -34,6 +36,27 @@ public class Variables :
     public int VIACEP_TIMEOUT_SEGUNDOS { get; set; } = 5;
     public int VIACEP_CACHE_HORAS { get; set; } = 24;
     public int CEP_LIMITE_POR_MINUTO { get; set; } = 30;
+
+    // Entrega por parceiros (Uber / 99) e a loja, onde o entregador busca o pedido
+    public bool ENTREGA_SIMULADOR { get; set; }
+    public int ENTREGA_TIMEOUT_SEGUNDOS { get; set; } = 10;
+    public int ENTREGA_LIMITE_POR_MINUTO { get; set; } = 20;
+    public string LOJA_NOME { get; set; } = "Entre Irmãs Confeitaria";
+    public string LOJA_LOGRADOURO { get; set; } = string.Empty;
+    public string LOJA_BAIRRO { get; set; } = string.Empty;
+    public string LOJA_CIDADE { get; set; } = string.Empty;
+    public string LOJA_UF { get; set; } = string.Empty;
+    public string LOJA_CEP { get; set; } = string.Empty;
+    public double LOJA_LATITUDE { get; set; }
+    public double LOJA_LONGITUDE { get; set; }
+
+    // Uber Direct (credenciais em user-secrets / variável de ambiente)
+    public string UBER_CLIENT_ID { get; set; } = string.Empty;
+    public string UBER_CLIENT_SECRET { get; set; } = string.Empty;
+    public string UBER_CUSTOMER_ID { get; set; } = string.Empty;
+    public string UBER_AUTH_URL { get; set; } = "https://auth.uber.com/oauth/v2/token";
+    public string UBER_API_URL { get; set; } = "https://api.uber.com/v1/";
+    public bool UBER_MODO_TESTE { get; set; }
 
     // Pedidos
     public int PEDIDO_ANTECEDENCIA_MINIMA_DIAS { get; set; } = 1;

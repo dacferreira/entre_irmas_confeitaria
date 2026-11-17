@@ -63,6 +63,17 @@ public class AdminPedidosController : ControllerBase
     public async Task<IActionResult> AlterarStatus(long id, [FromBody] AlterarStatusPedidoDto dto, CancellationToken cancellationToken) =>
         Ok(await _pedidoAppService.AlterarStatusAsync(id, dto.Status, cancellationToken));
 
+    /// <summary>
+    /// Chama de novo o entregador do parceiro (quando a chamada automática do "Pronto" falhou). O resultado
+    /// (chamado ou o motivo da falha) volta no próprio pedido.
+    /// </summary>
+    [HttpPost("{id:long}/entregador")]
+    [ProducesResponseType(typeof(PedidoDetalheDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationResult), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ChamarEntregador(long id, CancellationToken cancellationToken) =>
+        Ok(await _pedidoAppService.ChamarEntregadorAsync(id, cancellationToken));
+
     /// <summary>Exclusão lógica (para pedido lançado por engano). Para desistência, use o status Cancelado.</summary>
     [HttpDelete("{id:long}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

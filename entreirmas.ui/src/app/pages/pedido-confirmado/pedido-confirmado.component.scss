@@ -79,6 +79,22 @@
   }
 }
 
+// Endereço da loja na retirada: ocupa a linha toda.
+.cartao__retirada {
+  grid-column: 1 / -1;
+
+  dd {
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  a {
+    margin-left: 4px;
+    color: var(--cor-primaria);
+    white-space: nowrap;
+  }
+}
+
 .cartao__itens {
   display: flex;
   flex-direction: column;
@@ -92,6 +108,15 @@
     justify-content: space-between;
     gap: 12px;
   }
+}
+
+.cartao__entrega {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--cor-texto-suave);
 }
 
 .cartao__total {

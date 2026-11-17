@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CardProdutoComponent } from '@components/card-produto/card-produto.component';
 import { IlustracaoComponent } from '@components/ilustracao/ilustracao.component';
+import { MapaLojaComponent } from '@components/mapa-loja/mapa-loja.component';
 import { Ilustracao, normalizarIlustracao } from '@constants/ilustracoes';
 import { ROTAS } from '@constants/rotas';
 import { Categoria } from '@models/categoria.model';
@@ -23,7 +24,7 @@ export interface VitrineCategoria {
 
 @Component({
   selector: 'eirm-inicio',
-  imports: [RouterLink, CardProdutoComponent, IlustracaoComponent, HeroComponent, ComoFuncionaComponent],
+  imports: [RouterLink, CardProdutoComponent, IlustracaoComponent, HeroComponent, ComoFuncionaComponent, MapaLojaComponent],
   templateUrl: './inicio.component.html',
   styleUrl: './inicio.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

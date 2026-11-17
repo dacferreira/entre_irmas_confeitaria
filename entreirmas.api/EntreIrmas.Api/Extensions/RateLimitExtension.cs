@@ -12,14 +12,16 @@ public static class RateLimitExtension
     public const string PoliticaLogin = "login";
     public const string PoliticaCep = "cep";
     public const string PoliticaAcompanhamento = "acompanhamento";
+    public const string PoliticaEntrega = "entrega";
 
     /// <summary>
     /// Limita por IP a criação de pedidos (abuso do formulário público), as tentativas de login
-    /// (adivinhação de senha), as consultas de CEP e o acompanhamento de pedidos (tentativa de códigos).
+    /// (adivinhação de senha), as consultas de CEP, o cálculo de entrega e o acompanhamento de pedidos
+    /// (tentativa de códigos).
     /// </summary>
     public static IServiceCollection AddRateLimit(this IServiceCollection services,
         IPedidoEnvironmentVariables variaveisPedido, IJwtEnvironmentVariables variaveisLogin,
-        IViaCepEnvironmentVariables variaveisCep)
+        IViaCepEnvironmentVariables variaveisCep, IEntregaEnvironmentVariables variaveisEntrega)
     {
         services.AddRateLimiter(options =>
         {
@@ -41,6 +43,10 @@ public static class RateLimitExtension
             // A consulta de CEP é pública: o limite evita que a API vire um repasse gratuito para o ViaCEP.
             options.AddPolicy(PoliticaCep, httpContext =>
                 PorIp(httpContext, variaveisCep.CEP_LIMITE_POR_MINUTO));
+
+            // Cada cálculo de entrega consulta Uber e 99: o limite evita gastar a cota dos parceiros.
+            options.AddPolicy(PoliticaEntrega, httpContext =>
+                PorIp(httpContext, variaveisEntrega.ENTREGA_LIMITE_POR_MINUTO));
         });
 
         return services;

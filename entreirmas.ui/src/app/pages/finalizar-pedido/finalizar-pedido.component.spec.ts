@@ -2,9 +2,10 @@ import { computed, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { environment } from '@environments/environment';
-import { NovoPedido } from '@models/pedido.model';
+import { CotacaoEntrega, NovoPedido } from '@models/pedido.model';
 import { SituacaoLoja } from '@models/loja.model';
 import { EnderecoService } from '@services/endereco.service';
+import { EntregaService } from '@services/entrega.service';
 import { LojaService } from '@services/loja.service';
 import { PedidoService } from '@services/pedido.service';
 import { SacolaService } from '@services/sacola.service';
@@ -17,6 +18,11 @@ describe('FinalizarPedidoComponent', () => {
   const pedidoService = { criar: jest.fn() };
   const situacao = signal<SituacaoLoja>({ aberta: true, mensagem: null });
   const loja = { situacao, aberta: computed(() => situacao().aberta), atualizar: jest.fn() };
+  const COTACAO: CotacaoEntrega = { disponivel: true, parceiro: 'NoventaENove', valor: 12.5, prazoMinutos: 30, mensagem: null };
+  const entregaService = {
+    cotar: jest.fn(() => of(COTACAO)),
+    urlDoTrajeto: jest.fn(() => 'https://maps.google.com/maps?saddr=1,2&daddr=destino&output=embed'),
+  };
   let fixture: ComponentFixture<FinalizarPedidoComponent>;
   let componente: FinalizarPedidoComponent;
   let sacola: SacolaService;
@@ -31,6 +37,7 @@ describe('FinalizarPedidoComponent', () => {
         { provide: PedidoService, useValue: pedidoService },
         { provide: EnderecoService, useValue: { consultarCep: jest.fn() } },
         { provide: LojaService, useValue: loja },
+        { provide: EntregaService, useValue: entregaService },
       ],
     });
     sacola = TestBed.inject(SacolaService);
@@ -104,14 +111,18 @@ describe('FinalizarPedidoComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('mat-error').length).toBeGreaterThan(0);
   });
 
-  it('mostra e exige os campos do endereço só na entrega', () => {
+  it('mostra e exige os campos do endereço só na entrega; na retirada mostra o endereço da loja', () => {
     preencher();
     expect(componente.formulario.controls.endereco.disabled).toBe(true);
     expect(componente.formulario.valid).toBe(true);
+    const retirada = (): HTMLElement | null => fixture.nativeElement.querySelector('.retirada');
+    expect(retirada()?.textContent).toContain('Rua A, 41 - Paciência, Rio de Janeiro - RJ, 23580-250');
+    expect(retirada()?.querySelector('a')?.getAttribute('href')).toContain('google.com/maps/search');
 
     componente.formulario.controls.tipoEntrega.setValue('Entrega');
     fixture.detectChanges();
 
+    expect(retirada()).toBeNull();
     expect(fixture.nativeElement.querySelector('eirm-campos-endereco input[formControlName="cep"]')).not.toBeNull();
     expect(componente.formulario.controls.endereco.controls.cep.hasError('required')).toBe(true);
     expect(componente.formulario.valid).toBe(false);
@@ -127,6 +138,7 @@ describe('FinalizarPedidoComponent', () => {
     preencher();
     componente.formulario.controls.tipoEntrega.setValue('Entrega');
     componente.formulario.controls.endereco.setValue(ENDERECO_DIGITADO);
+    componente.calcularEntrega();
 
     componente.enviar();
 
@@ -146,6 +158,80 @@ describe('FinalizarPedidoComponent', () => {
     expect(sacola.vazia()).toBe(true);
     expect(navegar).toHaveBeenCalledWith(['/', 'pedido-confirmado']);
     expect(componente.enviando()).toBe(false);
+  });
+
+  it('calcula a entrega pelo botão, mostra o parceiro, o trajeto e soma a taxa no total', () => {
+    const elemento: HTMLElement = fixture.nativeElement;
+    preencher();
+    componente.formulario.controls.tipoEntrega.setValue('Entrega');
+    fixture.detectChanges();
+    const totalDaSacola = sacola.total();
+    expect(elemento.querySelector('.resumo__entrega')?.textContent).toContain('calcule');
+
+    componente.formulario.controls.endereco.setValue(ENDERECO_DIGITADO);
+    elemento.querySelector<HTMLButtonElement>('.entrega__calcular')!.click();
+    fixture.detectChanges();
+
+    expect(entregaService.cotar).toHaveBeenCalledWith(ENDERECO_ENVIADO);
+    expect(elemento.querySelector('.entrega__resultado')?.textContent).toContain('Entrega pela 99');
+    expect(elemento.querySelector('.entrega__resultado')?.textContent).toContain('30 min');
+    expect(elemento.querySelector<HTMLIFrameElement>('.entrega__mapa')?.src).toContain('maps.google.com');
+    expect(elemento.querySelector('.resumo__entrega')?.textContent).toContain('Entrega (99)');
+    expect(componente.taxaEntrega()).toBe(12.5);
+    expect(componente.total()).toBe(totalDaSacola + 12.5);
+    expect(elemento.querySelector('.entrega__calcular')?.textContent).toContain('Calcular de novo');
+
+    // Mudou o endereço: o cálculo e o mapa somem, e o total volta a ser só a sacola.
+    componente.formulario.controls.endereco.controls.numero.setValue('99');
+    fixture.detectChanges();
+    expect(componente.cotacao()).toBeNull();
+    expect(elemento.querySelector('.entrega__mapa')).toBeNull();
+    expect(componente.total()).toBe(totalDaSacola);
+  });
+
+  it('na entrega, só envia depois de calcular; com endereço incompleto não consulta', () => {
+    const elemento: HTMLElement = fixture.nativeElement;
+    preencher();
+    componente.formulario.controls.tipoEntrega.setValue('Entrega');
+    fixture.detectChanges();
+
+    componente.calcularEntrega();
+    expect(entregaService.cotar).not.toHaveBeenCalled();
+    expect(componente.formulario.controls.endereco.controls.cep.touched).toBe(true);
+
+    componente.formulario.controls.endereco.setValue(ENDERECO_DIGITADO);
+    componente.enviar();
+    fixture.detectChanges();
+
+    expect(pedidoService.criar).not.toHaveBeenCalled();
+    expect(elemento.querySelector('.entrega__erro')?.textContent).toContain('Calcule a entrega');
+
+    pedidoService.criar.mockReturnValue(of(criarPedido()));
+    componente.calcularEntrega();
+    fixture.detectChanges();
+    expect(elemento.querySelector('.entrega__erro')).toBeNull();
+    componente.enviar();
+    expect(pedidoService.criar).toHaveBeenCalled();
+  });
+
+  it('sem parceiro para o endereço mostra o aviso, não cobra taxa e deixa enviar', () => {
+    const elemento: HTMLElement = fixture.nativeElement;
+    entregaService.cotar.mockReturnValueOnce(
+      of({ disponivel: false, parceiro: null, valor: null, prazoMinutos: null, mensagem: 'A taxa será combinada pelo WhatsApp.' }),
+    );
+    pedidoService.criar.mockReturnValue(of(criarPedido()));
+    preencher();
+    componente.formulario.controls.tipoEntrega.setValue('Entrega');
+    componente.formulario.controls.endereco.setValue(ENDERECO_DIGITADO);
+
+    componente.calcularEntrega();
+    fixture.detectChanges();
+
+    expect(elemento.querySelector('.entrega__aviso')?.textContent).toContain('combinada pelo WhatsApp');
+    expect(componente.taxaEntrega()).toBeNull();
+    expect(elemento.querySelector('.resumo__nota')?.textContent).toContain('combinada à parte');
+    componente.enviar();
+    expect(pedidoService.criar).toHaveBeenCalled();
   });
 
   it('mantém a sacola quando o envio falha e bloqueia envio duplo', () => {

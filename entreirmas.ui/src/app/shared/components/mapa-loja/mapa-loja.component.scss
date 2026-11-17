@@ -1,0 +1,47 @@
+@use 'theme/mixins' as *;
+
+:host {
+  display: block;
+}
+
+.onde {
+  display: grid;
+  gap: 32px;
+  align-items: center;
+
+  @include acima('md') {
+    grid-template-columns: 1fr 1.2fr;
+    gap: 48px;
+  }
+
+  &__texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  &__endereco {
+    padding: 14px 18px;
+    border-left: 4px solid var(--cor-primaria);
+    border-radius: var(--raio-p);
+    background: var(--cor-fundo-alt);
+    font-style: normal;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  &__mapa {
+    overflow: hidden;
+    border-radius: var(--raio-g);
+    box-shadow: var(--sombra-suave);
+    background: var(--cor-fundo-alt);
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: clamp(260px, 40vw, 380px);
+      border: 0;
+    }
+  }
+}
